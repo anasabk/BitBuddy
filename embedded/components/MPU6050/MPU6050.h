@@ -48,6 +48,8 @@ extern "C" {
 #include <cmath>
 #include <thread>
 
+#include "pigpio.h"
+
 #define _POSIX_C_SOURCE 200809L //Used for calculating time
 
 #define TAU 0.05 //Complementary filter percentage

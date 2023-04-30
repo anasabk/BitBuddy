@@ -23,18 +23,38 @@ MPU6050::MPU6050(int8_t addr, bool run_update_thread) {
 		std::cout << "ERR (MPU6050.cpp:MPU6050()): Could not get I2C bus with " << addr << " address. Please confirm that this address is correct\n"; //Print error message
 	}
 
-	i2c_smbus_write_byte_data(f_dev, 0x6b, 0b00000000); //Take MPU6050 out of sleep mode - see Register Map
-
-	i2c_smbus_write_byte_data(f_dev, 0x1a, 0b00000011); //Set DLPF (low pass filter) to 44Hz (so no noise above 44Hz will pass through)
-
-	i2c_smbus_write_byte_data(f_dev, 0x19, 0b00000100); //Set sample rate divider (to 200Hz) - see Register Map
-
-	i2c_smbus_write_byte_data(f_dev, 0x1b, GYRO_CONFIG); //Configure gyroscope settings - see Register Map (see MPU6050.h for the GYRO_CONFIG parameter)
-
-	i2c_smbus_write_byte_data(f_dev, 0x1c, ACCEL_CONFIG); //Configure accelerometer settings - see Register Map (see MPU6050.h for the GYRO_CONFIG parameter)
+	// i2c_smbus_write_byte_data(f_dev, 0x6b, 0b00000000); //Take MPU6050 out of sleep mode - see Register Map
+	// i2c_smbus_write_byte_data(f_dev, 0x1a, 0b00000011); //Set DLPF (low pass filter) to 44Hz (so no noise above 44Hz will pass through)
+	// i2c_smbus_write_byte_data(f_dev, 0x19, 0b00000100); //Set sample rate divider (to 200Hz) - see Register Map
+	// i2c_smbus_write_byte_data(f_dev, 0x1b, GYRO_CONFIG); //Configure gyroscope settings - see Register Map (see MPU6050.h for the GYRO_CONFIG parameter)
+	// i2c_smbus_write_byte_data(f_dev, 0x1c, ACCEL_CONFIG); //Configure accelerometer settings - see Register Map (see MPU6050.h for the GYRO_CONFIG parameter)
+	
+	i2cWriteByteData(f_dev, 0x6b, 0b00000000);
+	i2cWriteByteData(f_dev, 0x1a, 0b00000011);
+	i2cWriteByteData(f_dev, 0x19, 0b00000100);
+	i2cWriteByteData(f_dev, 0x1b, GYRO_CONFIG);
+	i2cWriteByteData(f_dev, 0x1c, ACCEL_CONFIG);
 
 	//Set offsets to zero
-	i2c_smbus_write_byte_data(f_dev, 0x06, 0b00000000), i2c_smbus_write_byte_data(f_dev, 0x07, 0b00000000), i2c_smbus_write_byte_data(f_dev, 0x08, 0b00000000), i2c_smbus_write_byte_data(f_dev, 0x09, 0b00000000), i2c_smbus_write_byte_data(f_dev, 0x0A, 0b00000000), i2c_smbus_write_byte_data(f_dev, 0x0B, 0b00000000), i2c_smbus_write_byte_data(f_dev, 0x00, 0b10000001), i2c_smbus_write_byte_data(f_dev, 0x01, 0b00000001), i2c_smbus_write_byte_data(f_dev, 0x02, 0b10000001);
+	// i2c_smbus_write_byte_data(f_dev, 0x00, 0b10000001);
+	// i2c_smbus_write_byte_data(f_dev, 0x01, 0b00000001);
+	// i2c_smbus_write_byte_data(f_dev, 0x02, 0b10000001);
+	// i2c_smbus_write_byte_data(f_dev, 0x06, 0b00000000); 
+	// i2c_smbus_write_byte_data(f_dev, 0x07, 0b00000000);
+	// i2c_smbus_write_byte_data(f_dev, 0x08, 0b00000000);
+	// i2c_smbus_write_byte_data(f_dev, 0x09, 0b00000000);
+	// i2c_smbus_write_byte_data(f_dev, 0x0A, 0b00000000);
+	// i2c_smbus_write_byte_data(f_dev, 0x0B, 0b00000000);
+
+	i2cWriteByteData(f_dev, 0x00, 0b10000001);
+	i2cWriteByteData(f_dev, 0x01, 0b00000001);
+	i2cWriteByteData(f_dev, 0x02, 0b10000001);
+	i2cWriteByteData(f_dev, 0x06, 0b00000000); 
+	i2cWriteByteData(f_dev, 0x07, 0b00000000);
+	i2cWriteByteData(f_dev, 0x08, 0b00000000);
+	i2cWriteByteData(f_dev, 0x09, 0b00000000);
+	i2cWriteByteData(f_dev, 0x0A, 0b00000000);
+	i2cWriteByteData(f_dev, 0x0B, 0b00000000);
 
 	if (run_update_thread){
 		std::thread(&MPU6050::_update, this).detach(); //Create a seperate thread, for the update routine to run in the background, and detach it, allowing the program to continue
@@ -44,9 +64,14 @@ MPU6050::MPU6050(int8_t addr, bool run_update_thread) {
 MPU6050::MPU6050(int8_t addr) : MPU6050(addr, true){}
 
 void MPU6050::getGyroRaw(float *roll, float *pitch, float *yaw) {
-	int16_t X = i2c_smbus_read_byte_data(f_dev, 0x43) << 8 | i2c_smbus_read_byte_data(f_dev, 0x44); //Read X registers
-	int16_t Y = i2c_smbus_read_byte_data(f_dev, 0x45) << 8 | i2c_smbus_read_byte_data(f_dev, 0x46); //Read Y registers
-	int16_t Z = i2c_smbus_read_byte_data(f_dev, 0x47) << 8 | i2c_smbus_read_byte_data(f_dev, 0x48); //Read Z registers
+	// int16_t X = i2c_smbus_read_byte_data(f_dev, 0x43) << 8 | i2c_smbus_read_byte_data(f_dev, 0x44); //Read X registers
+	// int16_t Y = i2c_smbus_read_byte_data(f_dev, 0x45) << 8 | i2c_smbus_read_byte_data(f_dev, 0x46); //Read Y registers
+	// int16_t Z = i2c_smbus_read_byte_data(f_dev, 0x47) << 8 | i2c_smbus_read_byte_data(f_dev, 0x48); //Read Z registers
+
+	int16_t X = i2cReadByteData(f_dev, 0x43) << 8 | i2cReadByteData(f_dev, 0x44); //Read X registers
+	int16_t Y = i2cReadByteData(f_dev, 0x45) << 8 | i2cReadByteData(f_dev, 0x46); //Read Y registers
+	int16_t Z = i2cReadByteData(f_dev, 0x47) << 8 | i2cReadByteData(f_dev, 0x48); //Read Z registers
+
 	*roll = (float)X; //Roll on X axis
 	*pitch = (float)Y; //Pitch on Y axis
 	*yaw = (float)Z; //Yaw on Z axis
@@ -60,9 +85,9 @@ void MPU6050::getGyro(float *roll, float *pitch, float *yaw) {
 }
 
 void MPU6050::getAccelRaw(float *x, float *y, float *z) {
-	int16_t X = i2c_smbus_read_byte_data(f_dev, 0x3b) << 8 | i2c_smbus_read_byte_data(f_dev, 0x3c); //Read X registers
-	int16_t Y = i2c_smbus_read_byte_data(f_dev, 0x3d) << 8 | i2c_smbus_read_byte_data(f_dev, 0x3e); //Read Y registers
-	int16_t Z = i2c_smbus_read_byte_data(f_dev, 0x3f) << 8 | i2c_smbus_read_byte_data(f_dev, 0x40); //Read Z registers
+	int16_t X = i2cReadByteData(f_dev, 0x3b) << 8 | i2cReadByteData(f_dev, 0x3c); //Read X registers
+	int16_t Y = i2cReadByteData(f_dev, 0x3d) << 8 | i2cReadByteData(f_dev, 0x3e); //Read Y registers
+	int16_t Z = i2cReadByteData(f_dev, 0x3f) << 8 | i2cReadByteData(f_dev, 0x40); //Read Z registers
 	*x = (float)X;
 	*y = (float)Y;
 	*z = (float)Z;
