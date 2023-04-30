@@ -58,6 +58,7 @@ int main() {
 	device.getGyro(&gr, &gp, &gy);
 	std::cout << "Gyroscope Readings: X: " << gr << ", Y: " << gp << ", Z: " << gy << "\n";
 
+	gpioTerminate();
 	return 0;
 
 
