@@ -1,0 +1,29 @@
+cmake_minimum_required (VERSION 3.13)
+project(BitBuddy)
+
+add_executable(${PROJECT_NAME} main.cpp)
+
+add_subdirectory(components/LCD)
+add_subdirectory(components/PCA9685)
+add_subdirectory(components/pigpio)
+
+target_include_directories(${PROJECT_NAME} PUBLIC 
+    components/PCA9685 
+    components/LCD
+    components/pigpio
+)
+
+target_link_directories(${PROJECT_NAME} PRIVATE 
+    components/PCA9685 
+    components/LCD
+    components/pigpio
+)
+
+target_link_libraries(${PROJECT_NAME} 
+    PCA9685 
+    LCD
+    pigpio
+)
+
+add_compile_options(-li2c -pthread)
+
