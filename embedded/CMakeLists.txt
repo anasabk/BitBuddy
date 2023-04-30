@@ -29,5 +29,5 @@ target_link_libraries(${PROJECT_NAME}
     # pigpio
 )
 
-add_compile_options(-li2c -pthread)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -li2c -pthread")
 
