@@ -8,7 +8,7 @@ int main() {
 		printf("Failure...");
 		exit(-1);
 	}
-    PCA9685 pca(1, 0x7f);
+    PCA9685 pca(1, 0x70);
 
     pca.setPWMFreq(50.0);
     
