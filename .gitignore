@@ -1,1 +1,2 @@
-embedded/out
+embedded/out/build/*
+!/embedded/out/build/BitBuddy
