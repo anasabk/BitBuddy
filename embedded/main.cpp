@@ -19,6 +19,7 @@ int main() {
     // }
 
 
+	gpioInitialise();
     MPU6050 device(0x68);
 
     float ax, ay, az, gr, gp, gy; //Variables to store the accel, gyro and angle values

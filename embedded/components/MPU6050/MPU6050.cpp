@@ -24,7 +24,6 @@ MPU6050::MPU6050(int8_t addr, bool run_update_thread) {
 	// }
 
 	f_dev = i2cOpen(1, addr, O_RDWR);
-	gpioInitialise();
 
 	// i2c_smbus_write_byte_data(f_dev, 0x6b, 0b00000000); //Take MPU6050 out of sleep mode - see Register Map
 	// i2c_smbus_write_byte_data(f_dev, 0x1a, 0b00000011); //Set DLPF (low pass filter) to 44Hz (so no noise above 44Hz will pass through)
