@@ -198,3 +198,84 @@ void MPU6050::_update() { //Main update function - runs continuously
 		clock_gettime(CLOCK_REALTIME, &start); //Save time to start clock
 	}
 }
+
+void MPU6050::calibrate() {
+    MPU6050_data_t readings, temp_offset;
+
+    offsets.x_rot = 0.0;
+    offsets.x_accel = 0.0;
+    offsets.y_rot = 0.0;
+    offsets.y_accel = 0.0;
+    offsets.z_rot = 0.0;
+    offsets.z_accel = 0.0;
+
+    while(1) {
+        temp_offset.x_rot = 0.0;
+        temp_offset.x_accel = 0.0;
+        temp_offset.y_rot = 0.0;
+        temp_offset.y_accel = 0.0;
+        temp_offset.z_rot = 0.0;
+        temp_offset.z_accel = 0.0;
+
+        // vTaskDelay(1000 / portTICK_PERIOD_MS);
+		usleep(1000000);
+
+        for(int i = 0; i < 500; i++) {
+            getAccelRaw(&readings.x_accel, &readings.y_accel, &readings.z_accel);
+            getGyroRaw(&readings.x_rot, &readings.y_rot, &readings.z_rot);
+
+            temp_offset.x_rot 	+= readings.x_rot;
+            temp_offset.x_accel += readings.x_accel;
+            temp_offset.y_rot 	+= readings.y_rot;
+            temp_offset.y_accel += readings.y_accel;
+            temp_offset.z_rot 	+= readings.z_rot;
+            temp_offset.z_accel += readings.z_accel;
+
+            // vTaskDelay(10 / portTICK_PERIOD_MS);
+			usleep(10000);
+        }
+
+        temp_offset.x_rot 	/= 500;
+        temp_offset.x_accel /= 500;
+        temp_offset.y_rot 	/= 500;
+        temp_offset.y_accel /= 500;
+        temp_offset.z_rot 	/= 500;
+        temp_offset.z_accel /= 500;
+        temp_offset.z_accel -= 0.999;
+        
+		getAccelRaw(&readings.x_accel, &readings.y_accel, &readings.z_accel);
+		getGyroRaw(&readings.x_rot, &readings.y_rot, &readings.z_rot);
+
+        printf("raw accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf / cal accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf\n", 
+                readings.x_accel,
+                readings.y_accel,
+                readings.z_accel,
+                readings.x_rot,
+                readings.y_rot,
+                readings.z_rot,
+                readings.x_accel - temp_offset.x_accel, 
+                readings.y_accel - temp_offset.y_accel, 
+                readings.z_accel - temp_offset.z_accel,
+                readings.x_rot - temp_offset.x_rot, 
+                readings.y_rot - temp_offset.y_rot, 
+                readings.z_rot - temp_offset.z_rot
+        );
+
+        if (readings.x_rot - temp_offset.x_rot <  0.1 && 
+            readings.x_rot - temp_offset.x_rot > -0.1 &&
+            readings.y_rot - temp_offset.y_rot <  0.1 && 
+            readings.y_rot - temp_offset.y_rot > -0.1 &&
+            readings.z_rot - temp_offset.z_rot <  0.1 && 
+            readings.z_rot - temp_offset.z_rot > -0.1 &&
+            readings.x_accel - temp_offset.x_accel <  0.01 && 
+            readings.x_accel - temp_offset.x_accel > -0.01 &&
+            readings.y_accel - temp_offset.y_accel <  0.01 && 
+            readings.y_accel - temp_offset.y_accel > -0.01 &&
+            readings.z_accel - temp_offset.z_accel < 1.00 && 
+            readings.z_accel - temp_offset.z_accel > 0.99)
+        {
+            offsets = temp_offset;
+            return;
+        }
+    }
+}

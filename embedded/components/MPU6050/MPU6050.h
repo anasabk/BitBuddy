@@ -91,31 +91,45 @@ extern "C" {
 
 
 class MPU6050 {
-	private:
-		void _update();
+public:
+	MPU6050(int8_t addr);
+	MPU6050(int8_t addr, bool run_update_thread);
+	void getAccelRaw(float *x, float *y, float *z);
+	void getGyroRaw(float *roll, float *pitch, float *yaw);
+	void getAccel(float *x, float *y, float *z);
+	void getGyro(float *roll, float *pitch, float *yaw);
+	void getOffsets(float *ax_off, float *ay_off, float *az_off, float *gr_off, float *gp_off, float *gy_off);
+	int getAngle(int axis, float *result);
+	void calibrate();
+	bool calc_yaw;
 
-		float _accel_angle[3];
-		float _gyro_angle[3];
-		float _angle[3]; //Store all angles (accel roll, accel pitch, accel yaw, gyro roll, gyro pitch, gyro yaw, comb roll, comb pitch comb yaw)
+	typedef struct {
+		float x_rot;
+		float x_accel;
+		float y_rot;
+		float y_accel;
+		float z_rot;
+		float z_accel;
+	} MPU6050_data_t;
 
-		float ax, ay, az, gr, gp, gy; //Temporary storage variables used in _update()
+private:
+	void _update();
 
-		int MPU6050_addr;
-		int f_dev; //Device file
+	float _accel_angle[3];
+	float _gyro_angle[3];
+	float _angle[3]; //Store all angles (accel roll, accel pitch, accel yaw, gyro roll, gyro pitch, gyro yaw, comb roll, comb pitch comb yaw)
 
-		float dt; //Loop time (recalculated with each loop)
+	float ax, ay, az, gr, gp, gy; //Temporary storage variables used in _update()
 
-		struct timespec start,end; //Create a time structure
+	int MPU6050_addr;
+	int f_dev; //Device file
 
-		bool _first_run = 1; //Variable for whether to set gyro angle to acceleration angle in compFilter
-	public:
-		MPU6050(int8_t addr);
-		MPU6050(int8_t addr, bool run_update_thread);
-		void getAccelRaw(float *x, float *y, float *z);
-		void getGyroRaw(float *roll, float *pitch, float *yaw);
-		void getAccel(float *x, float *y, float *z);
-		void getGyro(float *roll, float *pitch, float *yaw);
-		void getOffsets(float *ax_off, float *ay_off, float *az_off, float *gr_off, float *gp_off, float *gy_off);
-		int getAngle(int axis, float *result);
-		bool calc_yaw;
+	float dt; //Loop time (recalculated with each loop)
+
+	struct timespec start,end; //Create a time structure
+
+	bool _first_run = 1; //Variable for whether to set gyro angle to acceleration angle in compFilter
+
+	MPU6050_data_t offsets;
+
 };
