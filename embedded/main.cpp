@@ -5,6 +5,12 @@
 #include "CalServo.h"
 #include <cstdio>
 
+int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
+
+int degree_list[1][20] = {
+	{0, 8, 16, 26,36, 45, 53, 63, 72, 80, 88, 96, 104, 112, 120, 130, 139, 148, 158, 168}
+};
+
 int main() {
 	if (gpioInitialise() < 0) {
 		printf("Failure...");
@@ -17,17 +23,27 @@ int main() {
     pca.set_pwm_freq(50);
     
 	printf("Moving\n");
-	int pwm[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
-	double degree[20] = {0, 8, 16, 26,36, 45, 53, 63, 72, 80, 88, 96, 104, 112, 120, 130, 139, 148, 158, 168};	
-	// int i = 0;
-    // while(i < 20) {
-	// 	scanf("%d", &pwm[i]);
-    //     servo.set_PWM(pwm[i]);
-	// 	scanf("%lf", &degree[i]);
-	// 	i++;
-    // }
+	int pwm[20];
+	double degree[20];
+	int i = 0;
+    while(i < 20) {
+		scanf("%d", &pwm[i]);
+        servo.set_PWM(pwm[i]);
+		scanf("%lf", &degree[i]);
+		i++;
+    }
 	printf("Calibrating\n");
 	servo.refresh_fitter(pwm, degree, 20);
+
+	int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
+	char buffer[128];
+	for(int i = 0; i < 19; i++) {
+		sprintf(buffer, "%d, ", degree[i]);
+		write(servo_data_fd, buffer, sizeof(int));
+	}
+	sprintf(buffer, "%d", degree[19]);
+	write(servo_data_fd, buffer, sizeof(int));
+	close(servo_data_fd);
 
 	printf("Calibrated\n");
 	int dest_degree = 0;
