@@ -33,7 +33,7 @@ int main() {
 	int dest_degree = 0;
     while(true) {
 		scanf("%d", &dest_degree);
-        servo.set_PWM(dest_degree);
+        servo.set_degree(dest_degree);
     }
 
 	gpioTerminate();
