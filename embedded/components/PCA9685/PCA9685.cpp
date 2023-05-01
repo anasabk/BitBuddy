@@ -153,6 +153,6 @@ void PCA9685::set_pwm_us(const int channel, const double us) {
 	auto period_us = 1000000.0 / frequency;
 	auto bits_per_us = 4096 / period_us;
 	auto bits = us * bits_per_us;
-	printf("%d\n", bits);
+	printf("%f\n", bits);
 	set_pwm(channel, 0, bits);
 }
