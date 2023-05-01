@@ -3,6 +3,7 @@
 
 
 CalServo::CalServo(PCA9685* cont_p, int channel) {
+    printf("%d %x\n", channel, cont_p);
     controller = cont_p;
     channel = channel;
     fitter_a = 0;
