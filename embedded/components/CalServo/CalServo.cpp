@@ -4,10 +4,10 @@
 
 CalServo::CalServo(PCA9685* cont_p, int channel) {
     printf("%d %x\n", channel, cont_p);
-    controller = cont_p;
-    channel = channel;
-    fitter_a = 0;
-    fitter_b = 1;
+    this->controller = cont_p;
+    this->channel = channel;
+    this->fitter_a = 0;
+    this->fitter_b = 1;
 }
 
 CalServo::~CalServo() {
