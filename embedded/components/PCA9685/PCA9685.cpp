@@ -33,8 +33,8 @@
  */
 PCA9685::PCA9685(int bus, int address) {
 	i2c_fd = i2cOpen(bus, address, 0);
-	reset();
-	set_pwm_freq(1000);
+	// reset();
+	// set_pwm_freq(1000);
 
 	set_all_pwm(0,0);
 	// i2c_fd->WriteRegisterByte(MODE2, OUTDRV);
