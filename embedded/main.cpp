@@ -13,16 +13,11 @@ int main() {
 	printf("initialized\n");
     pca.set_pwm_freq(50);
     
-	printf("Moving\n");	
+	printf("Moving\n");
+	float pwm = 0.0;	
     while(true) {
-        pca.set_pwm(0, 0, 370);
-        usleep(1'000'000);
-        pca.set_pwm(0, 0, 415);
-        usleep(1'000'000);
-        pca.set_pwm(0, 0, 460);
-        usleep(1'000'000);
-        pca.set_pwm(0, 0, 415);
-        usleep(1'000'000);
+		scanf("%f", &pwm);
+        pca.set_pwm_ms(0, pwm);
     }
 
 	gpioTerminate();
