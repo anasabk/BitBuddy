@@ -12,7 +12,7 @@ CalServo::~CalServo() {
 
 }
 
-void CalServo::refresh_fitter(int* pwm_list, int* degree_list, int data_len) {
+void CalServo::refresh_fitter(double* pwm_list, int* degree_list, int data_len) {
     //Check if there is no data.
     if(data_len < 1) {
         fitter_a = 0;
@@ -39,11 +39,11 @@ void CalServo::refresh_fitter(int* pwm_list, int* degree_list, int data_len) {
     }
 }
 
-void CalServo::set_PWM(int pwm_us) {
-    controller->set_pwm_us(channel, pwm_us);
+void CalServo::set_PWM(double pwm_ms) {
+    controller->set_pwm_ms(channel, pwm_ms);
 }
 
 void CalServo::set_degree(int degree) {
-    int pwm_us = fitter_a + fitter_b * degree;
-    controller->set_pwm_us(channel, pwm_us);
+    double pwm_us = fitter_a + fitter_b * degree;
+    controller->set_pwm_ms(channel, pwm_us);
 }

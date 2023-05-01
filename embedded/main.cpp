@@ -16,11 +16,11 @@ int main() {
     pca.set_pwm_freq(50);
     
 	printf("Moving\n");
-	int pwm[20];
+	double pwm[20];
 	int degree[20];	
 	int i = 0;
     while(i < 20) {
-		scanf("%d", &pwm[i]);
+		scanf("%lf", &pwm[i]);
         servo.set_PWM(pwm[i]);
 		scanf("%d", &degree[i]);
 		i++;
