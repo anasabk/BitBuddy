@@ -85,7 +85,7 @@ public:
 	void set_pwm(uint8_t channel, int value);
 	int get_pwm(uint8_t channel);
 	void set_all_pwm(const uint16_t on, const uint16_t off);
-	void set_pwm_us(const int channel, const double us);
+	void set_pwm_us(const int channel, const int us);
 
 private:
 	int i2c_fd;
