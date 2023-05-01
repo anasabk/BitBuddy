@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "cstdint": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "cmath": "cpp"
     },
     "cmake.sourceDirectory": "/home/enes/git/BitBuddy/embedded"
 }
