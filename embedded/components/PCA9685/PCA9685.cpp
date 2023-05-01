@@ -151,7 +151,7 @@ int PCA9685::get_pwm(uint8_t led){
 
 void PCA9685::set_pwm_us(const int channel, const int us) {
 	double period_us = 1000000.0 / frequency;
-	int bits_per_us = 4096 / period_us;
+	double bits_per_us = 4096 / period_us;
 	int bits = us * bits_per_us;
 	printf("%f %d %d\n", period_us, bits_per_us, bits);
 	set_pwm(channel, 0, bits);
