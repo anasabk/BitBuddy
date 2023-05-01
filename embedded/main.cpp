@@ -4,11 +4,12 @@
 #include "LCD.h"
 #include "CalServo.h"
 #include <cstdio>
+#include "cstring"
 
 int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
 int degree_list[1][20] = {
-	{0, 8, 16, 26,36, 45, 53, 63, 72, 80, 88, 96, 104, 112, 120, 130, 139, 148, 158, 168}
+	{0, 8, 16, 26, 36, 45, 53, 63, 72, 80, 88, 96, 104, 112, 120, 130, 139, 148, 158, 168}
 };
 
 int main() {
@@ -39,7 +40,7 @@ int main() {
 	char buffer[128];
 	for(int i = 0; i < 19; i++) {
 		sprintf(buffer, "%d, ", degree[i]);
-		write(servo_data_fd, buffer, sizeof(int));
+		write(servo_data_fd, buffer, strlen(buffer));
 	}
 	sprintf(buffer, "%d", degree[19]);
 	write(servo_data_fd, buffer, sizeof(int));
