@@ -3,6 +3,7 @@
 #include "MPU6050.h"
 #include "LCD.h"
 #include "CalServo.h"
+#include <cstdio>
 
 int main() {
 	if (gpioInitialise() < 0) {
