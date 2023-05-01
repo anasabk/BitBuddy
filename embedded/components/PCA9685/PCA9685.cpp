@@ -155,5 +155,6 @@ void PCA9685::set_pwm_us(const int channel, const int us) {
 	// auto bits = us * bits_per_us;
 	// printf("%f\n", bits);
 	uint32_t bits = 4096 * us * frequency / 1000000;
+	printf("%d\n", bits);
 	set_pwm(channel, 0, bits);
 }
