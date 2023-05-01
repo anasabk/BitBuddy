@@ -10,16 +10,16 @@ int main() {
 	}
     PCA9685 pca(1, 0x70);
 
-    pca.setPWMFreq(50.0);
+    pca.set_pwm_freq(50);
     
     while(true) {
-        pca.setPWM(0, 0, 370);
+        pca.set_pwm(0, 0, 370);
         usleep(1'000'000);
-        pca.setPWM(0, 0, 415);
+        pca.set_pwm(0, 0, 415);
         usleep(1'000'000);
-        pca.setPWM(0, 0, 460);
+        pca.set_pwm(0, 0, 460);
         usleep(1'000'000);
-        pca.setPWM(0, 0, 415);
+        pca.set_pwm(0, 0, 415);
         usleep(1'000'000);
     }
 
