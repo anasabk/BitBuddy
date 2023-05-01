@@ -22,7 +22,7 @@ int main() {
     while(i < 20) {
 		scanf("%d", &pwm[i]);
         servo.set_PWM(pwm[i]);
-		scanf("%f", &degree[i]);
+		scanf("%d", &degree[i]);
 		i++;
     }
 	servo.refresh_fitter(pwm, degree, 20);
