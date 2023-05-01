@@ -3,7 +3,6 @@
 
 
 CalServo::CalServo(PCA9685* cont_p, int channel) {
-    printf("%d %x\n", channel, cont_p);
     this->controller = cont_p;
     this->channel = channel;
     this->fitter_a = 0;
@@ -39,6 +38,8 @@ void CalServo::refresh_fitter(int* pwm_list, double* degree_list, int data_len) 
         fitter_a = (float) ((sumY * sumXSquare - sumX * sumXY) / (data_len * sumXSquare - sumX * sumX));
         fitter_b = (float) ((data_len * sumXY - sumX * sumY) / (data_len * sumXSquare - sumX * sumX));
     }
+
+    printf("%f %f\n", fitter_a, fitter_b);
 }
 
 void CalServo::set_PWM(int pwm_us) {
