@@ -40,6 +40,7 @@ void CalServo::refresh_fitter(double* pwm_list, int* degree_list, int data_len) 
 }
 
 void CalServo::set_PWM(double pwm_ms) {
+    printf("%d %d\n", channel, pwm_ms);
     controller->set_pwm_us(channel, pwm_ms);
 }
 

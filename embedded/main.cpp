@@ -21,6 +21,7 @@ int main() {
 	int i = 0;
     while(true) {
 		scanf("%d", &pwm[i]);
+        // pca.set_pwm_us(0, pwm[i]);
         servo.set_PWM(pwm[i]);
 		scanf("%f", &degree[i]);
 		i++;
