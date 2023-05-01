@@ -44,6 +44,6 @@ void CalServo::set_PWM(double pwm_ms) {
 }
 
 void CalServo::set_degree(int degree) {
-    double pwm_us = fitter_a + fitter_b * degree;
-    controller->set_pwm_ms(channel, pwm_us);
+    int pwm_ms = fitter_a + fitter_b * degree;
+    controller->set_pwm_ms(channel, pwm_ms);
 }
