@@ -127,10 +127,10 @@ void PCA9685::set_pwm(uint8_t channel, int on_value, int off_value) {
 	// i2c->write_byte(LED0_OFF_H + LED_MULTIPLYER * (led - 1), off_value >> 8);
 
   	const auto channel_offset = 4 * channel;
-	i2cWriteByte(LED0_ON_L + channel_offset, on_value & 0xFF);
-	i2cWriteByte(LED0_ON_H + channel_offset, on_value >> 8);
-	i2cWriteByte(LED0_OFF_L + channel_offset, off_value & 0xFF);
-	i2cWriteByte(LED0_OFF_H + channel_offset, off_value >> 8);
+	i2cWriteByteData(i2c_fd, LED0_ON_L + channel_offset, on_value & 0xFF);
+	i2cWriteByteData(i2c_fd, LED0_ON_H + channel_offset, on_value >> 8);
+	i2cWriteByteData(i2c_fd, LED0_OFF_L + channel_offset, off_value & 0xFF);
+	i2cWriteByteData(i2c_fd, LED0_OFF_H + channel_offset, off_value >> 8);
 }
 
 //! Get current PWM value

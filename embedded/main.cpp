@@ -15,13 +15,13 @@ int main() {
     
 	printf("Moving\n");	
     while(true) {
-        pca.set_all_pwm(0, 370);
+        pca.set_pwm(0, 0, 370);
         usleep(1'000'000);
-        pca.set_all_pwm(0, 415);
+        pca.set_pwm(0, 0, 415);
         usleep(1'000'000);
-        pca.set_all_pwm(0, 460);
+        pca.set_pwm(0, 0, 460);
         usleep(1'000'000);
-        pca.set_all_pwm(0, 600);
+        pca.set_pwm(0, 0, 415);
         usleep(1'000'000);
     }
 
