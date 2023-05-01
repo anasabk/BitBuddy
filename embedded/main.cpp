@@ -8,8 +8,10 @@
 
 int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
-int degree_list[1][20] = {
-	{0, 8, 16, 26, 36, 45, 53, 63, 72, 80, 88, 96, 104, 112, 120, 130, 139, 148, 158, 168}
+int degree_list[3][20] = {
+	{0, 8, 16, 26, 36, 45, 53, 63, 72, 80, 88, 96, 104, 112, 120, 130, 139, 148, 158, 168},
+	{0, 8, 16, 27, 37, 45, 56, 64, 71, 81, 89, 96, 104, 114, 121, 129, 139, 147, 154, 165},
+	{0, 7, 17, 26, 37, 45, 56, 65, 74, 82, 91, 100, 108, 117, 123, 134, 141, 150, 158, 167},
 };
 
 int main() {
@@ -24,27 +26,25 @@ int main() {
     pca.set_pwm_freq(50);
     
 	printf("Moving\n");
-	int pwm[20];
 	double degree[20];
 	int i = 0;
     while(i < 20) {
-		scanf("%d", &pwm[i]);
-        servo.set_PWM(pwm[i]);
+        servo.set_PWM(pwm_list[i]);
 		scanf("%lf", &degree[i]);
 		i++;
     }
 	printf("Calibrating\n");
-	servo.refresh_fitter(pwm, degree, 20);
+	servo.refresh_fitter(pwm_list, degree, 20);
 
-	int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
-	char buffer[128];
-	for(int i = 0; i < 19; i++) {
-		sprintf(buffer, "%d, ", degree[i]);
-		write(servo_data_fd, buffer, strlen(buffer));
-	}
-	sprintf(buffer, "%d", degree[19]);
-	write(servo_data_fd, buffer, sizeof(int));
-	close(servo_data_fd);
+	// int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
+	// char buffer[128];
+	// for(int i = 0; i < 19; i++) {
+	// 	sprintf(buffer, "%d, ", degree[i]);
+	// 	write(servo_data_fd, buffer, strlen(buffer));
+	// }
+	// sprintf(buffer, "%d", degree[19]);
+	// write(servo_data_fd, buffer, sizeof(int));
+	// close(servo_data_fd);
 
 	printf("Calibrated\n");
 	int dest_degree = 0;
