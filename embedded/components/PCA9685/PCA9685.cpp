@@ -25,6 +25,7 @@
 #include "pigpio.h"
 #include "unistd.h"
 #include "cmath"
+#include "cstdio"
 
 //! Constructor takes bus and address arguments
 /*!
@@ -148,9 +149,10 @@ int PCA9685::get_pwm(uint8_t led){
 	return ledval;
 }
 
-void PCA9685::set_pwm_us(const int channel, const double us) {
-	auto period_us = 1000000.0 / frequency;
+void PCA9685::set_pwm_us(const int channel, const int us) {
+	auto period_us = 1000000 / frequency;
 	auto bits_per_us = 4096 / period_us;
 	auto bits = us * bits_per_us;
+	printf("%d\n", bits);
 	set_pwm(channel, 0, bits);
 }
