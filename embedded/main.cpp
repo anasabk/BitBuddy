@@ -17,18 +17,19 @@ int main() {
     pca.set_pwm_freq(50);
     
 	printf("Moving\n");
-	int pwm[20];
-	double degree[20];	
+	int pwm[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
+	double degree[20] = {0, 8, 16, 26,36, 45, 53, 63, 72, 80, 88, 96, 104, 112, 120, 130, 139, 148, 158, 168};	
 	int i = 0;
-    while(true) {
+    while(i < 20) {
 		scanf("%d", &pwm[i]);
         servo.set_PWM(pwm[i]);
 		scanf("%lf", &degree[i]);
 		i++;
     }
+	printf("Calibrating\n");
 	servo.refresh_fitter(pwm, degree, 20);
 
-	printf("Calibrated:\n");
+	printf("Calibrated\n");
 	int dest_degree = 0;
     while(true) {
 		scanf("%d", &dest_degree);
