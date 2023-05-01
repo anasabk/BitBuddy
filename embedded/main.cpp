@@ -10,8 +10,10 @@ int main() {
 	}
     PCA9685 pca(1, 0x40);
 
+	printf("initialized\n");
     pca.set_pwm_freq(50);
     
+	printf("Moving\n");	
     while(true) {
         pca.set_pwm(0, 0, 370);
         usleep(1'000'000);
