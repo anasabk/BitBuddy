@@ -1,4 +1,5 @@
 #include "CalServo.h"
+#include <cstdio>
 
 
 CalServo::CalServo(PCA9685* cont_p, int channel) {
