@@ -2,6 +2,7 @@
 #include "unistd.h"
 #include "MPU6050.h"
 #include "LCD.h"
+#include "CalServo.h"
 
 int main() {
 	if (gpioInitialise() < 0) {
@@ -9,6 +10,7 @@ int main() {
 		exit(-1);
 	}
     PCA9685 pca(1, 0x40);
+	CalServo servo(&pca, 0);
 
 	printf("initialized\n");
     pca.set_pwm_freq(50);
@@ -19,7 +21,7 @@ int main() {
 	int i = 0;
     while(true) {
 		scanf("%d", &pwm[i]);
-        pca.set_pwm_us(0, pwm[i]);
+        servo.set_PWM(pwm[i]);
 		scanf("%f", &degree[i]);
 		i++;
     }
