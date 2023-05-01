@@ -10,9 +10,9 @@ public:
     CalServo(PCA9685* cont_p, int channel);
     ~CalServo();
 
-    void refresh_fitter(double* pwm_list, int* degree_list, int data_len);
+    void refresh_fitter(int* pwm_list, double* degree_list, int data_len);
 
-    void set_PWM(double pwm_us);
+    void set_PWM(int pwm_us);
 
     void set_degree(int degree);
 

@@ -18,14 +18,21 @@ int main() {
     
 	printf("Moving\n");
 	int pwm[20];
-	float degree[20];	
+	double degree[20];	
 	int i = 0;
     while(true) {
 		scanf("%d", &pwm[i]);
-        // pca.set_pwm_us(0, pwm[i]);
         servo.set_PWM(pwm[i]);
-		scanf("%f", &degree[i]);
+		scanf("%lf", &degree[i]);
 		i++;
+    }
+	servo.refresh_fitter(pwm, degree, 20);
+
+	printf("Calibrated:\n");
+	int dest_degree = 0;
+    while(true) {
+		scanf("%d", &dest_degree);
+        servo.set_PWM(dest_degree);
     }
 
 	gpioTerminate();
