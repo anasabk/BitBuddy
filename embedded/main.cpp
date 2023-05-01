@@ -8,7 +8,7 @@ int main() {
 		printf("Failure...");
 		exit(-1);
 	}
-    PCA9685 pca(1, 0x70);
+    PCA9685 pca(1, 0x40);
 
     pca.set_pwm_freq(50);
     
