@@ -44,6 +44,7 @@ int main() {
 	};
 
     pca.set_pwm_freq(50);
+	usleep(2000000);
 	
 	// servo[0][0].refresh_fitter(pwm_list, degree_list[6], 20);
 	// servo[0][1].refresh_fitter(pwm_list, degree_list[7], 20);
@@ -72,7 +73,6 @@ int main() {
 
 	printf("Finished moving\n");
 
-	usleep(2000000);
     
 	gpioTerminate();
 	return 0;
