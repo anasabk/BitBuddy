@@ -62,9 +62,15 @@ int main() {
 		for(int j = 0; j < 3; j++)
 			servo[i][j].refresh_fitter(pwm_list, degree_list[servo[i][j].getChannel()], 20);
 
+	printf("Calibrated\n");
+
 	for(int i = 0; i < 4; i++)
 		for(int j = 0; j < 3; j++)
 			servo[i][j].set_degree(90);
+
+	printf("Finished moving\n");
+
+	usleep(2000000);
     
 	gpioTerminate();
 	return 0;
