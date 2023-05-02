@@ -71,10 +71,10 @@ int main() {
 	// 	for(int j = 0; j < 3; j++)
 	// 		servo[i][j].set_degree(90);
 
-	int dest_degree = 0;
+	int dest_servo = 0, dest_degree = 0;
     while(true) {
-		scanf("%d", &dest_degree);
-        servo[3][0].set_degree(dest_degree);
+		scanf("%d %d", &dest_servo, &dest_degree);
+		servo[3][dest_servo].set_degree(dest_degree);
     }
 
 	printf("Finished moving\n");
