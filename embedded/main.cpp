@@ -27,46 +27,46 @@ int degree_list[12][20] = {
 };
 
 int main() {
-	if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
-    PCA9685 pca(1, 0x40);
-	CalServo servo(&pca, 0);
-
-	printf("initialized\n");
-    pca.set_pwm_freq(50);
-    
-	printf("Moving\n");
-	double degree[20];
-	int i = 0;
-    while(i < 20) {
-        servo.set_PWM(pwm_list[i]);
-		scanf("%lf", &degree[i]);
-		i++;
-    }
-	printf("Calibrating\n");
-	servo.refresh_fitter(pwm_list, degree, 20);
-
-	// int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
-	// char buffer[128];
-	// for(int i = 0; i < 19; i++) {
-	// 	sprintf(buffer, "%d, ", degree[i]);
-	// 	write(servo_data_fd, buffer, strlen(buffer));
+	// if (gpioInitialise() < 0) {
+	// 	printf("Failure...");
+	// 	exit(-1);
 	// }
-	// sprintf(buffer, "%d", degree[19]);
-	// write(servo_data_fd, buffer, sizeof(int));
-	// close(servo_data_fd);
+    // PCA9685 pca(1, 0x40);
+	// CalServo servo(&pca, 0);
 
-	printf("Calibrated\n");
-	int dest_degree = 0;
-    while(true) {
-		scanf("%d", &dest_degree);
-        servo.set_degree(dest_degree);
-    }
+	// printf("initialized\n");
+    // pca.set_pwm_freq(50);
+    
+	// printf("Moving\n");
+	// double degree[20];
+	// int i = 0;
+    // while(i < 20) {
+    //     servo.set_PWM(pwm_list[i]);
+	// 	scanf("%lf", &degree[i]);
+	// 	i++;
+    // }
+	// printf("Calibrating\n");
+	// servo.refresh_fitter(pwm_list, degree, 20);
 
-	gpioTerminate();
-	return 0;
+	// // int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
+	// // char buffer[128];
+	// // for(int i = 0; i < 19; i++) {
+	// // 	sprintf(buffer, "%d, ", degree[i]);
+	// // 	write(servo_data_fd, buffer, strlen(buffer));
+	// // }
+	// // sprintf(buffer, "%d", degree[19]);
+	// // write(servo_data_fd, buffer, sizeof(int));
+	// // close(servo_data_fd);
+
+	// printf("Calibrated\n");
+	// int dest_degree = 0;
+    // while(true) {
+	// 	scanf("%d", &dest_degree);
+    //     servo.set_degree(dest_degree);
+    // }
+
+	// gpioTerminate();
+	// return 0;
 
 	// if (gpioInitialise() < 0) {
 	// 	printf("Failure...");
@@ -110,30 +110,30 @@ int main() {
 	// return 0;
 
 
-	// if (gpioInitialise() < 0) {
-	// 	printf("Failure...");
-	// 	exit(-1);
-	// }
-	// // Initialize the LCD driver
-	// LCD lcd(1, 0x27);
-    // lcd.enableCursor();
-    // lcd.enableBlinking();
-	// while (1) {
-    //     lcd.setPosition(0, 0);
-    //     lcd.putChar(65);  // Put char 'A'
-    //     std::this_thread::sleep_for(std::chrono::seconds(1));
-    //     lcd.setPosition(0, 1);
-    //     lcd.putChar(66); // Put char 'B'
-    //     std::this_thread::sleep_for(std::chrono::seconds(1));
-    //     lcd.setPosition(0, 0);
-    //     lcd.putChar(67); // Put char 'C'
-    //     std::this_thread::sleep_for(std::chrono::seconds(1));
-    //     lcd.setPosition(0, 1);
-    //     lcd.putChar(68); // Put char 'D'
-    //     lcd<<"ABC"; // Put string "ABC"
-    //     std::this_thread::sleep_for(std::chrono::seconds(1));
-	// }
+	if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
+	// Initialize the LCD driver
+	LCD lcd(1, 0x27);
+    lcd.enableCursor();
+    lcd.enableBlinking();
+	while (1) {
+        lcd.setPosition(0, 0);
+        lcd.putChar(65);  // Put char 'A'
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        lcd.setPosition(0, 1);
+        lcd.putChar(66); // Put char 'B'
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        lcd.setPosition(0, 0);
+        lcd.putChar(67); // Put char 'C'
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        lcd.setPosition(0, 1);
+        lcd.putChar(68); // Put char 'D'
+        lcd<<"ABC"; // Put string "ABC"
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
 	
-	// gpioTerminate();
-	// return 0;
+	gpioTerminate();
+	return 0;
 }
