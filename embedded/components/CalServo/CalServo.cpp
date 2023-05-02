@@ -38,8 +38,6 @@ void CalServo::refresh_fitter(int* pwm_list, int* degree_list, int data_len) {
         fitter_a = (float) ((sumY * sumXSquare - sumX * sumXY) / (data_len * sumXSquare - sumX * sumX));
         fitter_b = (float) ((data_len * sumXY - sumX * sumY) / (data_len * sumXSquare - sumX * sumX));
     }
-
-    printf("%f %f\n", fitter_a, fitter_b);
 }
 
 void CalServo::set_PWM(int pwm_us) {
