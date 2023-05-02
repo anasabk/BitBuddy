@@ -58,6 +58,8 @@ int main() {
 	// servo[3][1].refresh_fitter(pwm_list, degree_list[1], 20);
 	// servo[3][2].refresh_fitter(pwm_list, degree_list[2], 20);
 
+	printf("Calibrating\n");
+
 	for(int i = 0; i < 4; i++)
 		for(int j = 0; j < 3; j++)
 			servo[i][j].refresh_fitter(pwm_list, degree_list[servo[i][j].getChannel()], 20);
