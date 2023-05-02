@@ -67,9 +67,15 @@ int main() {
 
 	printf("Calibrated\n");
 
-	for(int i = 0; i < 4; i++)
-		for(int j = 0; j < 3; j++)
-			servo[i][j].set_degree(90);
+	// for(int i = 0; i < 4; i++)
+	// 	for(int j = 0; j < 3; j++)
+	// 		servo[i][j].set_degree(90);
+
+	int dest_degree = 0;
+    while(true) {
+		scanf("%d", &dest_degree);
+        servo[3][0].set_degree(dest_degree);
+    }
 
 	printf("Finished moving\n");
 
