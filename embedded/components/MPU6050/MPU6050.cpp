@@ -5,7 +5,10 @@
 //Include the header file for this class
 #include "MPU6050.h"
 
-MPU6050::MPU6050(int8_t addr, bool run_update_thread) {
+
+MPU6050::MPU6050(int8_t bus, int8_t addr, bool run_update_thread = true) 
+	: I2Cdev(bus, addr)
+{
 	int status;
 
 	MPU6050_addr = addr;
@@ -13,77 +16,78 @@ MPU6050::MPU6050(int8_t addr, bool run_update_thread) {
 	_first_run = 1; //Variable for whether to set gyro angle to acceleration angle in compFilter
 	calc_yaw = false;
 
-	// f_dev = open("/dev/i2c-1", O_RDWR); //Open the I2C device file
-	// if (f_dev < 0) { //Catch errors
-	// 	std::cout << "ERR (MPU6050.cpp:MPU6050()): Failed to open /dev/i2c-1. Please check that I2C is enabled with raspi-config\n"; //Print error message
-	// }
+	fd = i2cOpen(1, addr, 0);
 
-	// status = ioctl(f_dev, I2C_SLAVE, MPU6050_addr); //Set the I2C bus to use the correct address
-	// if (status < 0) {
-	// 	std::cout << "ERR (MPU6050.cpp:MPU6050()): Could not get I2C bus with " << addr << " address. Please confirm that this address is correct\n"; //Print error message
-	// }
+    write_byte(MPU6050_PWR_MGMT_1, 0);
+    write_bits(MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, MPU6050_ACCEL_FS_2);
+    write_bits(MPU6050_RA_ACCEL_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, MPU6050_GYRO_FS_250);
+    write_bits(MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, MPU6050_DLPF_BW_5);
 
-	f_dev = i2cOpen(1, addr, 0);
+	// i2cWriteByteData(f_dev, 0x6b, 0b00000000);
+	// i2cWriteByteData(f_dev, 0x1a, 0b00000011);
+	// i2cWriteByteData(f_dev, 0x19, 0b00000100);
+	// i2cWriteByteData(f_dev, 0x1b, GYRO_CONFIG);
+	// i2cWriteByteData(f_dev, 0x1c, ACCEL_CONFIG);
 
-	// i2c_smbus_write_byte_data(f_dev, 0x6b, 0b00000000); //Take MPU6050 out of sleep mode - see Register Map
-	// i2c_smbus_write_byte_data(f_dev, 0x1a, 0b00000011); //Set DLPF (low pass filter) to 44Hz (so no noise above 44Hz will pass through)
-	// i2c_smbus_write_byte_data(f_dev, 0x19, 0b00000100); //Set sample rate divider (to 200Hz) - see Register Map
-	// i2c_smbus_write_byte_data(f_dev, 0x1b, GYRO_CONFIG); //Configure gyroscope settings - see Register Map (see MPU6050.h for the GYRO_CONFIG parameter)
-	// i2c_smbus_write_byte_data(f_dev, 0x1c, ACCEL_CONFIG); //Configure accelerometer settings - see Register Map (see MPU6050.h for the GYRO_CONFIG parameter)
-	
-	i2cWriteByteData(f_dev, 0x6b, 0b00000000);
-	i2cWriteByteData(f_dev, 0x1a, 0b00000011);
-	i2cWriteByteData(f_dev, 0x19, 0b00000100);
-	i2cWriteByteData(f_dev, 0x1b, GYRO_CONFIG);
-	i2cWriteByteData(f_dev, 0x1c, ACCEL_CONFIG);
-
-	//Set offsets to zero
-	// i2c_smbus_write_byte_data(f_dev, 0x00, 0b10000001);
-	// i2c_smbus_write_byte_data(f_dev, 0x01, 0b00000001);
-	// i2c_smbus_write_byte_data(f_dev, 0x02, 0b10000001);
-	// i2c_smbus_write_byte_data(f_dev, 0x06, 0b00000000); 
-	// i2c_smbus_write_byte_data(f_dev, 0x07, 0b00000000);
-	// i2c_smbus_write_byte_data(f_dev, 0x08, 0b00000000);
-	// i2c_smbus_write_byte_data(f_dev, 0x09, 0b00000000);
-	// i2c_smbus_write_byte_data(f_dev, 0x0A, 0b00000000);
-	// i2c_smbus_write_byte_data(f_dev, 0x0B, 0b00000000);
-
-	i2cWriteByteData(f_dev, 0x00, 0b10000001);
-	i2cWriteByteData(f_dev, 0x01, 0b00000001);
-	i2cWriteByteData(f_dev, 0x02, 0b10000001);
-	i2cWriteByteData(f_dev, 0x06, 0b00000000); 
-	i2cWriteByteData(f_dev, 0x07, 0b00000000);
-	i2cWriteByteData(f_dev, 0x08, 0b00000000);
-	i2cWriteByteData(f_dev, 0x09, 0b00000000);
-	i2cWriteByteData(f_dev, 0x0A, 0b00000000);
-	i2cWriteByteData(f_dev, 0x0B, 0b00000000);
+	// i2cWriteByteData(f_dev, 0x00, 0b10000001);
+	// i2cWriteByteData(f_dev, 0x01, 0b00000001);
+	// i2cWriteByteData(f_dev, 0x02, 0b10000001);
+	// i2cWriteByteData(f_dev, 0x06, 0b00000000); 
+	// i2cWriteByteData(f_dev, 0x07, 0b00000000);
+	// i2cWriteByteData(f_dev, 0x08, 0b00000000);
+	// i2cWriteByteData(f_dev, 0x09, 0b00000000);
+	// i2cWriteByteData(f_dev, 0x0A, 0b00000000);
+	// i2cWriteByteData(f_dev, 0x0B, 0b00000000);
 
 	if (run_update_thread){
 		std::thread(&MPU6050::_update, this).detach(); //Create a seperate thread, for the update routine to run in the background, and detach it, allowing the program to continue
 	}
 }
 
-MPU6050::MPU6050(int8_t addr) : MPU6050(addr, true){}
+void MPU6050::getGyroRaw(float *x, float *y, float *z) {
+	// uint8_t data[6];
 
-void MPU6050::getGyroRaw(float *roll, float *pitch, float *yaw) {
-	// int16_t X = i2c_smbus_read_byte_data(f_dev, 0x43) << 8 | i2c_smbus_read_byte_data(f_dev, 0x44); //Read X registers
-	// int16_t Y = i2c_smbus_read_byte_data(f_dev, 0x45) << 8 | i2c_smbus_read_byte_data(f_dev, 0x46); //Read Y registers
-	// int16_t Z = i2c_smbus_read_byte_data(f_dev, 0x47) << 8 | i2c_smbus_read_byte_data(f_dev, 0x48); //Read Z registers
+    // // select_reg(MPU6050_ACCEL_XOUT_H);
+    // read_bytes(MPU6050_ACCEL_XOUT_H, 6, data);
 
-	int16_t X = i2cReadByteData(f_dev, 0x43) << 8 | i2cReadByteData(f_dev, 0x44); //Read X registers
-	int16_t Y = i2cReadByteData(f_dev, 0x45) << 8 | i2cReadByteData(f_dev, 0x46); //Read Y registers
-	int16_t Z = i2cReadByteData(f_dev, 0x47) << 8 | i2cReadByteData(f_dev, 0x48); //Read Z registers
+    // *x = ((int16_t) ((data[0] << 8) | data[1])) / 131.0;
+    // *y = ((int16_t) ((data[2] << 8) | data[3])) / 131.0;
+    // *z = ((int16_t) ((data[4] << 8) | data[5])) / 131.0;
 
-	*roll = (float)X; //Roll on X axis
-	*pitch = (float)Y; //Pitch on Y axis
-	*yaw = (float)Z; //Yaw on Z axis
+	int16_t temp_x = i2cReadByteData(f_dev, 0x43) << 8 | i2cReadByteData(f_dev, 0x44); //Read X registers
+	int16_t temp_y = i2cReadByteData(f_dev, 0x45) << 8 | i2cReadByteData(f_dev, 0x46); //Read Y registers
+	int16_t temp_z = i2cReadByteData(f_dev, 0x47) << 8 | i2cReadByteData(f_dev, 0x48); //Read Z registers
+
+	*x = temp_x / GYRO_SENS; //Roll on X axis
+	*y = temp_y / GYRO_SENS; //Pitch on Y axis
+	*z = temp_z / GYRO_SENS; //Yaw on Z axis
 }
 
-void MPU6050::getGyro(float *roll, float *pitch, float *yaw) {
-	getGyroRaw(roll, pitch, yaw); //Store raw values into variables
-	*roll = round((*roll - G_OFF_X) * 1000.0 / GYRO_SENS) / 1000.0; //Remove the offset and divide by the gyroscope sensetivity (use 1000 and round() to round the value to three decimal places)
-	*pitch = round((*pitch - G_OFF_Y) * 1000.0 / GYRO_SENS) / 1000.0;
-	*yaw = round((*yaw - G_OFF_Z) * 1000.0 / GYRO_SENS) / 1000.0;
+void MPU6050::read_data(MPU6050_data_t *buffer) {
+	uint8_t data[14];
+
+    // select_reg(MPU6050_ACCEL_XOUT_H);
+    read_bytes(MPU6050_ACCEL_XOUT_H, 14, data);
+
+	buffer->x_accel = ((int16_t) ((data[0]  << 8) | data[1])) / ACCEL_SENS;
+    buffer->y_accel = ((int16_t) ((data[2]  << 8) | data[3])) / ACCEL_SENS;
+    buffer->z_accel = ((int16_t) ((data[4]  << 8) | data[5])) / ACCEL_SENS;
+    buffer->tempr  = ((int16_t) ((data[6]  << 8) | data[7])) / 340.0 + 36.53;
+    buffer->x_rot  = ((int16_t) ((data[8]  << 8) | data[9])) / GYRO_SENS;
+    buffer->y_rot  = ((int16_t) ((data[10] << 8) | data[11]))/ GYRO_SENS;
+    buffer->z_rot  = ((int16_t) ((data[12] << 8) | data[13]))/ GYRO_SENS;
+}
+
+void MPU6050::getGyro(float *x, float *y, float *z) {
+	getGyroRaw(x, y, z);
+	*x = ((int16_t) ((*x - cal_offsets.x_rot) * 1000)) / 1000.0;
+	*y = ((int16_t) ((*y - cal_offsets.y_rot) * 1000)) / 1000.0;
+	*z = ((int16_t) ((*z - cal_offsets.z_rot) * 1000)) / 1000.0;
+
+	// getGyroRaw(roll, pitch, yaw); //Store raw values into variables
+	// *roll = round((*roll - G_OFF_X) * 1000.0 / GYRO_SENS) / 1000.0; //Remove the offset and divide by the gyroscope sensetivity (use 1000 and round() to round the value to three decimal places)
+	// *pitch = round((*pitch - G_OFF_Y) * 1000.0 / GYRO_SENS) / 1000.0;
+	// *yaw = round((*yaw - G_OFF_Z) * 1000.0 / GYRO_SENS) / 1000.0;
 }
 
 void MPU6050::getAccelRaw(float *x, float *y, float *z) {
@@ -139,20 +143,19 @@ void MPU6050::_update() { //Main update function - runs continuously
 	clock_gettime(CLOCK_REALTIME, &start); //Read current time into start variable
 
 	while (1) { //Loop forever
-		getGyro(&gr, &gp, &gy); //Get the data from the sensors
-		getAccel(&ax, &ay, &az);
+		read_data(&read_buffer);
 
 		//X (roll) axis
-		_accel_angle[0] = atan2(az, ay) * RAD_T_DEG - 90.0; //Calculate the angle with z and y convert to degrees and subtract 90 degrees to rotate
-		_gyro_angle[0] = _angle[0] + gr*dt; //Use roll axis (X axis)
+		_accel_angle[0] = atan2(read_buffer.z_accel,read_buffer.y_accel) * RAD_T_DEG - 90.0; //Calculate the angle with z and y convert to degrees and subtract 90 degrees to rotate
+		_gyro_angle[0] = _angle[0] + read_buffer.x_rot*dt; //Use roll axis (X axis)
 
 		//Y (pitch) axis
-		_accel_angle[1] = atan2(az, ax) * RAD_T_DEG - 90.0; //Calculate the angle with z and x convert to degrees and subtract 90 degrees to rotate
-		_gyro_angle[1] = _angle[1] + gp*dt; //Use pitch axis (Y axis)
+		_accel_angle[1] = atan2(read_buffer.z_accel, read_buffer.x_accel) * RAD_T_DEG - 90.0; //Calculate the angle with z and x convert to degrees and subtract 90 degrees to rotate
+		_gyro_angle[1] = _angle[1] + read_buffer.y_rot*dt; //Use pitch axis (Y axis)
 
 		//Z (yaw) axis
 		if (calc_yaw) {
-			_gyro_angle[2] = _angle[2] + gy*dt; //Use yaw axis (Z axis)
+			_gyro_angle[2] = _angle[2] + read_buffer.z_rot*dt; //Use yaw axis (Z axis)
 		}
 
 
@@ -164,8 +167,8 @@ void MPU6050::_update() { //Main update function - runs continuously
 			_first_run = 0;
 		}
 
-		float asum = abs(ax) + abs(ay) + abs(az); //Calculate the sum of the accelerations
-		float gsum = abs(gr) + abs(gp) + abs(gy); //Calculate the sum of the gyro readings
+		float asum = abs(read_buffer.x_accel) + abs(read_buffer.y_accel) + abs(read_buffer.z_accel); //Calculate the sum of the accelerations
+		float gsum = abs(read_buffer.x_rot) + abs(read_buffer.y_rot) + abs(read_buffer.z_rot); //Calculate the sum of the gyro readings
 
 		for (int i = 0; i <= 1; i++) { //Loop through roll and pitch axes
 			if (abs(_gyro_angle[i] - _accel_angle[i]) > 5) { //Correct for very large drift (or incorrect measurment of gyroscope by longer loop time)
