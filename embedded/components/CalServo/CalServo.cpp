@@ -13,7 +13,7 @@ CalServo::~CalServo() {
 
 }
 
-void CalServo::refresh_fitter(int* pwm_list, int* degree_list, int data_len) {
+void CalServo::refresh_fitter(const int* pwm_list, const int* degree_list, int data_len) {
     //Check if there is no data.
     if(data_len < 1) {
         fitter_a = 0;
