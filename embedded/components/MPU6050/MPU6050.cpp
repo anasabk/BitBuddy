@@ -6,7 +6,7 @@
 #include "MPU6050.h"
 
 
-MPU6050::MPU6050(int8_t bus, int8_t addr, bool run_update_thread = true) 
+MPU6050::MPU6050(int8_t bus, int8_t addr, bool run_update_thread) 
 	: I2Cdev(bus, addr)
 {
 	int status;
