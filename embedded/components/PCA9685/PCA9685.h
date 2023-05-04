@@ -84,7 +84,7 @@ public:
 	void set_pwm(uint8_t channel, int on, int off);
 	void set_pwm(uint8_t channel, int value);
 	int get_pwm(uint8_t channel);
-	void set_all_pwm(const uint16_t on, const uint16_t off);
+	void set_all_pwm(uint16_t on, uint16_t off);
 	void set_pwm_us(const int channel, const int us);
 
 private:

@@ -10,6 +10,8 @@ add_subdirectory(${COMPONENT_DIR}/MPU6050)
 add_subdirectory(${COMPONENT_DIR}/PCA9685)
 add_subdirectory(${COMPONENT_DIR}/CalServo)
 add_subdirectory(${COMPONENT_DIR}/I2Cdev)
+add_subdirectory(${COMPONENT_DIR}/HC_SR04)
+# add_subdirectory(${COMPONENT_DIR}/pigpio)
 
 target_include_directories(${PROJECT_NAME} PUBLIC 
     ${COMPONENT_DIR}/MPU6050 
@@ -17,6 +19,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${COMPONENT_DIR}/LCD
     ${COMPONENT_DIR}/CalServo
     ${COMPONENT_DIR}/I2Cdev
+    ${COMPONENT_DIR}/HC_SR04
+    # ${COMPONENT_DIR}/pigpio
 )
 
 target_link_directories(${PROJECT_NAME} PRIVATE 
@@ -25,6 +29,8 @@ target_link_directories(${PROJECT_NAME} PRIVATE
     ${COMPONENT_DIR}/LCD
     ${COMPONENT_DIR}/CalServo
     ${COMPONENT_DIR}/I2Cdev
+    ${COMPONENT_DIR}/HC_SR04
+    # ${COMPONENT_DIR}/pigpio
 )
 
 target_link_libraries(${PROJECT_NAME} 
@@ -33,6 +39,8 @@ target_link_libraries(${PROJECT_NAME}
     LCD
     CalServo
     I2Cdev
+    HC_SR04
+    # pigpio
 )
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -li2c -pthread")
