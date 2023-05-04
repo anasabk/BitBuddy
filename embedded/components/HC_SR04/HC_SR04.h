@@ -5,7 +5,7 @@
 #include "pigpio.h"
 #include "unistd.h"
 
-#define SPEED_OF_SOUND 34300
+#define SPEED_OF_SOUND 26477
 
 class HC_SR04
 {
