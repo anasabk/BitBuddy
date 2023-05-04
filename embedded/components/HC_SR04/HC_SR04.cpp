@@ -18,14 +18,23 @@ HC_SR04::~HC_SR04()
 
 float HC_SR04::get_distance() {
     gpioWrite(trig, PI_HIGH);
-    usleep(20);
+
+    gpioDelay(10);
     gpioWrite(trig, PI_LOW);
 
-    double depart = time_time();
-    double arrive = depart;
+    double startTime = time_time();
+    double arrivalTime = time_time();
 
-    while(gpioRead(echo) == PI_LOW);
-    arrive = time_time();
+    while(gpioRead(echo) == PI_LOW) {
+        startTime = time_time();
+    }
 
-    return (arrive - depart) * SPEED_OF_SOUND / 2;
+    while(gpioRead(echo) == PI_HIGH) {
+        arrivalTime = time_time();
+    }
+
+    double timeElapsed = arrivalTime - startTime;
+    double distanceCalculated = (timeElapsed * 34300) / 2;
+
+    return distanceCalculated;
 }
