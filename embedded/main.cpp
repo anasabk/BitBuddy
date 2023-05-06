@@ -28,74 +28,74 @@ int degree_list[12][20] = {
 };
 
 int main() {
-	// if (gpioInitialise() < 0) {
-	// 	printf("Failure...");
-	// 	exit(-1);
-	// }
-	// LCD lcd(1, 0x27);
-	// lcd.printf("Hello World");
+	if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
+	LCD lcd(1, 0x27);
+	lcd.printf("Hello World");
 
-    // PCA9685 pca(1, 0x40);
-	// /** 
-	//  * \verbatim
-	//  * 		Numbers of servo channels
-	//  * 			   of each leg
-	//  * 				 | Top | Mid | Low |
-	//  * 				 |  0  |  1  |  2  |
-	//  * --------------|-----|-----|-----|
-	//  * Front Right 0 |	6  |  7	 |	8  |
-	//  * Front Left  1 |	9  |  10 |	11 |
-	//  * Back Right  2 |	3  |  4	 |	5  |
-	//  * Back Left   3 |	0  |  1	 |	2  |
-	//  * \endverbatim
-	//  */
-	// CalServo servo[4][3] {
-	// 	// Top, Mid, and Low motors for each leg
-	// 	{CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8)},		// Front Right 
-	// 	{CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)},	// Front Left
-	// 	{CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5)},		// Back Right
-	// 	{CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)}		// Back Left
-	// };
+    PCA9685 pca(1, 0x40);
+	/** 
+	 * \verbatim
+	 * 		Numbers of servo channels
+	 * 			   of each leg
+	 * 				 | Top | Mid | Low |
+	 * 				 |  0  |  1  |  2  |
+	 * --------------|-----|-----|-----|
+	 * Front Right 0 |	6  |  7	 |	8  |
+	 * Front Left  1 |	9  |  10 |	11 |
+	 * Back Right  2 |	3  |  4	 |	5  |
+	 * Back Left   3 |	0  |  1	 |	2  |
+	 * \endverbatim
+	 */
+	CalServo servo[4][3] {
+		// Top, Mid, and Low motors for each leg
+		{CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8)},		// Front Right 
+		{CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)},	// Front Left
+		{CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5)},		// Back Right
+		{CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)}		// Back Left
+	};
 
-    // pca.set_pwm_freq(50);
-	// usleep(2000000);
+    pca.set_pwm_freq(50);
+	usleep(2000000);
 	
-	// // servo[0][0].refresh_fitter(pwm_list, degree_list[6], 20);
-	// // servo[0][1].refresh_fitter(pwm_list, degree_list[7], 20);
-	// // servo[0][2].refresh_fitter(pwm_list, degree_list[8], 20);
-	// // servo[1][0].refresh_fitter(pwm_list, degree_list[9], 20);
-	// // servo[1][1].refresh_fitter(pwm_list, degree_list[10], 20);
-	// // servo[1][2].refresh_fitter(pwm_list, degree_list[11], 20);
-	// // servo[2][0].refresh_fitter(pwm_list, degree_list[3], 20);
-	// // servo[2][1].refresh_fitter(pwm_list, degree_list[4], 20);
-	// // servo[2][2].refresh_fitter(pwm_list, degree_list[5], 20);
-	// // servo[3][0].refresh_fitter(pwm_list, degree_list[0], 20);
-	// // servo[3][1].refresh_fitter(pwm_list, degree_list[1], 20);
-	// // servo[3][2].refresh_fitter(pwm_list, degree_list[2], 20);
+	// servo[0][0].refresh_fitter(pwm_list, degree_list[6], 20);
+	// servo[0][1].refresh_fitter(pwm_list, degree_list[7], 20);
+	// servo[0][2].refresh_fitter(pwm_list, degree_list[8], 20);
+	// servo[1][0].refresh_fitter(pwm_list, degree_list[9], 20);
+	// servo[1][1].refresh_fitter(pwm_list, degree_list[10], 20);
+	// servo[1][2].refresh_fitter(pwm_list, degree_list[11], 20);
+	// servo[2][0].refresh_fitter(pwm_list, degree_list[3], 20);
+	// servo[2][1].refresh_fitter(pwm_list, degree_list[4], 20);
+	// servo[2][2].refresh_fitter(pwm_list, degree_list[5], 20);
+	// servo[3][0].refresh_fitter(pwm_list, degree_list[0], 20);
+	// servo[3][1].refresh_fitter(pwm_list, degree_list[1], 20);
+	// servo[3][2].refresh_fitter(pwm_list, degree_list[2], 20);
 
-	// printf("Calibrating\n");
+	printf("Calibrating\n");
+
+	for(int i = 0; i < 4; i++)
+		for(int j = 0; j < 3; j++)
+			servo[i][j].refresh_fitter(pwm_list, degree_list[servo[i][j].getChannel()], 20);
+
+	printf("Calibrated\n");
 
 	// for(int i = 0; i < 4; i++)
 	// 	for(int j = 0; j < 3; j++)
-	// 		servo[i][j].refresh_fitter(pwm_list, degree_list[servo[i][j].getChannel()], 20);
+	// 		servo[i][j].set_degree(90);
 
-	// printf("Calibrated\n");
+	int dest_servo = 0, dest_degree = 0;
+    while(true) {
+		scanf("%d %d", &dest_servo, &dest_degree);
+		servo[3][dest_servo].set_degree(dest_degree);
+    }
 
-	// // for(int i = 0; i < 4; i++)
-	// // 	for(int j = 0; j < 3; j++)
-	// // 		servo[i][j].set_degree(90);
-
-	// int dest_servo = 0, dest_degree = 0;
-    // while(true) {
-	// 	scanf("%d %d", &dest_servo, &dest_degree);
-	// 	servo[3][dest_servo].set_degree(dest_degree);
-    // }
-
-	// printf("Finished moving\n");
+	printf("Finished moving\n");
 
     
-	// gpioTerminate();
-	// return 0;
+	gpioTerminate();
+	return 0;
 
 	// printf("Moving\n");
 	// double degree[20];
@@ -126,57 +126,57 @@ int main() {
     // }
 
 
-	if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
-	MPU6050 device(1, 0x68);
-	MPU6050::MPU6050_data_t data;
-	float ax, ay, az, gr, gp, gy; //Variables to store the accel, gyro and angle values
+	// if (gpioInitialise() < 0) {
+	// 	printf("Failure...");
+	// 	exit(-1);
+	// }
+	// MPU6050 device(1, 0x68);
+	// MPU6050::MPU6050_data_t data;
+	// float ax, ay, az, gr, gp, gy; //Variables to store the accel, gyro and angle values
 
-	sleep(1); //Wait for the MPU6050 to stabilize
+	// sleep(1); //Wait for the MPU6050 to stabilize
 
-	/*
-	//Calculate the offsets
-	std::cout << "Calculating the offsets...\n    Please keep the accelerometer level and still\n    This could take a couple of minutes...";
-	device.getOffsets(&ax, &ay, &az, &gr, &gp, &gy);
-	std::cout << "Gyroscope R,P,Y: " << gr << "," << gp << "," << gy << "\nAccelerometer X,Y,Z: " << ax << "," << ay << "," << az << "\n";
-	*/
+	// /*
+	// //Calculate the offsets
+	// std::cout << "Calculating the offsets...\n    Please keep the accelerometer level and still\n    This could take a couple of minutes...";
+	// device.getOffsets(&ax, &ay, &az, &gr, &gp, &gy);
+	// std::cout << "Gyroscope R,P,Y: " << gr << "," << gp << "," << gy << "\nAccelerometer X,Y,Z: " << ax << "," << ay << "," << az << "\n";
+	// */
 
-	//Read the current yaw angle
-	device.calc_yaw = true;
+	// //Read the current yaw angle
+	// device.calc_yaw = true;
 
-	while(1) {
-		// device.getAngle(0, &gr);
-		// device.getAngle(1, &gp);
-		// device.getAngle(2, &gy);
+	// while(1) {
+	// 	// device.getAngle(0, &gr);
+	// 	// device.getAngle(1, &gp);
+	// 	// device.getAngle(2, &gy);
 
-		// std::cout << "Current angle around the roll axis: " << gr << "\n";
-		// std::cout << "Current angle around the pitch axis: " << gp << "\n";
-		// std::cout << "Current angle around the yaw axis: " << gy << "\n";
+	// 	// std::cout << "Current angle around the roll axis: " << gr << "\n";
+	// 	// std::cout << "Current angle around the pitch axis: " << gp << "\n";
+	// 	// std::cout << "Current angle around the yaw axis: " << gy << "\n";
 
-		device.read_data(&data);
-		printf("Accel x: %.3f, y: %.3f, z: %.3f / Gyro x: %3.f, y: %3.f, z: %3.f\n", 
-			data.x_accel, 
-			data.y_accel,
-			data.z_accel,
-			data.x_rot,
-			data.y_rot,
-			data.z_rot
-		);
-		usleep(500000); //0.25sec
-	}
+	// 	device.read_data(&data);
+	// 	printf("Accel x: %.3f, y: %.3f, z: %.3f / Gyro x: %3.f, y: %3.f, z: %3.f\n", 
+	// 		data.x_accel, 
+	// 		data.y_accel,
+	// 		data.z_accel,
+	// 		data.x_rot,
+	// 		data.y_rot,
+	// 		data.z_rot
+	// 	);
+	// 	usleep(500000); //0.25sec
+	// }
 
-	// //Get the current accelerometer values
-	// device.getAccel(&ax, &ay, &az);
-	// std::cout << "Accelerometer Readings: X: " << ax << ", Y: " << ay << ", Z: " << az << "\n";
+	// // //Get the current accelerometer values
+	// // device.getAccel(&ax, &ay, &az);
+	// // std::cout << "Accelerometer Readings: X: " << ax << ", Y: " << ay << ", Z: " << az << "\n";
 
-	// //Get the current gyroscope values
-	// device.getGyro(&gr, &gp, &gy);
-	// std::cout << "Gyroscope Readings: X: " << gr << ", Y: " << gp << ", Z: " << gy << "\n";
-	
-	gpioTerminate();
-	return 0;
+	// // //Get the current gyroscope values
+	// // device.getGyro(&gr, &gp, &gy);
+	// // std::cout << "Gyroscope Readings: X: " << gr << ", Y: " << gp << ", Z: " << gy << "\n";
+
+	// gpioTerminate();
+	// return 0;
 
 	// if (gpioInitialise() < 0) {
 	// 	printf("Failure...");
