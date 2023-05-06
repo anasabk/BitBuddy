@@ -18,7 +18,6 @@ HC_SR04::~HC_SR04()
 
 float HC_SR04::get_distance() {
     gpioWrite(trig, PI_HIGH);
-
     gpioDelay(10);
     gpioWrite(trig, PI_LOW);
 
