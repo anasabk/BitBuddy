@@ -85,17 +85,20 @@ int main() {
 	// 	for(int j = 0; j < 3; j++)
 	// 		servo[i][j].set_degree(90);
 
-	int dest_servo = 0, dest_degree = 0;
+	uint8_t dest_servo = 0;
+	int dest_degree = 0;
     while(true) {
 		scanf("%d %d", &dest_servo, &dest_degree);
-		if(dest_servo >= 0 && dest_servo <= 2)
-			servo[3][dest_servo].set_degree(dest_degree);
-		else if(dest_servo >= 3 && dest_servo <= 5)
-			servo[2][dest_servo].set_degree(dest_degree);
-		else if(dest_servo >= 6 && dest_servo <= 8)
-			servo[0][dest_servo].set_degree(dest_degree);
-		else
-			servo[1][dest_servo].set_degree(dest_degree);
+		// if(dest_servo >= 0 && dest_servo <= 2)
+		// 	servo[3][dest_servo].set_degree(dest_degree);
+		// else if(dest_servo >= 3 && dest_servo <= 5)
+		// 	servo[2][dest_servo].set_degree(dest_degree);
+		// else if(dest_servo >= 6 && dest_servo <= 8)
+		// 	servo[0][dest_servo].set_degree(dest_degree);
+		// else
+		// 	servo[1][dest_servo].set_degree(dest_degree);
+
+		pca.set_pwm(dest_servo, 0, dest_degree);
     }
 
 	printf("Finished moving\n");
