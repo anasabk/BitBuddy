@@ -89,7 +89,7 @@ int main() {
 	// 		usleep(500000);
 	// 	}
 
-	// uint8_t dest_servo = 0;
+	uint8_t dest_servo = 0;
 	int dest_degree = 0;
     while(true) {
 		scanf("%d %d", &dest_servo, &dest_degree);
