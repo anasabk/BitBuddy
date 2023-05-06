@@ -86,6 +86,7 @@ int main() {
 			servo[i][j].set_degree(70);
 			usleep(500000);
 			servo[i][j].set_degree(90);
+			usleep(500000);
 		}
 
 	// uint8_t dest_servo = 0;
