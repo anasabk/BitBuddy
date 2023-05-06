@@ -108,7 +108,7 @@ int main() {
 
 		for(int i = 0; i < 4; i++)
 			for(int j = 0; j < 3; j++)
-				if(servo[j][i].get_channel() == dest_servo) {
+				if(servo[j][i].getChannel() == dest_servo) {
 					servo[j][i].set_degree(dest_degree);
 					break;
 				}
