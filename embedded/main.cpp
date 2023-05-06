@@ -81,33 +81,40 @@ int main() {
 
 	printf("Calibrated\n");
 
-	for(int i = 0; i < 3; i++)
-		for(int j = 0; j < 4; j++){
-			servo[j][i].set_degree(70);
-			usleep(500000);
-			servo[j][i].set_degree(90);
-			usleep(500000);
-		}
+	// for(int i = 0; i < 3; i++)
+	// 	for(int j = 0; j < 4; j++){
+	// 		servo[j][i].set_degree(70);
+	// 		usleep(500000);
+	// 		servo[j][i].set_degree(90);
+	// 		usleep(500000);
+	// 	}
 
-	// uint8_t dest_servo = 0;
-	// int dest_degree = 0;
-    // while(true) {
-	// 	scanf("%d %d", &dest_servo, &dest_degree);
-	// 	if(dest_servo >= 0 && dest_servo <= 2)
-	// 		servo[3][dest_servo].set_degree(dest_degree);
-	// 		// printf("3, %d\n", dest_servo);
-	// 	else if(dest_servo >= 3 && dest_servo <= 5)
-	// 		servo[2][dest_servo - 3].set_degree(dest_degree);
-	// 		// printf("2, %d\n", dest_servo - 3);
-	// 	else if(dest_servo >= 6 && dest_servo <= 8)
-	// 		servo[0][dest_servo - 6].set_degree(dest_degree);
-	// 		// printf("0, %d\n", dest_servo - 6);
-	// 	else
-	// 		servo[1][dest_servo - 9].set_degree(dest_degree);
-	// 		// printf("1, %d\n", dest_servo - 9);
+	uint8_t dest_servo = 0;
+	int dest_degree = 0;
+    while(true) {
+		scanf("%d %d", &dest_servo, &dest_degree);
+		// if(dest_servo >= 0 && dest_servo <= 2)
+		// 	servo[3][dest_servo].set_degree(dest_degree);
+		// 	// printf("3, %d\n", dest_servo);
+		// else if(dest_servo >= 3 && dest_servo <= 5)
+		// 	servo[2][dest_servo - 3].set_degree(dest_degree);
+		// 	// printf("2, %d\n", dest_servo - 3);
+		// else if(dest_servo >= 6 && dest_servo <= 8)
+		// 	servo[0][dest_servo - 6].set_degree(dest_degree);
+		// 	// printf("0, %d\n", dest_servo - 6);
+		// else
+		// 	servo[1][dest_servo - 9].set_degree(dest_degree);
+		// 	// printf("1, %d\n", dest_servo - 9);
 
-	// 	// pca.set_pwm_us(dest_servo, dest_degree);
-    // }
+		for(int i = 0; i < 4; i++)
+			for(int j = 0; j < 3; j++)
+				if(servo[j][i].get_channel() == dest_servo) {
+					servo[j][i].set_degree(dest_degree);
+					break;
+				}
+
+		// pca.set_pwm_us(dest_servo, dest_degree);
+    }
 	
 
 	printf("Finished moving\n");
