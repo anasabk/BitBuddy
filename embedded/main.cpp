@@ -94,17 +94,17 @@ int main() {
     while(true) {
 		scanf("%d %d", &dest_servo, &dest_degree);
 		if(dest_servo >= 0 && dest_servo <= 2)
-			// servo[3][dest_servo].set_degree(dest_degree);
-			printf("3, %d\n", dest_servo);
+			servo[3][dest_servo].set_degree(dest_degree);
+			// printf("3, %d\n", dest_servo);
 		else if(dest_servo >= 3 && dest_servo <= 5)
-			// servo[2][dest_servo - 3].set_degree(dest_degree);
-			printf("2, %d\n", dest_servo - 3);
+			servo[2][dest_servo - 3].set_degree(dest_degree);
+			// printf("2, %d\n", dest_servo - 3);
 		else if(dest_servo >= 6 && dest_servo <= 8)
-			// servo[0][dest_servo - 6].set_degree(dest_degree);
-			printf("0, %d\n", dest_servo - 6);
+			servo[0][dest_servo - 6].set_degree(dest_degree);
+			// printf("0, %d\n", dest_servo - 6);
 		else
-			// servo[1][dest_servo - 9].set_degree(dest_degree);
-			printf("1, %d\n", dest_servo - 9);
+			servo[1][dest_servo - 9].set_degree(dest_degree);
+			// printf("1, %d\n", dest_servo - 9);
 
 		// pca.set_pwm_us(dest_servo, dest_degree);
     }
