@@ -98,7 +98,7 @@ int main() {
 		// else
 		// 	servo[1][dest_servo].set_degree(dest_degree);
 
-		pca.set_pwm_us(dest_servo, 0, dest_degree);
+		pca.set_pwm_us(dest_servo, dest_degree);
     }
 
 	printf("Finished moving\n");
