@@ -49,12 +49,12 @@ int main() {
 	 * Back Left   3 |	0  |  1	 |	2  |
 	 * \endverbatim
 	 */
-	CalServo servo[4][3] {
+	CalServo *servo[4][3] {
 		// Top, Mid, and Low motors for each leg
-		{CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8)},		// Front Right 
-		{CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)},	// Front Left
-		{CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5)},		// Back Right
-		{CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)}		// Back Left
+		{new CalServo(&pca, 6), new CalServo(&pca, 7), new CalServo(&pca, 8)},		// Front Right 
+		{new CalServo(&pca, 9), new CalServo(&pca, 10), new CalServo(&pca, 11)},	// Front Left
+		{new CalServo(&pca, 3), new CalServo(&pca, 4), new CalServo(&pca, 5)},		// Back Right
+		{new CalServo(&pca, 0), new CalServo(&pca, 1), new CalServo(&pca, 2)}		// Back Left
 	};
 
     pca.set_pwm_freq(50);
@@ -77,7 +77,7 @@ int main() {
 
 	for(int i = 0; i < 4; i++)
 		for(int j = 0; j < 3; j++)
-			servo[i][j].refresh_fitter(pwm_list, degree_list[servo[i][j].getChannel()], 20);
+			servo[i][j]->refresh_fitter(pwm_list, degree_list[servo[i][j]->getChannel()], 20);
 
 	printf("Calibrated\n");
 
@@ -108,9 +108,9 @@ int main() {
 
 		for(int i = 0; i < 4; i++){
 			for(int j = 0; j < 3; j++){
-				printf("%d %d %d\n", i, j, servo[i][j].getChannel());
-				if(servo[i][j].getChannel() == dest_servo) {
-					servo[i][j].set_degree(dest_degree);
+				printf("%d %d %d\n", i, j, servo[i][j]->getChannel());
+				if(servo[i][j]->getChannel() == dest_servo) {
+					servo[i][j]->set_degree(dest_degree);
 					break;
 				}
 			}
