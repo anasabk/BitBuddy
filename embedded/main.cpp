@@ -49,12 +49,19 @@ int main() {
 	 * Back Left   3 |	0  |  1	 |	2  |
 	 * \endverbatim
 	 */
-	CalServo servo[4][3] {
+	CalServo servo[12] {
 		// Top, Mid, and Low motors for each leg
-		{CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8)},		// Front Right 
-		{CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)},	// Front Left
-		{CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5)},		// Back Right
-		{CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)}		// Back Left
+		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
+		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
+		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
+		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
+	};
+
+	CalServo *joints[4][3] = {
+		{&servo[6], &servo[7], &servo[8]},
+		{&servo[9], &servo[10], &servo[11]},
+		{&servo[3], &servo[4], &servo[5]},
+		{&servo[0], &servo[1], &servo[2]}
 	};
 
     pca.set_pwm_freq(50);
@@ -75,9 +82,8 @@ int main() {
 
 	printf("Calibrating\n");
 
-	for(int i = 0; i < 4; i++)
-		for(int j = 0; j < 3; j++)
-			servo[i][j].refresh_fitter(pwm_list, degree_list[servo[i][j].getChannel()], 20);
+	for(int i = 0; i < 12; i++)
+			servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
 
 	printf("Calibrated\n");
 
