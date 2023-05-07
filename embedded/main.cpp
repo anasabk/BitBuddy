@@ -28,68 +28,95 @@ int degree_list[12][20] = {
 };
 
 int main() {
-	// if (gpioInitialise() < 0) {
-	// 	printf("Failure...");
-	// 	exit(-1);
-	// }
-	// LCD lcd(1, 0x27);
-	// lcd.printf("Hello World");
+	if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
+	LCD lcd(1, 0x27);
+	lcd.printf("Hello World");
 
-    // PCA9685 pca(1, 0x40);
-	// /** 
-	//  * \verbatim
-	//  * 		Numbers of servo channels
-	//  * 			   of each leg
-	//  * 				 | Top | Mid | Low |
-	//  * 				 |  0  |  1  |  2  |
-	//  * --------------|-----|-----|-----|
-	//  * Front Right 0 |	6  |  7	 |	8  |
-	//  * Front Left  1 |	9  |  10 |	11 |
-	//  * Back Right  2 |	3  |  4	 |	5  |
-	//  * Back Left   3 |	0  |  1	 |	2  |
-	//  * \endverbatim
-	//  */
-	// CalServo servo[4][3] {
-	// 	// Top, Mid, and Low motors for each leg
-	// 	{CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8)},		// Front Right 
-	// 	{CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)},	// Front Left
-	// 	{CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5)},		// Back Right
-	// 	{CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)}		// Back Left
-	// };
+    PCA9685 pca(1, 0x40);
+	/** 
+	 * \verbatim
+	 * 		Numbers of servo channels
+	 * 			   of each leg
+	 * 				 | Top | Mid | Low |
+	 * 				 |  0  |  1  |  2  |
+	 * --------------|-----|-----|-----|
+	 * Front Right 0 |	6  |  7	 |	8  |
+	 * Front Left  1 |	9  |  10 |	11 |
+	 * Back Right  2 |	3  |  4	 |	5  |
+	 * Back Left   3 |	0  |  1	 |	2  |
+	 * \endverbatim
+	 */
+	CalServo servo[4][3] {
+		// Top, Mid, and Low motors for each leg
+		{CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8)},		// Front Right 
+		{CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)},	// Front Left
+		{CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5)},		// Back Right
+		{CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)}		// Back Left
+	};
 
-    // pca.set_pwm_freq(50);
-	// usleep(2000000);
+    pca.set_pwm_freq(50);
+	usleep(2000000);
 	
-	// // servo[0][0].refresh_fitter(pwm_list, degree_list[6], 20);
-	// // servo[0][1].refresh_fitter(pwm_list, degree_list[7], 20);
-	// // servo[0][2].refresh_fitter(pwm_list, degree_list[8], 20);
-	// // servo[1][0].refresh_fitter(pwm_list, degree_list[9], 20);
-	// // servo[1][1].refresh_fitter(pwm_list, degree_list[10], 20);
-	// // servo[1][2].refresh_fitter(pwm_list, degree_list[11], 20);
-	// // servo[2][0].refresh_fitter(pwm_list, degree_list[3], 20);
-	// // servo[2][1].refresh_fitter(pwm_list, degree_list[4], 20);
-	// // servo[2][2].refresh_fitter(pwm_list, degree_list[5], 20);
-	// // servo[3][0].refresh_fitter(pwm_list, degree_list[0], 20);
-	// // servo[3][1].refresh_fitter(pwm_list, degree_list[1], 20);
-	// // servo[3][2].refresh_fitter(pwm_list, degree_list[2], 20);
+	// servo[0][0].refresh_fitter(pwm_list, degree_list[6], 20);
+	// servo[0][1].refresh_fitter(pwm_list, degree_list[7], 20);
+	// servo[0][2].refresh_fitter(pwm_list, degree_list[8], 20);
+	// servo[1][0].refresh_fitter(pwm_list, degree_list[9], 20);
+	// servo[1][1].refresh_fitter(pwm_list, degree_list[10], 20);
+	// servo[1][2].refresh_fitter(pwm_list, degree_list[11], 20);
+	// servo[2][0].refresh_fitter(pwm_list, degree_list[3], 20);
+	// servo[2][1].refresh_fitter(pwm_list, degree_list[4], 20);
+	// servo[2][2].refresh_fitter(pwm_list, degree_list[5], 20);
+	// servo[3][0].refresh_fitter(pwm_list, degree_list[0], 20);
+	// servo[3][1].refresh_fitter(pwm_list, degree_list[1], 20);
+	// servo[3][2].refresh_fitter(pwm_list, degree_list[2], 20);
 
-	// printf("Calibrating\n");
+	printf("Calibrating\n");
 
-	// for(int i = 0; i < 4; i++)
-	// 	for(int j = 0; j < 3; j++)
-	// 		servo[i][j].refresh_fitter(pwm_list, degree_list[servo[i][j].getChannel()], 20);
+	for(int i = 0; i < 4; i++)
+		for(int j = 0; j < 3; j++)
+			servo[i][j].refresh_fitter(pwm_list, degree_list[servo[i][j].getChannel()], 20);
 
-	// printf("Calibrated\n");
+	printf("Calibrated\n");
 
-	// // for(int i = 0; i < 4; i++)
-	// // 	for(int j = 0; j < 3; j++)
-	// // 		servo[i][j].set_degree(90);
+	// for(int i = 0; i < 3; i++)
+	// 	for(int j = 0; j < 4; j++){
+	// 		servo[j][i].set_degree(70);
+	// 		usleep(500000);
+	// 		servo[j][i].set_degree(90);
+	// 		usleep(500000);
+	// 	}
 
-	// int dest_servo = 0, dest_degree = 0;
-    // while(true) {
-	// 	scanf("%d %d", &dest_servo, &dest_degree);
-	// 	servo[3][dest_servo].set_degree(dest_degree);
-    // }
+	uint8_t dest_servo = 0;
+	int dest_degree = 0;
+    while(true) {
+		scanf("%d %d", &dest_servo, &dest_degree);
+		// if(dest_servo >= 0 && dest_servo <= 2)
+		// 	servo[3][dest_servo].set_degree(dest_degree);
+		// 	// printf("3, %d\n", dest_servo);
+		// else if(dest_servo >= 3 && dest_servo <= 5)
+		// 	servo[2][dest_servo - 3].set_degree(dest_degree);
+		// 	// printf("2, %d\n", dest_servo - 3);
+		// else if(dest_servo >= 6 && dest_servo <= 8)
+		// 	servo[0][dest_servo - 6].set_degree(dest_degree);
+		// 	// printf("0, %d\n", dest_servo - 6);
+		// else
+		// 	servo[1][dest_servo - 9].set_degree(dest_degree);
+		// 	// printf("1, %d\n", dest_servo - 9);
+
+		for(int i = 0; i < 4; i++)
+			for(int j = 0; j < 3; j++){
+				printf("%d %d %d\n", i, j, servo[i][j].getChannel());
+				if(servo[i][j].getChannel() == dest_servo) {
+					servo[i][j].set_degree(dest_degree);
+					break;
+				}
+			}
+		// pca.set_pwm_us(dest_servo, dest_degree);
+    }
+	
 
 	// printf("Finished moving\n");
 
