@@ -164,9 +164,11 @@ int main() {
 		printf("Failure...");
 		exit(-1);
 	}
+
 	MPU6050 device(1, 0x68);
 	MPU6050::MPU6050_data_t data;
 	float ax, ay, az, gr, gp, gy; //Variables to store the accel, gyro and angle values
+	LCD lcd(1, 0x27);
 
 	sleep(1); //Wait for the MPU6050 to stabilize
 
@@ -198,6 +200,10 @@ int main() {
 			data.y_rot,
 			data.z_rot
 		);
+
+        lcd.setPosition(0, 0);
+		lcd.printf("x = %0.3f", data.x_accel);
+		
 		usleep(500000); //0.25sec
 	}
 
