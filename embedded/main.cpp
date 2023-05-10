@@ -223,7 +223,7 @@ int main() {
 		exit(-1);
 	}
 
-	HC_SR04 sensor(6, 5);
+	HC_SR04 sensor(5, 6);
 	LCD lcd(1, 0x27);
 
 	while(1) {
