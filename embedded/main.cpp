@@ -227,6 +227,7 @@ int main() {
 	LCD lcd(1, 0x27);
 
 	while(1) {
+		lcd.setPosition(0, 0);
 		lcd.printf("distance = %f\n", sensor.get_distance());
 		usleep(1000000);
 	}
