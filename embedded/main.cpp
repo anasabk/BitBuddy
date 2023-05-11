@@ -201,7 +201,7 @@ int main() {
 	// 		data.z_rot
 	// 	);
 
-    //     lcd.setPosition(0, 0);
+	//	lcd.setPosition(0, 0);
 	// 	lcd.printf("x = %0.3f", data.x_accel);
 		
 	// 	usleep(500000); //0.25sec
@@ -228,7 +228,7 @@ int main() {
 
 	while(1) {
 		lcd.setPosition(0, 0);
-		lcd.printf("distance = %f\n", sensor.get_distance());
+		lcd.printf("dist = %f\n", sensor.get_distance());
 		printf("distance = %f\n", sensor.get_distance());
 		usleep(1000000);
 	}
