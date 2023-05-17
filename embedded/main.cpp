@@ -203,21 +203,21 @@ extern "C" int main() {
 	// gpioTerminate();
 	// return 0;
 
-	if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
+	// if (gpioInitialise() < 0) {
+	// 	printf("Failure...");
+	// 	exit(-1);
+	// }
 
-	HC_SR04 sensor(5, 6);
-	LCD lcd(1, 0x27);
+	// HC_SR04 sensor(5, 6);
+	// LCD lcd(1, 0x27);
 
-	while(1) {
-		lcd.setPosition(0, 0);
-		lcd.printf("dist = %.3f\n", sensor.get_distance());
-		printf("distance = %f\n", sensor.get_distance());
-		usleep(1000000);
-	}
+	// while(1) {
+	// 	lcd.setPosition(0, 0);
+	// 	lcd.printf("dist = %.3f\n", sensor.get_distance());
+	// 	printf("distance = %f\n", sensor.get_distance());
+	// 	usleep(1000000);
+	// }
 
-	gpioTerminate();
-	return 0;
+	// gpioTerminate();
+	// return 0;
 }
