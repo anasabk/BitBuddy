@@ -2,6 +2,7 @@
 #define CALSERVO_H_
 
 #include <cmath>
+#include <unistd.h>
 #include "PCA9685.h"
 
 
@@ -15,6 +16,8 @@ public:
     void set_PWM(int pwm_us);
 
     void set_degree(int degree);
+
+    void sweep(int start, int finish, int duration_ms);
 
     int getChannel();
 

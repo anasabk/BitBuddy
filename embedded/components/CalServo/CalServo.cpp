@@ -49,6 +49,17 @@ void CalServo::set_degree(int degree) {
     controller->set_pwm_us(channel, pwm_us);
 }
 
+void CalServo::sweep(int start, int dest, int dur_ms) {
+    int dt = dur_ms / (start - dest);
+    int dir = (dest - start) > 0 ? 1 : -1;
+    int current = start;
+    while(current != dest) {
+        set_degree(current);
+        current += dir;
+        usleep(dur_ms*1000);
+    }
+}
+
 
 int CalServo::getChannel() {
     return channel;

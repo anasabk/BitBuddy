@@ -3,7 +3,7 @@ project(BitBuddy)
 
 set(COMPONENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/components)
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
 add_subdirectory(${COMPONENT_DIR}/LCD)
 add_subdirectory(${COMPONENT_DIR}/MPU6050)
@@ -20,6 +20,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${COMPONENT_DIR}/CalServo
     ${COMPONENT_DIR}/I2Cdev
     ${COMPONENT_DIR}/HC_SR04
+    include
     # ${COMPONENT_DIR}/pigpio
 )
 
