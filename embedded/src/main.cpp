@@ -74,8 +74,8 @@ extern "C" int main() {
 
 	printf("Calibrated\n");
 
-	servo[0].sweep(60, 120, 5000);
-	servo[0].sweep(120, 60, 5000);
+	servo[0].sweep(90, 120, 5000);
+	// servo[0].sweep(120, 60, 5000);
 	
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
