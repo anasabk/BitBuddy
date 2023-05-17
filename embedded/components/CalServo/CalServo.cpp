@@ -53,7 +53,7 @@ void CalServo::sweep(int start, int dest, int dur_ms) {
     int dt = dur_ms / (start - dest);
     int dir = (dest - start) > 0 ? 1 : -1;
     int current = start;
-    while(current != dest) {
+    while(current*dir < dest*dir) {
         set_degree(current);
         current += dir;
         usleep(dur_ms*1000);
