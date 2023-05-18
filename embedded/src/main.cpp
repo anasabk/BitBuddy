@@ -11,6 +11,8 @@
 #include <fstream>
 #include <time.h>
 #include <sched.h>
+#include <linux/i2c-dev.h>
+#include <i2c/smbus.h>
 
 int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
@@ -109,41 +111,41 @@ extern "C" int main() {
 	// // close(servo_data_fd);
 
 
-	// if (gpioInitialise() < 0) {
-	// 	printf("Failure...");
-	// 	exit(-1);
-	// }
+	if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
 
-	// MPU6050 device(1, 0x68);
-	// MPU6050::MPU6050_data_t data;
-	// float ax, ay, az, gr, gp, gy; //Variables to store the accel, gyro and angle values
-	// LCD lcd(1, 0x27);
+	MPU6050 device(1, 0x68);
+	MPU6050::MPU6050_data_t data;
+	float ax, ay, az, gr, gp, gy; //Variables to store the accel, gyro and angle values
+	LCD lcd(1, 0x27);
 
-	// sleep(1); //Wait for the MPU6050 to stabilize
+	sleep(1); //Wait for the MPU6050 to stabilize
 
-	// //Read the current yaw angle
-	// device.calc_yaw = true;
+	//Read the current yaw angle
+	device.calc_yaw = true;
 
-	// MPU6050_data_t data;
-	// while(1) {
-	// 	device.read_data(&data);
-	// 	printf("Accel x: %.3f, y: %.3f, z: %.3f / Gyro x: %3.f, y: %3.f, z: %3.f\n", 
-	// 		data.x_accel, 
-	// 		data.y_accel,
-	// 		data.z_accel,
-	// 		data.x_rot,
-	// 		data.y_rot,
-	// 		data.z_rot
-	// 	);
+	MPU6050_data_t data;
+	while(1) {
+		device.read_data(&data);
+		printf("Accel x: %.3f, y: %.3f, z: %.3f / Gyro x: %3.f, y: %3.f, z: %3.f\n", 
+			data.x_accel, 
+			data.y_accel,
+			data.z_accel,
+			data.x_rot,
+			data.y_rot,
+			data.z_rot
+		);
 
-	//	lcd.setPosition(0, 0);
-	// 	lcd.printf("x = %0.3f", data.x_accel);
+		lcd.setPosition(0, 0);
+		lcd.printf("x = %0.3f", data.x_accel);
 		
-	// 	usleep(500000); //0.25sec
-	// }
+		usleep(500000); //0.25sec
+	}
 
-	// gpioTerminate();
-	// return 0;
+	gpioTerminate();
+	return 0;
 
 	// if (gpioInitialise() < 0) {
 	// 	printf("Failure...");
@@ -164,56 +166,56 @@ extern "C" int main() {
 	// return 0;
 	
 
-	if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
+	// if (gpioInitialise() < 0) {
+	// 	printf("Failure...");
+	// 	exit(-1);
+	// }
 
-    // Real-time scheduling
-    struct sched_param param;
-    param.sched_priority = 99; // Set priority to maximum
-    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
-        std::cerr << "sched_setscheduler error!" << std::endl;
-        return 1;
-    }
+    // // Real-time scheduling
+    // struct sched_param param;
+    // param.sched_priority = 99; // Set priority to maximum
+    // if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+    //     std::cerr << "sched_setscheduler error!" << std::endl;
+    //     return 1;
+    // }
 
-    // Initalize
-    MPU6050 mpu(1, I2C_ADDRESS);
+    // // Initalize
+    // MPU6050 mpu(1, I2C_ADDRESS);
 
-    MPU6050::MPU6050_data_t data;
-    mpu.read_data(&data);
+    // MPU6050::MPU6050_data_t data;
+    // mpu.read_data(&data);
 
-    // Test connection
-    if (data.x_accel == 0 && data.y_accel == 0 && data.z_accel == 0 && data.x_rot == 0 && data.y_rot == 0 && data.z_rot == 0) {
-        std::cerr << "MPU6050 connection error!" << std::endl;
-        return 1;
-    }
+    // // Test connection
+    // if (data.x_accel == 0 && data.y_accel == 0 && data.z_accel == 0 && data.x_rot == 0 && data.y_rot == 0 && data.z_rot == 0) {
+    //     std::cerr << "MPU6050 connection error!" << std::endl;
+    //     return 1;
+    // }
 
-    std::ofstream outputFile("sensorData.txt");
+    // std::ofstream outputFile("sensorData.txt");
 
-    auto startTime = std::chrono::system_clock::now();
-    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - startTime).count() < 5) {
-        mpu.read_data(&data);
+    // auto startTime = std::chrono::system_clock::now();
+    // while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - startTime).count() < 5) {
+    //     mpu.read_data(&data);
 
-        auto timeNow = std::chrono::system_clock::now();
-        std::time_t systemTime = std::chrono::system_clock::to_time_t(timeNow);
+    //     auto timeNow = std::chrono::system_clock::now();
+    //     std::time_t systemTime = std::chrono::system_clock::to_time_t(timeNow);
 
-        outputFile << "Time: " << std::ctime(&systemTime);
-        outputFile << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
-        outputFile << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
+    //     outputFile << "Time: " << std::ctime(&systemTime);
+    //     outputFile << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
+    //     outputFile << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
 
-        std::cout << "Time: " << std::ctime(&systemTime);
-        std::cout << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
-        std::cout << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
+    //     std::cout << "Time: " << std::ctime(&systemTime);
+    //     std::cout << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
+    //     std::cout << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
 
-        // struct timespec sleepTime;
-        // sleepTime.tv_sec = 0;
-        // sleepTime.tv_nsec = 10000000; // 10 ms in nanoseconds
-		usleep(30000);
-        // nanosleep(&sleepTime, nullptr); // 100Hz = 10ms delay
-    }
+    //     // struct timespec sleepTime;
+    //     // sleepTime.tv_sec = 0;
+    //     // sleepTime.tv_nsec = 10000000; // 10 ms in nanoseconds
+	// 	usleep(30000);
+    //     // nanosleep(&sleepTime, nullptr); // 100Hz = 10ms delay
+    // }
 
-    outputFile.close();
-	gpioTerminate();
-	return 0;
+    // outputFile.close();
+	// gpioTerminate();
+	// return 0;
 }
