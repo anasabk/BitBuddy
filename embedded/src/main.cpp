@@ -164,6 +164,11 @@ extern "C" int main() {
 	// return 0;
 	
 
+	if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
+
     // Real-time scheduling
     struct sched_param param;
     param.sched_priority = 99; // Set priority to maximum
@@ -208,5 +213,6 @@ extern "C" int main() {
     }
 
     outputFile.close();
-    return 0;
+	gpioTerminate();
+	return 0;
 }
