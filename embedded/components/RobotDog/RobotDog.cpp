@@ -11,9 +11,9 @@ BitBuddy::BitBuddy(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 		{CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)}		// Back Left
     }
 {
-	for(int i = 0; i < 4; i++)
-		for(int j = 0; j < 3; j++)
-			servos[i][j].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i][j].getChannel()], 20);
+	// for(int i = 0; i < 4; i++)
+	// 	for(int j = 0; j < 3; j++)
+	// 		servos[i][j].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i][j].getChannel()], 20);
     
 }
 
