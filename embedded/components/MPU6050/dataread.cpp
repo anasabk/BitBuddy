@@ -14,10 +14,14 @@ int main() {
         return 1;
     }
 
-    MPU6050 mpu;
-    mpu.initialize();
+    // Initalize
+    MPU6050 mpu(1, I2C_ADDRESS);
 
-    if (!mpu.testConnection()) {
+    MPU6050::MPU6050_data_t data;
+    mpu.read_data(&data);
+
+    // Test connection
+    if (data.x_accel == 0 && data.y_accel == 0 && data.z_accel == 0 && data.x_rot == 0 && data.y_rot == 0 && data.z_rot == 0) {
         std::cerr << "MPU6050 connection error!" << std::endl;
         return 1;
     }
@@ -26,17 +30,14 @@ int main() {
 
     auto startTime = std::chrono::system_clock::now();
     while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - startTime).count() < 5) {
-        int16_t ax, ay, az;
-        int16_t gx, gy, gz;
-
-        mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+        mpu.read_data(&data);
 
         auto timeNow = std::chrono::system_clock::now();
         std::time_t systemTime = std::chrono::system_clock::to_time_t(timeNow);
 
         outputFile << "Time: " << std::ctime(&systemTime);
-        outputFile << "AccelX: " << ax << ", AccelY: " << ay << ", AccelZ: " << az << std::endl;
-        outputFile << "GyroX: " << gx << ", GyroY: " << gy << ", GyroZ: " << gz << std::endl;
+        outputFile << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
+        outputFile << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
 
         struct timespec sleepTime;
         sleepTime.tv_sec = 0;
