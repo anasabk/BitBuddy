@@ -126,7 +126,6 @@ extern "C" int main() {
 	//Read the current yaw angle
 	device.calc_yaw = true;
 
-	MPU6050::MPU6050_data_t data;
 	while(1) {
 		device.read_data(&data);
 		printf("Accel x: %.3f, y: %.3f, z: %.3f / Gyro x: %3.f, y: %3.f, z: %3.f\n", 
