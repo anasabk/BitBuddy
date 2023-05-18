@@ -2,7 +2,13 @@
 #define I2CDEV_H
 
 
-#include "pigpio.h"
+// #include "pigpio.h"
+#include <linux/i2c-dev.h>
+#include <i2c/smbus.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <string>
+#include <unistd.h>
 
 
 class I2Cdev

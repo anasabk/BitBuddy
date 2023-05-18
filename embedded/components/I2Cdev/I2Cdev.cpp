@@ -3,11 +3,27 @@
 
 I2Cdev::I2Cdev(int bus, int addr)
 {
-    fd = i2cOpen(bus, addr, 0);
+    // fd = i2cOpen(bus, addr, 0);
+    
+    char filename[20];
+    snprintf(filename, 19, "/dev/i2c-%d", bus);
+    fd = open(filename, O_RDWR);
+    if (fd < 0) {
+        /* ERROR HANDLING; you can check errno to see what went wrong */
+        // perror("Opening i2c file")
+        exit(1);
+    }
+
+    if (ioctl(fd, I2C_SLAVE, addr) < 0) {
+        /* ERROR HANDLING; you can check errno to see what went wrong */
+        // perror("Setting i2c address");
+        exit(1);
+    }
 }
 
 I2Cdev::~I2Cdev()
 {
+    close(fd);
 }
 
 /** Read a single bit from an 8-bit device register. 
@@ -68,7 +84,8 @@ bool I2Cdev::read_byte(uint8_t reg_addr, uint8_t *data) {
  * @return Numbers of bytes received.
  */
 int8_t I2Cdev::read_bytes(uint8_t reg_addr, uint8_t length, uint8_t *data) {
-	return i2cReadI2CBlockData(fd, reg_addr, (char*)data, length);
+	// return i2cReadI2CBlockData(fd, reg_addr, (char*)data, length);
+    return i2c_smbus_read_i2c_block_data(fd, reg_addr, length, data);
 }
 
 /** write a single bit in an 8-bit device register.
@@ -118,7 +135,8 @@ bool I2Cdev::write_bits(uint8_t reg_addr, uint8_t bitStart, uint8_t length, uint
  * @return Status of operation (true = success)
  */
 bool I2Cdev::write_byte(uint8_t reg_addr, uint8_t data) {
-	i2cWriteByteData(fd, reg_addr, data);
+	// i2cWriteByteData(fd, reg_addr, data);
+    i2c_smbus_write_byte_data(fd, reg_addr, data);
 	return true;
 }
 
@@ -129,6 +147,7 @@ bool I2Cdev::write_byte(uint8_t reg_addr, uint8_t data) {
  * @return Status of operation (true = success)
  */
 bool I2Cdev::write_bytes(uint8_t reg_addr, uint8_t length, uint8_t *data){
-    i2cWriteBlockData(fd, reg_addr, (char*)data, length);
+    // i2cWriteBlockData(fd, reg_addr, (char*)data, length);
+    i2c_smbus_write_block_data(fd, reg_addr, length, data);
 	return true;
 }
