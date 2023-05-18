@@ -197,6 +197,10 @@ extern "C" int main() {
         outputFile << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
         outputFile << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
 
+        std::cout << "Time: " << std::ctime(&systemTime);
+        std::cout << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
+        std::cout << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
+
         struct timespec sleepTime;
         sleepTime.tv_sec = 0;
         sleepTime.tv_nsec = 10000000; // 10 ms in nanoseconds
