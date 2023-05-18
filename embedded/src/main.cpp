@@ -6,6 +6,11 @@
 #include <cstdio>
 #include "cstring"
 #include "HC_SR04.h"
+#include <iostream>
+#include <chrono>
+#include <fstream>
+#include <time.h>
+#include <sched.h>
 
 int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
@@ -28,99 +33,70 @@ int degree_list[12][20] = {
 };
 
 extern "C" int main() {
-	if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
-	LCD lcd(1, 0x27);
-	lcd.printf("Hello World");
+	// if (gpioInitialise() < 0) {
+	// 	printf("Failure...");
+	// 	exit(-1);
+	// }
+	// LCD lcd(1, 0x27);
+	// lcd.printf("Hello World");
 
-    PCA9685 pca(1, 0x40);
-	/** 
-	 * \verbatim
-	 * 		Numbers of servo channels
-	 * 			   of each leg
-	 * 				 | Top | Mid | Low |
-	 * 				 |  0  |  1  |  2  |
-	 * --------------|-----|-----|-----|
-	 * Front Right 0 |	6  |  7	 |	8  |
-	 * Front Left  1 |	9  |  10 |	11 |
-	 * Back Right  2 |	3  |  4	 |	5  |
-	 * Back Left   3 |	0  |  1	 |	2  |
-	 * \endverbatim
-	 */
-	CalServo servo[12] {
-		// Top, Mid, and Low motors for each leg
-		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
-		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
-		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
-		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
-	};
+    // PCA9685 pca(1, 0x40);
+	// /** 
+	//  * \verbatim
+	//  * 		Numbers of servo channels
+	//  * 			   of each leg
+	//  * 				 | Top | Mid | Low |
+	//  * 				 |  0  |  1  |  2  |
+	//  * --------------|-----|-----|-----|
+	//  * Front Right 0 |	6  |  7	 |	8  |
+	//  * Front Left  1 |	9  |  10 |	11 |
+	//  * Back Right  2 |	3  |  4	 |	5  |
+	//  * Back Left   3 |	0  |  1	 |	2  |
+	//  * \endverbatim
+	//  */
+	// CalServo servo[12] {
+	// 	// Top, Mid, and Low motors for each leg
+	// 	CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
+	// 	CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
+	// 	CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
+	// 	CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
+	// };
 
-	CalServo *joints[4][3] = {
-		{&servo[6], &servo[7], &servo[8]},
-		{&servo[9], &servo[10], &servo[11]},
-		{&servo[3], &servo[4], &servo[5]},
-		{&servo[0], &servo[1], &servo[2]}
-	};
+	// CalServo *joints[4][3] = {
+	// 	{&servo[6], &servo[7], &servo[8]},
+	// 	{&servo[9], &servo[10], &servo[11]},
+	// 	{&servo[3], &servo[4], &servo[5]},
+	// 	{&servo[0], &servo[1], &servo[2]}
+	// };
 
-    pca.set_pwm_freq(50);
-	usleep(2000000);
+    // pca.set_pwm_freq(50);
+	// usleep(1000000);
 
-	printf("Calibrating\n");
-
-	for(int i = 0; i < 12; i++)
-		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
-
-	printf("Calibrated\n");
-
-	servo[0].sweep(90, 120, 5000);
-	// servo[0].sweep(120, 60, 5000);
-	
-	uint8_t dest_servo = 0;
-	int dest_degree = 0;
-    while(true) {
-		scanf("%d %d", &dest_servo, &dest_degree);
-		// if(dest_servo >= 0 && dest_servo <= 2)
-		// 	servo[3][dest_servo].set_degree(dest_degree);
-		// 	// printf("3, %d\n", dest_servo);
-		// else if(dest_servo >= 3 && dest_servo <= 5)
-		// 	servo[2][dest_servo - 3].set_degree(dest_degree);
-		// 	// printf("2, %d\n", dest_servo - 3);
-		// else if(dest_servo >= 6 && dest_servo <= 8)
-		// 	servo[0][dest_servo - 6].set_degree(dest_degree);
-		// 	// printf("0, %d\n", dest_servo - 6);
-		// else
-		// 	servo[1][dest_servo - 9].set_degree(dest_degree);
-		// 	// printf("1, %d\n", dest_servo - 9);
-
-		for(int i = 0; i < 12; i++){
-			printf("%d %d %d\n", i, servo[i].getChannel());
-			if(servo[i].getChannel() == dest_servo) {
-				servo[i].set_degree(dest_degree);
-				break;
-			}
-		}
-		// pca.set_pwm_us(dest_servo, dest_degree);
-    }
-	
-
-	printf("Finished moving\n");
-
-    
-	gpioTerminate();
-	return 0;
-
-	// printf("Moving\n");
-	// double degree[20];
-	// int i = 0;
-    // while(i < 20) {
-    //     servo.set_PWM(pwm_list[i]);
-	// 	scanf("%lf", &degree[i]);
-	// 	i++;
-    // }
 	// printf("Calibrating\n");
-	// servo.refresh_fitter(pwm_list, degree, 20);
+
+	// for(int i = 0; i < 12; i++)
+	// 	servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+
+	// printf("Calibrated\n");
+
+	// servo[0].sweep(90, 120, 5000);
+	// // servo[0].sweep(120, 60, 5000);
+	
+	// uint8_t dest_servo = 0;
+	// int dest_degree = 0;
+    // while(true) {
+	// 	scanf("%d %d", &dest_servo, &dest_degree);
+	// 	for(int i = 0; i < 12; i++){
+	// 		printf("%d %d %d\n", i, servo[i].getChannel());
+	// 		if(servo[i].getChannel() == dest_servo) {
+	// 			servo[i].set_degree(dest_degree);
+	// 			break;
+	// 		}
+	// 	}
+    // }
+    
+	// gpioTerminate();
+	// return 0;
 
 	// // int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
 	// // char buffer[128];
@@ -131,13 +107,6 @@ extern "C" int main() {
 	// // sprintf(buffer, "%d", degree[19]);
 	// // write(servo_data_fd, buffer, sizeof(int));
 	// // close(servo_data_fd);
-
-	// printf("Calibrated\n");
-	// int dest_degree = 0;
-    // while(true) {
-	// 	scanf("%d", &dest_degree);
-    //     servo.set_degree(dest_degree);
-    // }
 
 
 	// if (gpioInitialise() < 0) {
@@ -152,25 +121,11 @@ extern "C" int main() {
 
 	// sleep(1); //Wait for the MPU6050 to stabilize
 
-	// /*
-	// //Calculate the offsets
-	// std::cout << "Calculating the offsets...\n    Please keep the accelerometer level and still\n    This could take a couple of minutes...";
-	// device.getOffsets(&ax, &ay, &az, &gr, &gp, &gy);
-	// std::cout << "Gyroscope R,P,Y: " << gr << "," << gp << "," << gy << "\nAccelerometer X,Y,Z: " << ax << "," << ay << "," << az << "\n";
-	// */
-
 	// //Read the current yaw angle
 	// device.calc_yaw = true;
 
+	// MPU6050_data_t data;
 	// while(1) {
-	// 	// device.getAngle(0, &gr);
-	// 	// device.getAngle(1, &gp);
-	// 	// device.getAngle(2, &gy);
-
-	// 	// std::cout << "Current angle around the roll axis: " << gr << "\n";
-	// 	// std::cout << "Current angle around the pitch axis: " << gp << "\n";
-	// 	// std::cout << "Current angle around the yaw axis: " << gy << "\n";
-
 	// 	device.read_data(&data);
 	// 	printf("Accel x: %.3f, y: %.3f, z: %.3f / Gyro x: %3.f, y: %3.f, z: %3.f\n", 
 	// 		data.x_accel, 
@@ -186,14 +141,6 @@ extern "C" int main() {
 		
 	// 	usleep(500000); //0.25sec
 	// }
-
-	// //Get the current accelerometer values
-	// device.getAccel(&ax, &ay, &az);
-	// std::cout << "Accelerometer Readings: X: " << ax << ", Y: " << ay << ", Z: " << az << "\n";
-
-	// //Get the current gyroscope values
-	// device.getGyro(&gr, &gp, &gy);
-	// std::cout << "Gyroscope Readings: X: " << gr << ", Y: " << gp << ", Z: " << gy << "\n";
 
 	// gpioTerminate();
 	// return 0;
@@ -215,4 +162,47 @@ extern "C" int main() {
 
 	// gpioTerminate();
 	// return 0;
+	
+
+    // Real-time scheduling
+    struct sched_param param;
+    param.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return 1;
+    }
+
+    // Initalize
+    MPU6050 mpu(1, I2C_ADDRESS);
+
+    MPU6050::MPU6050_data_t data;
+    mpu.read_data(&data);
+
+    // Test connection
+    if (data.x_accel == 0 && data.y_accel == 0 && data.z_accel == 0 && data.x_rot == 0 && data.y_rot == 0 && data.z_rot == 0) {
+        std::cerr << "MPU6050 connection error!" << std::endl;
+        return 1;
+    }
+
+    std::ofstream outputFile("sensorData.txt");
+
+    auto startTime = std::chrono::system_clock::now();
+    while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - startTime).count() < 5) {
+        mpu.read_data(&data);
+
+        auto timeNow = std::chrono::system_clock::now();
+        std::time_t systemTime = std::chrono::system_clock::to_time_t(timeNow);
+
+        outputFile << "Time: " << std::ctime(&systemTime);
+        outputFile << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
+        outputFile << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
+
+        struct timespec sleepTime;
+        sleepTime.tv_sec = 0;
+        sleepTime.tv_nsec = 10000000; // 10 ms in nanoseconds
+        nanosleep(&sleepTime, nullptr); // 100Hz = 10ms delay
+    }
+
+    outputFile.close();
+    return 0;
 }
