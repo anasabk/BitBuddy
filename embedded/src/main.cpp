@@ -206,10 +206,11 @@ extern "C" int main() {
         std::cout << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
         std::cout << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
 
-        struct timespec sleepTime;
-        sleepTime.tv_sec = 0;
-        sleepTime.tv_nsec = 10000000; // 10 ms in nanoseconds
-        nanosleep(&sleepTime, nullptr); // 100Hz = 10ms delay
+        // struct timespec sleepTime;
+        // sleepTime.tv_sec = 0;
+        // sleepTime.tv_nsec = 10000000; // 10 ms in nanoseconds
+		usleep(10000);
+        // nanosleep(&sleepTime, nullptr); // 100Hz = 10ms delay
     }
 
     outputFile.close();
