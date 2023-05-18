@@ -131,8 +131,8 @@ void LCD::clear() const {
  * Write a string
  */
 void LCD::puts(const char *str) {
-    while (*str)
-        putChar((uint8_t) *(str++));
+    for(int i = 0; str[i] != 0; i++)
+        putChar(str[i]);
 }
 
 /*
