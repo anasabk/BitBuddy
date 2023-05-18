@@ -2,7 +2,9 @@
     "files.associations": {
         "cstdint": "cpp",
         "memory": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "cstdio": "cpp",
+        "cstring": "cpp"
     },
     "cmake.sourceDirectory": "/home/enes/School-files/BitBuddy/embedded"
 }
