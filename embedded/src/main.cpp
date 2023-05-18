@@ -209,7 +209,7 @@ extern "C" int main() {
         // struct timespec sleepTime;
         // sleepTime.tv_sec = 0;
         // sleepTime.tv_nsec = 10000000; // 10 ms in nanoseconds
-		usleep(20000);
+		usleep(30000);
         // nanosleep(&sleepTime, nullptr); // 100Hz = 10ms delay
     }
 
