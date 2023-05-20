@@ -33,7 +33,9 @@ try:
         stream.seek(0)
         connection.write(stream.read())
         # If we've been capturing for more than 30 seconds, quit
-        if time.time() - start > 60:
+        temp = time.time()
+        print(temp)
+        if temp - start > 60:
             break
         # Reset the stream for the next capture
         stream.seek(0)
