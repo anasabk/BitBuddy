@@ -50,8 +50,8 @@ void CalServo::set_degree(int degree) {
 }
 
 void CalServo::sweep(int start, int dest, int dur_ms) {
-    int dt = dur_ms / (dest - start);
     int dir = (dest - start) > 0 ? 1 : -1;
+    int dt = dur_ms / dir*(dest - start);
     int current = start;
     while(current*dir < dest*dir) {
         set_degree(current);
