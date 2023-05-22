@@ -38,11 +38,13 @@ int degree_list[12][20] = {
 CalServo *servo_g;
 
 void *thread_stand(void *val) {
+	printf("Standing thread\n");
 	servo_g[(int)val].sweep(sit[(int)val], stand[(int)val], 1000);
 	pthread_exit(0);
 }
 
 void *thread_sit(void *val) {
+	printf("Sitting thread\n");
 	servo_g[(int)val].sweep(stand[(int)val], sit[(int)val], 1000);
 	pthread_exit(0);
 }
