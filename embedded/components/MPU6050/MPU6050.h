@@ -48,7 +48,7 @@ extern "C" {
 #include <cmath>
 #include <thread>
 
-#include "pigpio.h"
+// #include "pigpio.h"
 #include "I2Cdev.h"
 
 #define _POSIX_C_SOURCE 200809L //Used for calculating time

@@ -1,9 +1,9 @@
-#ifndef BITBUDDY_H
-#define BITBUDDY_H
+#ifndef ROBOTDOG_H
+#define ROBOTDOG_H
 
 
-#include "MPU6050.h"
-#include "LCD.h"
+// #include "MPU6050.h"
+// #include "LCD.h"
 #include "CalServo.h"
 
 
@@ -18,6 +18,7 @@ private:
     CalServo servos[4][3];
     LCD lcd;
     MPU6050 mpu6050;
+
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 

@@ -16,7 +16,7 @@ MPU6050::MPU6050(int8_t bus, int8_t addr, bool run_update_thread)
 	_first_run = 1; //Variable for whether to set gyro angle to acceleration angle in compFilter
 	calc_yaw = false;
 
-	fd = i2cOpen(1, addr, 0);
+	// fd = i2cOpen(1, addr, 0);
 
     write_byte(MPU6050_PWR_MGMT_1, 0);
     write_bits(MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, MPU6050_ACCEL_FS_2);
@@ -54,13 +54,22 @@ void MPU6050::getGyroRaw(float *x, float *y, float *z) {
     // *y = ((int16_t) ((data[2] << 8) | data[3])) / 131.0;
     // *z = ((int16_t) ((data[4] << 8) | data[5])) / 131.0;
 
-	int16_t temp_x = i2cReadByteData(f_dev, 0x43) << 8 | i2cReadByteData(f_dev, 0x44); //Read X registers
-	int16_t temp_y = i2cReadByteData(f_dev, 0x45) << 8 | i2cReadByteData(f_dev, 0x46); //Read Y registers
-	int16_t temp_z = i2cReadByteData(f_dev, 0x47) << 8 | i2cReadByteData(f_dev, 0x48); //Read Z registers
+	// int16_t temp_x = i2cReadByteData(f_dev, 0x43) << 8 | i2cReadByteData(f_dev, 0x44); //Read X registers
+	// int16_t temp_y = i2cReadByteData(f_dev, 0x45) << 8 | i2cReadByteData(f_dev, 0x46); //Read Y registers
+	// int16_t temp_z = i2cReadByteData(f_dev, 0x47) << 8 | i2cReadByteData(f_dev, 0x48); //Read Z registers
 
-	*x = temp_x / GYRO_SENS; //Roll on X axis
-	*y = temp_y / GYRO_SENS; //Pitch on Y axis
-	*z = temp_z / GYRO_SENS; //Yaw on Z axis
+	uint8_t tempx[2], tempy[2], tempz[2];
+
+	read_byte(MPU6050_GYRO_XOUT_H, &tempx[1]);
+	read_byte(MPU6050_GYRO_XOUT_L, &tempx[0]);
+	read_byte(MPU6050_GYRO_YOUT_H, &tempy[1]);
+	read_byte(MPU6050_GYRO_YOUT_L, &tempy[0]);
+	read_byte(MPU6050_GYRO_ZOUT_H, &tempz[1]);
+	read_byte(MPU6050_GYRO_ZOUT_L, &tempz[0]);
+
+	*x = ((int16_t) ((tempx[1] << 8) | tempx[0])) / GYRO_SENS; //Roll on X axis
+	*y = ((int16_t) ((tempy[1] << 8) | tempy[0])) / GYRO_SENS; //Pitch on Y axis
+	*z = ((int16_t) ((tempz[1] << 8) | tempz[0])) / GYRO_SENS; //Yaw on Z axis
 }
 
 void MPU6050::read_data(MPU6050_data_t *buffer) {
@@ -91,19 +100,34 @@ void MPU6050::getGyro(float *x, float *y, float *z) {
 }
 
 void MPU6050::getAccelRaw(float *x, float *y, float *z) {
-	int16_t X = i2cReadByteData(f_dev, 0x3b) << 8 | i2cReadByteData(f_dev, 0x3c); //Read X registers
-	int16_t Y = i2cReadByteData(f_dev, 0x3d) << 8 | i2cReadByteData(f_dev, 0x3e); //Read Y registers
-	int16_t Z = i2cReadByteData(f_dev, 0x3f) << 8 | i2cReadByteData(f_dev, 0x40); //Read Z registers
-	*x = (float)X;
-	*y = (float)Y;
-	*z = (float)Z;
+	uint8_t tempx[2], tempy[2], tempz[2];
+
+	read_byte(MPU6050_ACCEL_XOUT_H, &tempx[1]);
+	read_byte(MPU6050_ACCEL_XOUT_L, &tempx[0]);
+	read_byte(MPU6050_ACCEL_YOUT_H, &tempy[1]);
+	read_byte(MPU6050_ACCEL_YOUT_L, &tempy[0]);
+	read_byte(MPU6050_ACCEL_ZOUT_H, &tempz[1]);
+	read_byte(MPU6050_ACCEL_ZOUT_L, &tempz[0]);
+
+	*x = (tempx[1] << 8 | tempx[0]) / ACCEL_SENS; //Roll on X axis
+	*y = (tempy[1] << 8 | tempy[0]) / ACCEL_SENS; //Pitch on Y axis
+	*z = (tempz[1] << 8 | tempz[0]) / ACCEL_SENS; //Yaw on Z axis
+
+	// int16_t X = i2cReadByteData(f_dev, 0x3b) << 8 | i2cReadByteData(f_dev, 0x3c); //Read X registers
+	// int16_t Y = i2cReadByteData(f_dev, 0x3d) << 8 | i2cReadByteData(f_dev, 0x3e); //Read Y registers
+	// int16_t Z = i2cReadByteData(f_dev, 0x3f) << 8 | i2cReadByteData(f_dev, 0x40); //Read Z registers
+	// *x = (float)X;
+	// *y = (float)Y;
+	// *z = (float)Z;
 }
 
 void MPU6050::getAccel(float *x, float *y, float *z) {
 	getAccelRaw(x, y, z); //Store raw values into variables
-	*x = round((*x - A_OFF_X) * 1000.0 / ACCEL_SENS) / 1000.0; //Remove the offset and divide by the accelerometer sensetivity (use 1000 and round() to round the value to three decimal places)
-	*y = round((*y - A_OFF_Y) * 1000.0 / ACCEL_SENS) / 1000.0;
-	*z = round((*z - A_OFF_Z) * 1000.0 / ACCEL_SENS) / 1000.0;
+	
+	//Remove the offset and divide by the accelerometer sensetivity (use 1000 and round() to round the value to three decimal places)
+	*x = ((int16_t) ((*x - cal_offsets.x_accel) * 1000)) / 1000.0;
+	*y = ((int16_t) ((*y - cal_offsets.y_accel) * 1000)) / 1000.0;
+	*z = ((int16_t) ((*z - cal_offsets.z_accel) * 1000)) / 1000.0;
 }
 
 void MPU6050::getOffsets(float *ax_off, float *ay_off, float *az_off, float *gr_off, float *gp_off, float *gy_off) {

@@ -32,23 +32,28 @@
  \param bus the bus to use in /dev/i2c-%d.
  \param address the device address on bus
  */
-PCA9685::PCA9685(int bus, int address) {
-	i2c_fd = i2cOpen(bus, address, 0);
-	// reset();
-	// set_pwm_freq(1000);
-
+PCA9685::PCA9685(int bus, int address) 
+	: I2Cdev(bus, address) 
+{
+	// i2c_fd = i2cOpen(bus, address, 0);
+	reset();
+	set_pwm_freq(1000);
 	set_all_pwm(0,0);
-	// i2c_fd->WriteRegisterByte(MODE2, OUTDRV);
-	// i2c_fd->WriteRegisterByte(MODE1, ALLCALL);
-	i2cWriteByteData(i2c_fd, MODE2, OUTDRV);
-	i2cWriteByteData(i2c_fd, MODE1, ALLCALL);
-	usleep(5'000);
-	// auto mode1_val = i2c_dev->ReadRegisterByte(MODE1);
-	auto mode1_val = i2cReadByteData(i2c_fd, MODE1);
+
+	// i2cWriteByteData(i2c_fd, MODE2, OUTDRV);
+	// i2cWriteByteData(i2c_fd, MODE1, ALLCALL);
+	write_byte(MODE2, OUTDRV);
+	write_byte(MODE1, ALLCALL);
+	usleep(1000);
+
+	// auto mode1_val = i2cReadByteData(i2c_fd, MODE1);
+	uint8_t mode1_val = 0;
+	read_byte(MODE1, &mode1_val);
 	mode1_val &= ~SLEEP;
-	// i2c_dev->WriteRegisterByte(MODE1, mode1_val);
-	i2cWriteByteData(i2c_fd, MODE1, mode1_val);
-	usleep(5'000);
+
+	// i2cWriteByteData(i2c_fd, MODE1, mode1_val);
+	write_byte(MODE1, mode1_val);
+	usleep(1000);
 }
 
 PCA9685::~PCA9685() {
@@ -57,10 +62,10 @@ PCA9685::~PCA9685() {
 
 //! Sets PCA9685 mode to 00
 void PCA9685::reset() {
-	// i2c->write_byte(MODE1, 0x00); //Normal mode
-	// i2c->write_byte(MODE2, 0x04); //totem pole
-	i2cWriteByte(MODE1, 0x00);
-	i2cWriteByte(MODE2, 0x04);
+	// i2cWriteByte(MODE1, 0x00);
+	// i2cWriteByte(MODE2, 0x04);
+	write_byte(MODE1, 0x00);
+	write_byte(MODE2, 0x04);
 }
 
 //! Set the frequency of PWM
@@ -77,33 +82,34 @@ void PCA9685::set_pwm_freq(int freq_hz) {
 
 	auto prescale = static_cast<int>(std::round(prescaleval));
 
-	// const auto oldmode = i2c_dev->ReadRegisterByte(MODE1);
-	const auto oldmode = i2cReadByteData(i2c_fd, MODE1);
+	// const auto oldmode = i2cReadByteData(i2c_fd, MODE1);
+	uint8_t oldmode;
+	read_byte(MODE1, &oldmode);
 
 	auto newmode = (oldmode & 0x7F) | SLEEP;
 
-	// i2c_dev->WriteRegisterByte(MODE1, newmode);
-	// i2c_dev->WriteRegisterByte(PRESCALE, prescale);
-	// i2c_dev->WriteRegisterByte(MODE1, oldmode);
+	// i2cWriteByteData(i2c_fd, MODE1, newmode);
+	// i2cWriteByteData(i2c_fd, PRESCALE, prescale);
+	// i2cWriteByteData(i2c_fd, MODE1, oldmode);
+	write_byte(MODE1, newmode);
+	write_byte(PRESCALE, prescale);
+	write_byte(MODE1, oldmode);
+	usleep(1000);
 
-	i2cWriteByteData(i2c_fd, MODE1, newmode);
-	i2cWriteByteData(i2c_fd, PRESCALE, prescale);
-	i2cWriteByteData(i2c_fd, MODE1, oldmode);
-	usleep(5'000);
-	// i2c_dev->WriteRegisterByte(MODE1, oldmode | RESTART);
-	i2cWriteByteData(i2c_fd, MODE1, oldmode | RESTART);
+	// i2cWriteByteData(i2c_fd, MODE1, oldmode | RESTART);
+	write_byte(MODE1, oldmode | RESTART);
 }
 
 void PCA9685::set_all_pwm(const uint16_t on, const uint16_t off) {
-//   i2c_dev->WriteRegisterByte(ALL_LED_ON_L, on & 0xFF);
-//   i2c_dev->WriteRegisterByte(ALL_LED_ON_H, on >> 8);
-//   i2c_dev->WriteRegisterByte(ALL_LED_OFF_L, off & 0xFF);
-//   i2c_dev->WriteRegisterByte(ALL_LED_OFF_H, off >> 8);
+	// i2cWriteByteData(i2c_fd, ALL_LED_ON_L, on & 0xFF);
+	// i2cWriteByteData(i2c_fd, ALL_LED_ON_H, on >> 8);
+	// i2cWriteByteData(i2c_fd, ALL_LED_OFF_L, off & 0xFF);
+	// i2cWriteByteData(i2c_fd, ALL_LED_OFF_H, off >> 8);
 
-  i2cWriteByteData(i2c_fd, ALL_LED_ON_L, on & 0xFF);
-  i2cWriteByteData(i2c_fd, ALL_LED_ON_H, on >> 8);
-  i2cWriteByteData(i2c_fd, ALL_LED_OFF_L, off & 0xFF);
-  i2cWriteByteData(i2c_fd, ALL_LED_OFF_H, off >> 8);
+	write_byte(ALL_LED_ON_L, on & 0xFF);
+	write_byte(ALL_LED_ON_H, on >> 8);
+	write_byte(ALL_LED_OFF_L, off & 0xFF);
+	write_byte(ALL_LED_OFF_H, off >> 8);
 }
 
 //! PWM a single channel
@@ -122,16 +128,16 @@ void PCA9685::set_pwm(uint8_t channel, int value) {
  \param off_value 0-4095 value to turn off the pulse
  */
 void PCA9685::set_pwm(uint8_t channel, int on_value, int off_value) {
-	// i2c->write_byte(LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
-	// i2c->write_byte(LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
-	// i2c->write_byte(LED0_OFF_L + LED_MULTIPLYER * (led - 1), off_value & 0xFF);
-	// i2c->write_byte(LED0_OFF_H + LED_MULTIPLYER * (led - 1), off_value >> 8);
-
   	const int channel_offset = 4 * (channel);
-	i2cWriteByteData(i2c_fd, LED0_ON_L + channel_offset, on_value & 0xFF);
-	i2cWriteByteData(i2c_fd, LED0_ON_H + channel_offset, on_value >> 8);
-	i2cWriteByteData(i2c_fd, LED0_OFF_L + channel_offset, off_value & 0xFF);
-	i2cWriteByteData(i2c_fd, LED0_OFF_H + channel_offset, off_value >> 8);
+	// i2cWriteByteData(i2c_fd, LED0_ON_L + channel_offset, on_value & 0xFF);
+	// i2cWriteByteData(i2c_fd, LED0_ON_H + channel_offset, on_value >> 8);
+	// i2cWriteByteData(i2c_fd, LED0_OFF_L + channel_offset, off_value & 0xFF);
+	// i2cWriteByteData(i2c_fd, LED0_OFF_H + channel_offset, off_value >> 8);
+
+	write_byte(LED0_ON_L + channel_offset, on_value & 0xFF);
+	write_byte(LED0_ON_H + channel_offset, on_value >> 8);
+	write_byte(LED0_OFF_L + channel_offset, off_value & 0xFF);
+	write_byte(LED0_OFF_H + channel_offset, off_value >> 8);
 }
 
 //! Get current PWM value
@@ -140,12 +146,14 @@ void PCA9685::set_pwm(uint8_t channel, int on_value, int off_value) {
  */
 int PCA9685::get_pwm(uint8_t led){
 	int ledval = 0;
-	// ledval = i2c->read_byte(LED0_OFF_H + LED_MULTIPLYER * (led-1));
-	ledval = i2cReadByte(LED0_OFF_H + LED_MULTIPLYER * (led-1));
-	ledval = ledval & 0xf;
+	uint8_t temp;
+	// ledval = i2cReadByte(LED0_OFF_H + LED_MULTIPLYER * (led-1));
+	read_byte(LED0_OFF_H + LED_MULTIPLYER * (led-1), &temp);
+	ledval = temp & 0xf;
 	ledval <<= 8;
-	// ledval += i2c->read_byte(LED0_OFF_L + LED_MULTIPLYER * (led-1));
-	ledval += i2cReadByte(LED0_OFF_L + LED_MULTIPLYER * (led-1));
+	// ledval += i2cReadByte(LED0_OFF_L + LED_MULTIPLYER * (led-1));
+	read_byte(LED0_OFF_L + LED_MULTIPLYER * (led-1), &temp);
+	ledval += temp;
 	return ledval;
 }
 

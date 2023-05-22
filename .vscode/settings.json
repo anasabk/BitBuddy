@@ -4,7 +4,9 @@
         "memory": "cpp",
         "cmath": "cpp",
         "cstdio": "cpp",
-        "cstring": "cpp"
+        "cstring": "cpp",
+        "string": "cpp",
+        "random": "cpp"
     },
     "cmake.sourceDirectory": "/home/enes/School-files/BitBuddy/embedded"
 }
