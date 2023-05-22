@@ -103,10 +103,12 @@ extern "C" int main() {
 	sleep(3);
 
 	printf("Sitting ...\n");
-	for(int i = 0; i < 12; i++) {
+	for(int i = 0; i < 6; i++) {
 		pthread_create(&temp, NULL, thread_stand, (void*)i);
-		if (i == 5)
-			usleep(300000);
+	}
+	sleep(2);
+	for(int i = 6; i < 12; i++) {
+		pthread_create(&temp, NULL, thread_stand, (void*)i);
 	}
 
 	uint8_t dest_servo = 0;
