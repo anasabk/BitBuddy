@@ -96,14 +96,14 @@ extern "C" int main() {
 
 	pthread_t temp;
 	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_stand, (void*)i);
+		pthread_create(&temp, NULL, thread_sit, (void*)i);
 	}
 
 	sleep(3);
 
 	printf("Sitting ...\n");
 	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_sit, (void*)i);
+		pthread_create(&temp, NULL, thread_stand, (void*)i);
 	}
 
 	uint8_t dest_servo = 0;
