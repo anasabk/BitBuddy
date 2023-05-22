@@ -90,7 +90,7 @@ extern "C" int main() {
 	for(int i = 0; i < 12; i++)
 		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
 
-	printf("Moving ...\n");
+	printf("Moving ...\nStanding ...\n");
 
 	pthread_t temp;
 	for(int i = 0; i < 12; i++) {
@@ -99,6 +99,7 @@ extern "C" int main() {
 
 	sleep(3);
 
+	printf("Sitting ...\n");
 	for(int i = 0; i < 12; i++) {
 		pthread_create(&temp, NULL, thread_sit, (void*)i);
 	}
