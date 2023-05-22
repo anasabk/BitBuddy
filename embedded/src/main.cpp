@@ -13,6 +13,7 @@
 #include <sched.h>
 #include <linux/i2c-dev.h>
 #include <i2c/smbus.h>
+#include "reverse_kinematics.h"
 
 int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
@@ -35,54 +36,58 @@ int degree_list[12][20] = {
 };
 
 extern "C" int main() {
-	// if (gpioInitialise() < 0) {
-	// 	printf("Failure...");
-	// 	exit(-1);
-	// }
-	// LCD lcd(1, 0x27);
-	// lcd.printf("Hello World");
+	if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
+	LCD lcd(1, 0x27);
+	lcd.printf("Hello World");
 
-    // PCA9685 pca(1, 0x40);
-	// /** 
-	//  * \verbatim
-	//  * 		Numbers of servo channels
-	//  * 			   of each leg
-	//  * 				 | Top | Mid | Low |
-	//  * 				 |  0  |  1  |  2  |
-	//  * --------------|-----|-----|-----|
-	//  * Front Right 0 |	6  |  7	 |	8  |
-	//  * Front Left  1 |	9  |  10 |	11 |
-	//  * Back Right  2 |	3  |  4	 |	5  |
-	//  * Back Left   3 |	0  |  1	 |	2  |
-	//  * \endverbatim
-	//  */
-	// CalServo servo[12] {
-	// 	// Top, Mid, and Low motors for each leg
-	// 	CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
-	// 	CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
-	// 	CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
-	// 	CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
-	// };
+    PCA9685 pca(1, 0x40);
+	/** 
+	 * \verbatim
+	 * 		Numbers of servo channels
+	 * 			   of each leg
+	 * 				 | Top | Mid | Low |
+	 * 				 |  0  |  1  |  2  |
+	 * --------------|-----|-----|-----|
+	 * Front Right 0 |	6  |  7	 |	8  |
+	 * Front Left  1 |	9  |  10 |	11 |
+	 * Back Right  2 |	3  |  4	 |	5  |
+	 * Back Left   3 |	0  |  1	 |	2  |
+	 * \endverbatim
+	 */
+	CalServo servo[12] {
+		// Top, Mid, and Low motors for each leg
+		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
+		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
+		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
+		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
+	};
 
-	// CalServo *joints[4][3] = {
-	// 	{&servo[6], &servo[7], &servo[8]},
-	// 	{&servo[9], &servo[10], &servo[11]},
-	// 	{&servo[3], &servo[4], &servo[5]},
-	// 	{&servo[0], &servo[1], &servo[2]}
-	// };
+	CalServo *joints[4][3] = {
+		{&servo[6], &servo[7], &servo[8]},
+		{&servo[9], &servo[10], &servo[11]},
+		{&servo[3], &servo[4], &servo[5]},
+		{&servo[0], &servo[1], &servo[2]}
+	};
 
-    // pca.set_pwm_freq(50);
-	// usleep(1000000);
+    pca.set_pwm_freq(50);
+	usleep(1000000);
 
-	// printf("Calibrating\n");
+	printf("Calibrating\n");
 
-	// for(int i = 0; i < 12; i++)
-	// 	servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+	for(int i = 0; i < 12; i++)
+		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
 
-	// printf("Calibrated\n");
+	printf("Calibrated\n");
+
+	for(int i = 0; i < 12; i++) {
+		servo[i].sweep(stand[i] - 20, stand[i], 1000);
+	}
 
 	// servo[0].sweep(90, 120, 5000);
-	// // servo[0].sweep(120, 60, 5000);
+	// servo[0].sweep(120, 60, 5000);
 	
 	// uint8_t dest_servo = 0;
 	// int dest_degree = 0;
@@ -97,8 +102,9 @@ extern "C" int main() {
 	// 	}
     // }
     
-	// gpioTerminate();
-	// return 0;
+	gpioTerminate();
+	return 0;
+
 
 	// // int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
 	// // char buffer[128];
@@ -116,35 +122,35 @@ extern "C" int main() {
 	// 	exit(-1);
 	// }
 
-	MPU6050 device(1, 0x68);
-	MPU6050::MPU6050_data_t data;
-	float ax, ay, az, gr, gp, gy; //Variables to store the accel, gyro and angle values
-	LCD lcd(1, 0x27);
+	// MPU6050 device(1, 0x68);
+	// MPU6050::MPU6050_data_t data;
+	// float ax, ay, az, gr, gp, gy; //Variables to store the accel, gyro and angle values
+	// LCD lcd(1, 0x27);
 
-	sleep(1); //Wait for the MPU6050 to stabilize
+	// sleep(1); //Wait for the MPU6050 to stabilize
 
-	//Read the current yaw angle
-	device.calc_yaw = true;
+	// //Read the current yaw angle
+	// device.calc_yaw = true;
 
-	while(1) {
-		device.read_data(&data);
-		printf("Accel x: %.3f, y: %.3f, z: %.3f / Gyro x: %3.f, y: %3.f, z: %3.f\n", 
-			data.x_accel, 
-			data.y_accel,
-			data.z_accel,
-			data.x_rot,
-			data.y_rot,
-			data.z_rot
-		);
+	// while(1) {
+	// 	device.read_data(&data);
+	// 	printf("Accel x: %.3f, y: %.3f, z: %.3f / Gyro x: %3.f, y: %3.f, z: %3.f\n", 
+	// 		data.x_accel, 
+	// 		data.y_accel,
+	// 		data.z_accel,
+	// 		data.x_rot,
+	// 		data.y_rot,
+	// 		data.z_rot
+	// 	);
 
-		lcd.setPosition(0, 0);
-		lcd.printf("x = %0.3f", data.x_accel);
+	// 	lcd.setPosition(0, 0);
+	// 	lcd.printf("x = %0.3f", data.x_accel);
 		
-		usleep(500000); //0.25sec
-	}
+	// 	usleep(500000); //0.25sec
+	// }
 
-	// gpioTerminate();
-	return 0;
+	// // gpioTerminate();
+	// return 0;
 
 	// if (gpioInitialise() < 0) {
 	// 	printf("Failure...");
