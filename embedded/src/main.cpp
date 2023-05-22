@@ -85,8 +85,12 @@ extern "C" int main() {
     pca.set_pwm_freq(50);
 	usleep(1000000);
 
+	printf("Calibrating ...\n");
+
 	for(int i = 0; i < 12; i++)
 		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+
+	printf("Moving ...\n");
 
 	pthread_t temp;
 	for(int i = 0; i < 12; i++) {
