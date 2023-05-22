@@ -57,7 +57,7 @@ void CalServo::sweep(int start, int dest, int dur_ms) {
         set_degree(current);
         current += dir;
         printf("%d\n", dt*1000);
-        usleep(83000);
+        usleep(dt*1000);
         printf("setting degree %d\n", current);
     }
 }
