@@ -1,91 +1,77 @@
+#include <opencv2/opencv.hpp>
 #include <iostream>
-#include <cstring>
-#include <cstdlib>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <ctime>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <unistd.h>
+#include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
-#include <opencv2/opencv.hpp>
 
-int main(int argc, char* argv[]) {
-    // Set up socket
+#define PORT 8080
+
+int main() {
+    cv::VideoCapture cap(0);
+    
+    if (!cap.isOpened()) {
+        std::cerr << "Camera not opened" << std::endl;
+        return -1;
+    }
+
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
-        perror("Error: could not create socket");
-        exit(1);
+        std::cerr << "Socket could not be created" << std::endl;
+        return -1;
+    }
+    
+    struct sockaddr_in serv_addr;
+    std::memset((char *) &serv_addr, 0, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(PORT);
+
+    if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+        std::cerr << "Socket not connected" << std::endl;
+        return -1;
     }
 
-    // Bind to local address
-    struct sockaddr_in addr;
-    std::memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    addr.sin_port = htons(8080);
-    if (bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-        perror("Error: could not bind to address");
-        exit(1);
-    }
+    listen(sockfd, 5);
 
-    // Listen for incoming connections
-    if (listen(sockfd, 5) < 0) {
-        perror("Error: could not listen for incoming connections");
-        exit(1);
-    }
-
-    // Accept incoming connection
-    struct sockaddr_in client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
-    int client_sockfd = accept(sockfd, (struct sockaddr*)&client_addr, &client_addr_len);
-    if (client_sockfd < 0) {
-        perror("Error: could not accept incoming connection");
-        exit(1);
-    }
-
-    // Open video capture device
-    cv::VideoCapture cap(0);
-    if (!cap.isOpened()) {
-        perror("Error: could not open video capture device");
-        exit(1);
-    }
-
-    // Set video capture device properties
-    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-
-    // Send video frames over socket
-    cv::Mat frame;
-    int nbytes;
-    int bufsize = 640 * 480 * 3;
-    char buffer[bufsize];
     while (true) {
-        // Capture video frame
-        cap >> frame;
-        if (frame.empty()) {
-            std::cerr << "Error: could not capture frame\n";
-            break;
+        struct sockaddr_in cli_addr;
+        socklen_t clilen = sizeof(cli_addr);
+        int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+
+        if (newsockfd < 0) {
+            std::cerr << "Socket not accepted" << std::endl;
+            return -1;
         }
 
-        // Convert video frame to JPEG format
-        std::vector<uchar> jpeg_data;
-        cv::imencode(".jpg", frame, jpeg_data);
+        std::string header = 
+            "HTTP/1.0 200 OK\r\n"
+            "Content-Type: multipart/x-mixed-replace; boundary=--jpgboundary\r\n\r\n";
+        send(newsockfd, header.c_str(), header.size(), 0);
 
-        // Copy JPEG data to buffer
-        std::memcpy(buffer, &jpeg_data[0], jpeg_data.size());
+        while (true) {
+            cv::Mat frame;
+            cap.read(frame);
 
-        // Send JPEG data over socket
-        nbytes = send(client_sockfd, buffer, jpeg_data.size(), 0);
-        if (nbytes < 0) {
-            perror("Error: could not send data over socket");
-            break;
+            std::vector<uchar> buf;
+            cv::imencode(".jpg", frame, buf);
+            std::string content = 
+                "--jpgboundary\r\n"
+                "Content-Type: image/jpeg\r\n"
+                "Content-Length: " + std::to_string(buf.size()) + "\r\n\r\n";
+            send(newsockfd, content.c_str(), content.size(), 0);
+            send(newsockfd, reinterpret_cast<char*>(buf.data()), buf.size(), 0);
+
+            usleep(1000);  // Sleep time for FPS control
         }
-
-        // Sleep for a short time to limit frame rate
-        usleep(10000);
     }
-
-    // Close connection
-    close(client_sockfd);
 
     return 0;
 }
