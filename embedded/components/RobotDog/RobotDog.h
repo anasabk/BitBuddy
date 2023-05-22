@@ -2,8 +2,8 @@
 #define ROBOTDOG_H
 
 
-// #include "MPU6050.h"
-// #include "LCD.h"
+#include "MPU6050.h"
+#include "LCD.h"
 #include "CalServo.h"
 
 
