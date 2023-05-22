@@ -35,6 +35,13 @@ int degree_list[12][20] = {
 	{0, 7, 15, 24, 34, 43, 51, 61, 70, 77, 86, 95, 103, 113, 121, 130, 138, 148, 155, 165}, 
 };
 
+CalServo *servo_g;
+
+void *thread(void *val) {
+	servo_g[(int)val].sweep(stand[(int)val] - 20, stand[(int)val], 1000);
+	pthread_exit(0);
+}
+
 extern "C" int main() {
 	if (gpioInitialise() < 0) {
 		printf("Failure...");
@@ -65,6 +72,8 @@ extern "C" int main() {
 		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
 	};
 
+	servo_g = servo;
+
 	CalServo *joints[4][3] = {
 		{&servo[6], &servo[7], &servo[8]},
 		{&servo[9], &servo[10], &servo[11]},
@@ -82,9 +91,12 @@ extern "C" int main() {
 
 	printf("Calibrated\n");
 
+	pthread_t temp;
 	for(int i = 0; i < 12; i++) {
-		servo[i].sweep(stand[i] - 20, stand[i], 1000);
+		pthread_create(&temp, NULL, thread, (void*)i);
 	}
+
+	while(true);
 
 	// servo[0].sweep(90, 120, 5000);
 	// servo[0].sweep(120, 60, 5000);
