@@ -97,13 +97,13 @@ extern "C" int main() {
 	printf("Calibrated\n");
 
 	pthread_t temp;
-	// for(int i = 0; i < 12; i++) {
-	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
-	// }
-
 	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_sit, (void*)i);
+		pthread_create(&temp, NULL, thread_stand, (void*)i);
 	}
+
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_sit, (void*)i);
+	// }
 
 	while(true);
 
