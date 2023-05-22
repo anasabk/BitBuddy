@@ -105,6 +105,8 @@ extern "C" int main() {
 	printf("Sitting ...\n");
 	for(int i = 0; i < 12; i++) {
 		pthread_create(&temp, NULL, thread_stand, (void*)i);
+		if (i == 5)
+			usleep(300000);
 	}
 
 	uint8_t dest_servo = 0;
