@@ -96,8 +96,8 @@ extern "C" int main() {
 
 	pthread_t temp;
 	for(int i = 0; i < 12; i++) {
-		// pthread_create(&temp, NULL, thread_sit, (void*)i);
-		servo[i].set_degree(sit[i]);
+		pthread_create(&temp, NULL, thread_sit, (void*)i);
+		// servo[i].set_degree(sit[i]);
 	}
 
 	sleep(3);
