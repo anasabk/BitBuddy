@@ -37,8 +37,13 @@ int degree_list[12][20] = {
 
 CalServo *servo_g;
 
-void *thread(void *val) {
+void *thread_stand(void *val) {
 	servo_g[(int)val].sweep(stand[(int)val] - 20, stand[(int)val], 1000);
+	pthread_exit(0);
+}
+
+void *thread_sit(void *val) {
+	servo_g[(int)val].sweep(sit[(int)val] - 20, sit[(int)val], 1000);
 	pthread_exit(0);
 }
 
@@ -93,7 +98,7 @@ extern "C" int main() {
 
 	pthread_t temp;
 	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread, (void*)i);
+		pthread_create(&temp, NULL, thread_stand, (void*)i);
 	}
 
 	while(true);
