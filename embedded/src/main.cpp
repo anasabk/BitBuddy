@@ -97,31 +97,27 @@ extern "C" int main() {
 	printf("Calibrated\n");
 
 	pthread_t temp;
-	// for(int i = 0; i < 12; i++) {
-	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
-	// }
-
 	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_sit, (void*)i);
+		pthread_create(&temp, NULL, thread_stand, (void*)i);
 	}
 
-	while(true);
+	// while(true);
 
 	// servo[0].sweep(90, 120, 5000);
 	// servo[0].sweep(120, 60, 5000);
 	
-	// uint8_t dest_servo = 0;
-	// int dest_degree = 0;
-    // while(true) {
-	// 	scanf("%d %d", &dest_servo, &dest_degree);
-	// 	for(int i = 0; i < 12; i++){
-	// 		printf("%d %d %d\n", i, servo[i].getChannel());
-	// 		if(servo[i].getChannel() == dest_servo) {
-	// 			servo[i].set_degree(dest_degree);
-	// 			break;
-	// 		}
-	// 	}
-    // }
+	uint8_t dest_servo = 0;
+	int dest_degree = 0;
+    while(true) {
+		scanf("%d %d", &dest_servo, &dest_degree);
+		for(int i = 0; i < 12; i++){
+			printf("%d %d %d\n", i, servo[i].getChannel());
+			if(servo[i].getChannel() == dest_servo) {
+				servo[i].set_degree(dest_degree);
+				break;
+			}
+		}
+    }
     
 	gpioTerminate();
 	return 0;
