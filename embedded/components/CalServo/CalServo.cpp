@@ -50,11 +50,13 @@ void CalServo::set_degree(int degree) {
 }
 
 void CalServo::sweep(int start, int dest, int dur_ms) {
-    printf("1\n");
-    int dir = (dest - start) > 0 ? 1 : -1;
-    printf("1\n");
+    if(start == dest) {
+        set_degree(start);
+        return;
+    }
+    
     int dt = dur_ms / abs(dest - start);
-    printf("1\n");
+    int dir = (dest - start) > 0 ? 1 : -1;
     int current = start;
     while(current*dir < dest*dir) {
         set_degree(current);
