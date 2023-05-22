@@ -38,7 +38,7 @@ int degree_list[12][20] = {
 CalServo *servo_g;
 
 void *thread_stand(void *val) {
-	servo_g[(int)val].sweep(stand[(int)val] - 20, stand[(int)val], 1000);
+	servo_g[(int)val].sweep(sit[(int)val], stand[(int)val], 1000);
 	pthread_exit(0);
 }
 
@@ -48,10 +48,6 @@ void *thread_sit(void *val) {
 }
 
 extern "C" int main() {
-	if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
 	LCD lcd(1, 0x27);
 	lcd.printf("Hello World");
 
@@ -89,23 +85,20 @@ extern "C" int main() {
     pca.set_pwm_freq(50);
 	usleep(1000000);
 
-	printf("Calibrating\n");
-
 	for(int i = 0; i < 12; i++)
 		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
 
-	printf("Calibrated\n");
-
 	pthread_t temp;
+	for(int i = 0; i < 12; i++) {
+		pthread_create(&temp, NULL, thread_sit, (void*)i);
+	}
+
+	sleep(3);
+
 	for(int i = 0; i < 12; i++) {
 		pthread_create(&temp, NULL, thread_stand, (void*)i);
 	}
 
-	// while(true);
-
-	// servo[0].sweep(90, 120, 5000);
-	// servo[0].sweep(120, 60, 5000);
-	
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
     while(true) {
@@ -118,8 +111,7 @@ extern "C" int main() {
 			}
 		}
     }
-    
-	gpioTerminate();
+
 	return 0;
 
 
