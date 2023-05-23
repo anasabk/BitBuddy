@@ -66,10 +66,7 @@ int main() {
         while (true) {
             cv::Mat frame;
             cap.read(frame);
-
-            // Convert BGR to RGB
-            // cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-
+            
             std::vector<uchar> buf;
             cv::imencode(".jpg", frame, buf);
             std::string content = 
