@@ -16,18 +16,22 @@
 
 int main() {
     cv::VideoCapture cap(0);
-    
+
     if (!cap.isOpened()) {
         std::cerr << "Camera not opened" << std::endl;
         return -1;
     }
+
+    // Set resolution to 640x480
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         std::cerr << "Socket could not be created" << std::endl;
         return -1;
     }
-    
+
     struct sockaddr_in serv_addr;
     std::memset((char *) &serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
@@ -60,6 +64,9 @@ int main() {
             cv::Mat frame;
             cap.read(frame);
 
+            // Convert BGR to RGB
+            cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+
             std::vector<uchar> buf;
             cv::imencode(".jpg", frame, buf);
             std::string content = 
@@ -69,7 +76,7 @@ int main() {
             send(newsockfd, content.c_str(), content.size(), 0);
             send(newsockfd, reinterpret_cast<char*>(buf.data()), buf.size(), 0);
 
-            usleep(1000);  // Sleep time for FPS control
+            usleep(10000);  // Sleep time for FPS control
         }
     }
 
