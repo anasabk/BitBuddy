@@ -1,3 +1,7 @@
+#ifndef MPU6050_H
+#define MPU6050_H
+
+
 #include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
@@ -126,3 +130,6 @@ public:
 private:
 	MPU6050_data_t cal_offsets;
 };
+
+
+#endif
