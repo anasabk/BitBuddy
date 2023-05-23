@@ -60,6 +60,9 @@ int main() {
             "Content-Type: multipart/x-mixed-replace; boundary=--jpgboundary\r\n\r\n";
         send(newsockfd, header.c_str(), header.size(), 0);
 
+        struct timespec timeNow;
+        clock_gettime(CLOCK_MONOTONIC, &timeNow);
+
         while (true) {
             cv::Mat frame;
             cap.read(frame);
@@ -76,7 +79,17 @@ int main() {
             send(newsockfd, content.c_str(), content.size(), 0);
             send(newsockfd, reinterpret_cast<char*>(buf.data()), buf.size(), 0);
 
-            usleep(40000);  // Sleep time for FPS control
+            // Add 10ms to current time
+            timeNow.tv_nsec += 3333333L; // 10 ms in nanoseconds
+
+            // Handle overflow
+            while (timeNow.tv_nsec >= 1000000000L) {
+                timeNow.tv_nsec -= 1000000000L;
+                timeNow.tv_sec++;
+            }
+
+            // Sleep until the next 10ms point
+            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
         }
     }
 
