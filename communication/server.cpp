@@ -23,8 +23,8 @@ int main() {
     }
 
     // Set resolution to 640x480
-    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
@@ -65,7 +65,7 @@ int main() {
             cap.read(frame);
 
             // Convert BGR to RGB
-            cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+            // cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 
             std::vector<uchar> buf;
             cv::imencode(".jpg", frame, buf);
