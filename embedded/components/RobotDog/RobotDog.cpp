@@ -76,7 +76,7 @@ void* RobotDog::mpu6050_thread(void* args) {
     param.sched_priority = 99; // Set priority to maximum
     if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
         std::cerr << "sched_setscheduler error!" << std::endl;
-        return;
+        return NULL;
     }
 
     robot->mpu6050.read_data(&robot->mpu_buff);
@@ -90,7 +90,7 @@ void* RobotDog::mpu6050_thread(void* args) {
 		robot->mpu_buff.z_rot == 0) 
 	{
         std::cerr << "MPU6050 connection error!" << std::endl;
-        return;
+        return NULL;
     }
 
     // Get current time
@@ -114,4 +114,6 @@ void* RobotDog::mpu6050_thread(void* args) {
         // Sleep until the next 10ms point
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     }
+
+    return NULL;
 }
