@@ -76,7 +76,7 @@ int main() {
             send(newsockfd, content.c_str(), content.size(), 0);
             send(newsockfd, reinterpret_cast<char*>(buf.data()), buf.size(), 0);
 
-            usleep(100000);  // Sleep time for FPS control
+            usleep(40000);  // Sleep time for FPS control
         }
     }
 
