@@ -103,17 +103,11 @@ extern "C" int main() {
 		pthread_create(&temp, NULL, thread_sit, (void*)i);
 		// servo[i].set_degree(sit[i]);
 	}
-
-	sleep(3);
-
-	printf("Sitting ...\n");
-	for(int i = 0; i < 6; i++) {
-		pthread_create(&temp, NULL, thread_stand, (void*)i);
-	}
-	sleep(7);
-	for(int i = 6; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_stand, (void*)i);
-	}
+	
+	// sleep(5);
+	// for(int i = 6; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
+	// }
 
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
