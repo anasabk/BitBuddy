@@ -47,6 +47,7 @@ void CalServo::set_PWM(int pwm_us) {
 void CalServo::set_degree(int degree) {
     int pwm_us = fitter_a + fitter_b * degree;
     controller->set_pwm_us(channel, pwm_us);
+    last_deg = degree;
 }
 
 void CalServo::sweep(int start, int dest, int dur_ms) {
@@ -58,6 +59,27 @@ void CalServo::sweep(int start, int dest, int dur_ms) {
     int dt = dur_ms / abs(dest - start);
     int dir = (dest - start) > 0 ? 1 : -1;
     int current = start;
+    while(current*dir < dest*dir) {
+        set_degree(current);
+        current += dir;
+        printf("%d\n", dt*1000);
+        usleep(dt*1000);
+        printf("setting degree %d\n", current);
+    }
+}
+
+void CalServo::sweep(int dest, int dur_ms) {
+    if(last_deg == -1)
+        return;
+
+    if(last_deg == dest) {
+        set_degree(last_deg);
+        return;
+    }
+    
+    int dt = dur_ms / abs(dest - last_deg);
+    int dir = (dest - last_deg) > 0 ? 1 : -1;
+    int current = last_deg;
     while(current*dir < dest*dir) {
         set_degree(current);
         current += dir;
