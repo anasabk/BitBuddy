@@ -48,10 +48,6 @@ target_link_libraries(${PROJECT_NAME}
     # pigpio
 )
 
-target_link_libraries(${PROJECT_NAME} 
-  i2c
-)
-
 # target_link_options(BitBuddy PUBLIC "LINKER:-li2c,-pthread")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -li2c -pthread")

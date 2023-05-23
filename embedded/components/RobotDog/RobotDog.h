@@ -2,22 +2,37 @@
 #define ROBOTDOG_H
 
 
-#include "MPU6050.h"
-#include "LCD.h"
+#include <iostream>
+#include <fstream>
+
 #include "CalServo.h"
+#include "PCA9685.h"
+#include "LCD.h"
+#include "MPU6050.h"
 
 
-class BitBuddy
+#define MPU6050_GYRO_RANGE_MODE MPU6050_GYRO_FS_250
+#define MPU6050_ACCEL_RANGE_MODE MPU6050_ACCEL_FS_2
+#define MPU6050_SAMPLE_FREQ_HZ 300
+
+
+class RobotDog
 {
 public:
-    BitBuddy(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr);
-    ~BitBuddy();
+    RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr);
+    ~RobotDog();
+
+    void init();
+    void run();
 
 private:
     PCA9685 pca;
-    CalServo servos[4][3];
     LCD lcd;
     MPU6050 mpu6050;
+    CalServo servos[4][3];
+
+    MPU6050::MPU6050_data_t mpu_buff;
+    int front_dist[2];
 
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
@@ -39,7 +54,14 @@ private:
         {0, 7, 15, 24, 34, 43, 51, 61, 70, 77, 86, 95, 103, 113, 121, 130, 138, 148, 155, 165}, 
         {0, 7, 15, 24, 34, 43, 51, 61, 70, 77, 86, 95, 103, 113, 121, 130, 138, 148, 155, 165}, 
     };
+
+    static void* mpu6050_thread(void* args);
+    static void* HCSR04_thread(void*);
+    static void* servo_thread(void*);
+    static void* video_stream_thread(void*);
 };
+
+
 
 
 #endif

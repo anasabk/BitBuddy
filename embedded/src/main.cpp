@@ -3,6 +3,7 @@
 #include "MPU6050.h"
 #include "LCD.h"
 #include "CalServo.h"
+#include "RobotDog.h"
 #include <cstdio>
 #include "cstring"
 #include "HC_SR04.h"
@@ -50,81 +51,84 @@ void *thread_sit(void *val) {
 }
 
 extern "C" int main() {
-	LCD lcd(1, 0x27);
-	lcd.printf("Hello World");
+	RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
+	robot.run();
 
-    PCA9685 pca(1, 0x40);
-	/** 
-	 * \verbatim
-	 * 		Numbers of servo channels
-	 * 			   of each leg
-	 * 				 | Top | Mid | Low |
-	 * 				 |  0  |  1  |  2  |
-	 * --------------|-----|-----|-----|
-	 * Front Right 0 |	6  |  7	 |	8  |
-	 * Front Left  1 |	9  |  10 |	11 |
-	 * Back Right  2 |	3  |  4	 |	5  |
-	 * Back Left   3 |	0  |  1	 |	2  |
-	 * \endverbatim
-	 */
-	CalServo servo[12] {
-		// Top, Mid, and Low motors for each leg
-		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
-		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
-		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
-		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
-	};
+	// LCD lcd(1, 0x27);
+	// lcd.printf("Hello World");
 
-	servo_g = servo;
+    // PCA9685 pca(1, 0x40);
+	// /** 
+	//  * \verbatim
+	//  * 		Numbers of servo channels
+	//  * 			   of each leg
+	//  * 				 | Top | Mid | Low |
+	//  * 				 |  0  |  1  |  2  |
+	//  * --------------|-----|-----|-----|
+	//  * Front Right 0 |	6  |  7	 |	8  |
+	//  * Front Left  1 |	9  |  10 |	11 |
+	//  * Back Right  2 |	3  |  4	 |	5  |
+	//  * Back Left   3 |	0  |  1	 |	2  |
+	//  * \endverbatim
+	//  */
+	// CalServo servo[12] {
+	// 	// Top, Mid, and Low motors for each leg
+	// 	CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
+	// 	CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
+	// 	CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
+	// 	CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
+	// };
 
-	CalServo *joints[4][3] = {
-		{&servo[6], &servo[7], &servo[8]},
-		{&servo[9], &servo[10], &servo[11]},
-		{&servo[3], &servo[4], &servo[5]},
-		{&servo[0], &servo[1], &servo[2]}
-	};
+	// servo_g = servo;
 
-    pca.set_pwm_freq(50);
-	usleep(1000000);
+	// CalServo *joints[4][3] = {
+	// 	{&servo[6], &servo[7], &servo[8]},
+	// 	{&servo[9], &servo[10], &servo[11]},
+	// 	{&servo[3], &servo[4], &servo[5]},
+	// 	{&servo[0], &servo[1], &servo[2]}
+	// };
 
-	printf("Calibrating ...\n");
+    // pca.set_pwm_freq(50);
+	// usleep(1000000);
 
-	for(int i = 0; i < 12; i++)
-		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+	// printf("Calibrating ...\n");
 
-	printf("Moving ...\nStanding ...\n");
+	// for(int i = 0; i < 12; i++)
+	// 	servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
 
-	pthread_t temp;
-	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_sit, (void*)i);
-		// servo[i].set_degree(sit[i]);
-	}
+	// printf("Moving ...\nStanding ...\n");
 
-	sleep(3);
+	// pthread_t temp;
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_sit, (void*)i);
+	// 	// servo[i].set_degree(sit[i]);
+	// }
 
-	printf("Sitting ...\n");
-	for(int i = 0; i < 6; i++) {
-		pthread_create(&temp, NULL, thread_stand, (void*)i);
-	}
-	sleep(7);
-	for(int i = 6; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_stand, (void*)i);
-	}
+	// sleep(3);
 
-	uint8_t dest_servo = 0;
-	int dest_degree = 0;
-    while(true) {
-		scanf("%d %d", &dest_servo, &dest_degree);
-		for(int i = 0; i < 12; i++){
-			printf("%d %d %d\n", i, servo[i].getChannel());
-			if(servo[i].getChannel() == dest_servo) {
-				servo[i].set_degree(dest_degree);
-				break;
-			}
-		}
-    }
+	// printf("Sitting ...\n");
+	// for(int i = 0; i < 6; i++) {
+	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
+	// }
+	// sleep(7);
+	// for(int i = 6; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
+	// }
 
-	return 0;
+	// uint8_t dest_servo = 0;
+	// int dest_degree = 0;
+    // while(true) {
+	// 	scanf("%d %d", &dest_servo, &dest_degree);
+	// 	for(int i = 0; i < 12; i++){
+	// 		printf("%d %d %d\n", i, servo[i].getChannel());
+	// 		if(servo[i].getChannel() == dest_servo) {
+	// 			servo[i].set_degree(dest_degree);
+	// 			break;
+	// 		}
+	// 	}
+    // }
+
+	// return 0;
 
 
 	// // int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);

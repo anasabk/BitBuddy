@@ -1,7 +1,7 @@
 #include "RobotDog.h"
 
 
-BitBuddy::BitBuddy(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
+RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
     : pca(pca_bus, pca_addr), lcd(lcd_bus, lcd_addr), mpu6050(mpu_bus, mpu_addr),
     servos{ 
 		// Top, Mid, and Low motors for each leg
@@ -11,12 +11,107 @@ BitBuddy::BitBuddy(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 		{CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)}		// Back Left
     }
 {
-	// for(int i = 0; i < 4; i++)
-	// 	for(int j = 0; j < 3; j++)
-	// 		servos[i][j].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i][j].getChannel()], 20);
+	for(int i = 0; i < 4; i++)
+		for(int j = 0; j < 3; j++)
+			servos[i][j].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i][j].getChannel()], 20);
     
+
 }
 
-BitBuddy::~BitBuddy()
+RobotDog::~RobotDog()
 {
+}
+
+void RobotDog::run() {
+	pthread_t mpu_thread_id;
+	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
+
+        // Real-time scheduling
+    struct sched_param param;
+    param.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return;
+    }
+
+    std::ofstream outputFile("sensorData.txt");
+
+    // Get current time
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+
+    while (true) {
+        std::time_t systemTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+        outputFile << "Time: " << std::ctime(&systemTime);
+        outputFile << "AccelX: " << mpu_buff.x_accel << ", AccelY: " << mpu_buff.y_accel << ", AccelZ: " << mpu_buff.z_accel << std::endl;
+        outputFile << "GyroX: " << mpu_buff.x_rot << ", GyroY: " << mpu_buff.y_rot << ", GyroZ: " << mpu_buff.z_rot << std::endl;
+
+        // Add 10ms to current time
+        timeNow.tv_nsec += 10000000L; // 10 ms in nanoseconds
+        // Handle overflow
+        while (timeNow.tv_nsec >= 1000000000L) {
+            timeNow.tv_nsec -= 1000000000L;
+            timeNow.tv_sec++;
+        }
+
+        // Sleep until the next 10ms point
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+
+        // Check if 5 seconds have passed since the start
+        if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - std::chrono::system_clock::from_time_t(systemTime)).count() >= 5) {
+            break;
+        }
+    }
+
+    outputFile.close();
+
+    return;
+}
+
+void* RobotDog::mpu6050_thread(void* args) {
+    RobotDog *robot = (RobotDog*)args;
+
+	struct sched_param param;
+    param.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return;
+    }
+
+    robot->mpu6050.read_data(&robot->mpu_buff);
+
+    // Test connection
+    if (robot->mpu_buff.x_accel == 0 && 
+		robot->mpu_buff.y_accel == 0 && 
+		robot->mpu_buff.z_accel == 0 && 
+		robot->mpu_buff.x_rot == 0 && 
+		robot->mpu_buff.y_rot == 0 && 
+		robot->mpu_buff.z_rot == 0) 
+	{
+        std::cerr << "MPU6050 connection error!" << std::endl;
+        return;
+    }
+
+    // Get current time
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+
+    long dt_ns = 1000000000L / MPU6050_SAMPLE_FREQ_HZ;
+
+    while (true) {
+    	robot->mpu6050.read_data(&robot->mpu_buff);
+
+        // Add 10ms to current time
+        timeNow.tv_nsec += dt_ns; // 10 ms in nanoseconds
+
+        // Handle overflow
+        while (timeNow.tv_nsec >= 1000000000L) {
+            timeNow.tv_nsec -= 1000000000L;
+            timeNow.tv_sec++;
+        }
+
+        // Sleep until the next 10ms point
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+    }
 }
