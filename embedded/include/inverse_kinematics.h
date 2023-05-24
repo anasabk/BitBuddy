@@ -1,5 +1,5 @@
-#ifndef REVERSE_KINEMATICS_H
-#define REVERSE_KINEMATICS_H
+#ifndef INVERSE_KINEMATICS_H
+#define INVERSE_KINEMATICS_H
 
 
 int stand[] = {
@@ -14,6 +14,13 @@ int sit[] = {
     85, 110, 170,
     90, 110, 170,
     80, 90, 0
+};
+
+int def[] = {
+    90, 0, 0,
+    90, 180, 180,
+    90, 180, 180,
+    90, 0, 0
 };
 
 

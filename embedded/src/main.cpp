@@ -14,7 +14,7 @@
 #include <sched.h>
 #include <linux/i2c-dev.h>
 #include <i2c/smbus.h>
-#include "reverse_kinematics.h"
+#include "inverse_kinematics.h"
 
 int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
@@ -100,8 +100,8 @@ extern "C" int main() {
 
 	pthread_t temp;
 	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_sit, (void*)i);
-		// servo[i].set_degree(sit[i]);
+		// pthread_create(&temp, NULL, thread_sit, (void*)i);
+		servo[i].set_degree(def[i]);
 	}
 	
 	// sleep(5);
