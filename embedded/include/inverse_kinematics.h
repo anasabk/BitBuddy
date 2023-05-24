@@ -24,13 +24,13 @@ int def[] = {
 };
 
 int step[][12] = {
-    {
+    {   // bring front left leg upward and forward
         90, 60, 60,
         80, 125, 110,
         90, 150, 95,
         80, 0, 50
     },
-    {
+    {   // move body forward and bring front left leg to the ground
         90, 60, 90,
         80, 125, 80,
         90, 150, 95,
@@ -42,6 +42,12 @@ int step[][12] = {
         90, 130, 95,
         80, 30, 90
     },
+    // {
+    //     90, 60, 90,
+    //     80, 125, 80,
+    //     90, 150, 95,
+    //     80, 0, 115
+    // },
 };
 
 
