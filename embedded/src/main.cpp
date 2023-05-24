@@ -98,16 +98,19 @@ extern "C" int main() {
 
 	printf("Moving ...\nStanding ...\n");
 
-	pthread_t temp;
-	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_sit, (void*)i);
-		// servo[i].set_degree(sit[i]);
-	}
+	// pthread_t temp;
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_sit, (void*)i);
+	// 	// servo[i].set_degree(sit[i]);
+	// }
 	
-	sleep(2);
-	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_stand, (void*)i);
-	}
+	// sleep(2);
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
+	// }
+
+	servo[4].set_degree(stand[4]);
+	servo[5].set_degree(stand[5]);
 
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
