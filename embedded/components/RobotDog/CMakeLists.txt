@@ -5,6 +5,7 @@ target_link_libraries(RobotDog
     MPU6050
     LCD
     PCA9685
+    HC_SR04
 )
 
 target_include_directories(RobotDog PUBLIC 
@@ -12,4 +13,5 @@ target_include_directories(RobotDog PUBLIC
     ../MPU6050
     ../LCD
     ../PCA9685
+    ../HC_SR04
 )
