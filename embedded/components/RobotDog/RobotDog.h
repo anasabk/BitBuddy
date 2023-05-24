@@ -9,6 +9,7 @@
 #include "PCA9685.h"
 #include "LCD.h"
 #include "MPU6050.h"
+#include "HC_SR04.h"
 
 
 #define MPU6050_GYRO_RANGE_MODE MPU6050_GYRO_FS_250
@@ -29,6 +30,7 @@ private:
     PCA9685 pca;
     LCD lcd;
     MPU6050 mpu6050;
+    HC_SR04 hc_sr04[2];
     CalServo servos[4][3];
 
     MPU6050::MPU6050_data_t mpu_buff;
@@ -58,7 +60,7 @@ private:
     static void* mpu6050_thread(void* args);
     static void* HCSR04_thread(void*);
     static void* servo_thread(void*);
-    static void* video_stream_thread(void*);
+    // static void* video_stream_thread(void*);
 };
 
 
