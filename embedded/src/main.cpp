@@ -109,8 +109,8 @@ extern "C" int main() {
 	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
 	// }
 
-	servo[4].set_degree(stand[4]);
-	servo[5].set_degree(stand[5]);
+	servo[7].set_degree(stand[7]);
+	servo[8].set_degree(stand[8]);
 
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
