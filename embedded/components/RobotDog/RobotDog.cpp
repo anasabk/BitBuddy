@@ -117,3 +117,51 @@ void* RobotDog::mpu6050_thread(void* args) {
 
     return NULL;
 }
+
+void* RobotDog::HCSR04_thread(void* args) {
+    RobotDog *robot = (RobotDog*)args;
+
+    struct sched_param param;
+    param.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return NULL;
+    }
+
+    // Check all HC_SR04 sensors
+    for (int i = 0; i < NUM_HCSR04; i++) {
+        robot->hc_sr04[i].get_distance();
+
+        // Test connection
+        if (robot->hc_sr04[i].get_distance() == 0) {
+            std::cerr << "HC_SR04[" << i << "] connection error!" << std::endl;
+            return NULL;
+        }
+    }
+
+    // Get current time
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+
+    long dt_ns = 1000000000L / HC_SR04_SAMPLE_FREQ_HZ;
+
+    while (true) {
+        for (int i = 0; i < NUM_HCSR04; i++) {
+            robot->hc_sr04[i].get_distance();
+
+            // Add dt_ns to current time
+            timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
+
+            // Handle overflow
+            while (timeNow.tv_nsec >= 1000000000L) {
+                timeNow.tv_nsec -= 1000000000L;
+                timeNow.tv_sec++;
+            }
+
+            // Sleep until the next dt_ns point
+            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+        }
+    }
+
+    return NULL;
+}
