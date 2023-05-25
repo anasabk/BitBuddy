@@ -12,7 +12,9 @@ import sys
 
 width=640
 height=480
-cap = VideoStream(src=0).start()
+cap = VideoStream(0).start()
+# cap = cv2.VideoCapture()
+# cap.open('http://192.168.43.138:8080')
 viewVideo=True
 if len(sys.argv)>1:
     viewVideo=sys.argv[1]
@@ -46,7 +48,7 @@ counter=float(counter)
 
 start_time=time.time()
 while time.time()-start_time<seconds:
-    frame = cap.read() 
+    frame = cap.read()
     
 #    frame = cv2.resize(frame,(width,height))
     
@@ -55,7 +57,7 @@ while time.time()-start_time<seconds:
     ids=''
     detector = aruco.ArucoDetector(aruco_dict,parameters)
     corners, ids, rejected = detector.detectMarkers(gray_img)
-    cv2.imshow('frame', frame_np)
+    # cv2.imshow('frame', frame_np)
     if ids is not None:
         print("Found these IDs in the frame:")
         print(ids)
@@ -71,7 +73,7 @@ while time.time()-start_time<seconds:
         print("")
         if viewVideo==True:
             aruco.drawDetectedMarkers(frame_np,corners)
-            aruco.drawAxis(frame_np,cameraMatrix,cameraDistortion,rvec,tvec,10)
+            cv2.drawFrameAxes(frame_np,cameraMatrix,cameraDistortion,rvec,tvec,10)
             cv2.imshow('frame',frame_np)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break

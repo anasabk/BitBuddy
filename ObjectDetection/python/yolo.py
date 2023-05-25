@@ -4,7 +4,7 @@ import sys
 import numpy as np
 
 def build_model(is_cuda):
-    net = cv2.dnn.readNet("config_files/best.onnx")
+    net = cv2.dnn.readNet("../config_files/best.onnx")
     if is_cuda:
         print("Attempty to use CUDA")
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -28,12 +28,12 @@ def detect(image, net):
     return preds
 
 def load_capture():
-    capture = cv2.VideoCapture(0)
+    capture = cv2.VideoCapture('http://192.168.43.138:8080')
     return capture
 
 def load_classes():
     class_list = []
-    with open("config_files/classes.txt", "r") as f:
+    with open("../config_files/classes.txt", "r") as f:
         class_list = [cname.strip() for cname in f.readlines()]
     return class_list
 
