@@ -108,12 +108,12 @@ extern "C" int main() {
 	printf("Moving ...\nStanding ...\n");
 
 	pthread_t temp;
-	// for(int i = 0; i < 12; i++) {
-	// 	pthread_create(&temp, NULL, thread_sit, (void*)i);
-	// 	// servo[i].set_degree(sit[i]);
-	// }
+	for(int i = 0; i < 12; i++) {
+		pthread_create(&temp, NULL, thread_sit, (void*)i);
+		// servo[i].set_degree(sit[i]);
+	}
 	
-	// sleep(2);
+	sleep(2);
 	for(int i = 0; i < 12; i++) {
 		pthread_create(&temp, NULL, thread_stand, (void*)i);
 	}
@@ -122,6 +122,8 @@ extern "C" int main() {
 	for(int i = 0; i < 12; i++) {
 		pthread_create(&temp, NULL, thread_step, (void*)i);
 	}
+
+
 
 	// servo[7].set_degree(stand[7]);
 	// servo[8].set_degree(stand[8]);
