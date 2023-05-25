@@ -40,20 +40,20 @@ CalServo *servo_g;
 
 void *thread_stand(void *val) {
 	printf("Standing thread\n");
-	servo_g[(int)val].sweep(sit[(int)val], stand[(int)val], 2000);
+	servo_g[(int)val].sweep(sit[(int)val], stand[(int)val], 3000);
 	pthread_exit(0);
 }
 
 void *thread_sit(void *val) {
 	printf("Sitting thread\n");
-	servo_g[(int)val].sweep(stand[(int)val], sit[(int)val], 2000);
+	servo_g[(int)val].sweep(stand[(int)val], sit[(int)val], 3000);
 	pthread_exit(0);
 }
 
 void *thread_step(void *val) {
 	printf("Stepping thread\n");
 	for(int i =0; i < 4; i++) {
-		servo_g[(int)val].sweep(step_offset[i][(int)val], 2000);
+		servo_g[(int)val].sweep(step_offset[i][(int)val], 3000);
 		sleep(2);
 	}
 	pthread_exit(0);
