@@ -51,7 +51,7 @@ void *thread_sit(void *val) {
 }
 
 void *thread_step(void *val) {
-	printf("Sitting thread\n");
+	printf("Stepping thread\n");
 	for(int i =0; i < 4; i++) {
 		servo_g[(int)val].sweep(step_offset[i][(int)val], 2000);
 		sleep(2);
@@ -120,7 +120,7 @@ extern "C" int main() {
 	
 	// sleep(2);
 	// for(int i = 3; i < 6; i++) {
-	// 	pthread_create(&temp, NULL, thread_step, (void*)i);
+		pthread_create(&temp, NULL, thread_step, (void*)5);
 	// }
 
 	// servo[7].set_degree(stand[7]);
