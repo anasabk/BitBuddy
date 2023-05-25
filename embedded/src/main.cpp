@@ -119,7 +119,7 @@ extern "C" int main() {
 	}
 	
 	sleep(2);
-	for(int i = 4; i < 6; i++) {
+	for(int i = 0; i < 12; i++) {
 		pthread_create(&temp, NULL, thread_step, (void*)i);
 	}
 
