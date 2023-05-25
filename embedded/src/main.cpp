@@ -119,9 +119,9 @@ extern "C" int main() {
 	}
 	
 	sleep(2);
-	// for(int i = 3; i < 6; i++) {
-		pthread_create(&temp, NULL, thread_step, (void*)5);
-	// }
+	for(int i = 4; i < 6; i++) {
+		pthread_create(&temp, NULL, thread_step, (void*)i);
+	}
 
 	// servo[7].set_degree(stand[7]);
 	// servo[8].set_degree(stand[8]);
