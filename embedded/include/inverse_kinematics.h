@@ -46,7 +46,19 @@ int step_offset[][12] = {
         0,  5,   20,
         0, -5,  -20,
         0, -15,  0,
-        0, -40,  35
+        0, 0,  0
+    },
+    // {   // move body forward and bring front left leg to the ground
+    //     90, 60, 90,
+    //     80, 120, 90,
+    //     90, 135, 95,
+    //     80, 0, 115
+    // },
+    {   // move body forward and bring front left leg to the ground
+        0, 0, 0,
+        0, 0, 0,
+        0, 0, 0,
+        0, -40, 35
     },
     // {   // bring right back leg upward and forward
     //     90, 60, 90,
