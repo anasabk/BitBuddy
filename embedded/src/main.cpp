@@ -50,6 +50,15 @@ void *thread_sit(void *val) {
 	pthread_exit(0);
 }
 
+void *thread_sit(void *val) {
+	printf("Sitting thread\n");
+	for(int i =0; i < 4; i++) {
+		servo_g[(int)val].sweep(step_offsets[i][(int)val], 2000);
+		sleep(2);
+	}
+	pthread_exit(0);
+}
+
 extern "C" int main() {
 	// RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
 	// robot.run();
@@ -102,6 +111,11 @@ extern "C" int main() {
 	for(int i = 0; i < 12; i++) {
 		pthread_create(&temp, NULL, thread_sit, (void*)i);
 		// servo[i].set_degree(sit[i]);
+	}
+	
+	sleep(2);
+	for(int i = 0; i < 12; i++) {
+		pthread_create(&temp, NULL, thread_stand, (void*)i);
 	}
 	
 	sleep(2);
