@@ -65,19 +65,19 @@ void CalServo::sweep(int start, int dest, int dur_ms) {
     }
 }
 
-void CalServo::sweep(int dest, int dur_ms) {
+void CalServo::sweep(int offset, int dur_ms) {
     if(last_deg == -1)
         return;
 
-    if(last_deg == dest) {
+    if(offset == 0) {
         set_degree(last_deg);
         return;
     }
     
-    int dt = dur_ms / abs(dest - last_deg);
-    int dir = (dest - last_deg) > 0 ? 1 : -1;
+    int dt = dur_ms / abs(offset);
+    int dir = (offset) > 0 ? 1 : -1;
     int current = last_deg;
-    while(current*dir < dest*dir) {
+    while(current*dir < offset*dir) {
         set_degree(current);
         current += dir;
     }
