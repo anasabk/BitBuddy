@@ -75,6 +75,7 @@ void CalServo::sweep(int offset, int dur_ms) {
     }
 
     if(offset + last_deg > 180 || offset + last_deg < 0) {
+        printf("Limit reached, degree: %d\n", offset + last_deg);
         return;
     }
     
@@ -84,7 +85,7 @@ void CalServo::sweep(int offset, int dur_ms) {
     int dest = current + offset;
     printf("%d\n", offset);
     while(current*dir < dest*dir) {
-        printf("%d\n", current);
+        // printf("%d\n", current);
         set_degree(current);
         current += dir;
     }
