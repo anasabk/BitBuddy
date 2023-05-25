@@ -113,12 +113,12 @@ extern "C" int main() {
 	// 	// servo[i].set_degree(sit[i]);
 	// }
 	
-	sleep(2);
+	// sleep(2);
 	for(int i = 0; i < 12; i++) {
 		pthread_create(&temp, NULL, thread_stand, (void*)i);
 	}
 	
-	// sleep(2);
+	sleep(2);
 	// for(int i = 3; i < 6; i++) {
 		pthread_create(&temp, NULL, thread_step, (void*)5);
 	// }
