@@ -52,7 +52,7 @@ void *thread_sit(void *val) {
 
 void *thread_step(void *val) {
 	printf("Stepping thread\n");
-	for(int i =0; i < 4; i++) {
+	for(int i =0; i < 5; i++) {
 		servo_g[(int)val].sweep(step_offset[i][(int)val], 3000);
 		sleep(2);
 	}
