@@ -10,7 +10,6 @@ import platform
 import sys
 
 
-
 ##################
 
 width=640
@@ -63,7 +62,7 @@ while time.time()-start_time<seconds:
         print(ids)
     if ids is not None and ids[0] == id_to_find:
         #ret = aruco.estimatePoseSingleMarkers(corners,marker_size,cameraMatrix=cameraMatrix,distCoeffs=cameraDistortion)
-		object_points = np.array([
+        object_points = np.array([
 			[[-0.5, -0.5, 0],  # Top-left corner
 			 [-0.5, 0.5, 0],   # Bottom-left corner
 			 [0.5, 0.5, 0],    # Bottom-right corner
@@ -71,32 +70,30 @@ while time.time()-start_time<seconds:
 		], dtype=np.float32) * marker_size
 
 		# Reshape 'corners' to match the expected format of solvePnP
-		image_points = np.array(corners, dtype=np.float32).reshape(-1, 2)
-
+        image_points = np.array(corners, dtype=np.float32).reshape(-1, 2)
 
 		# Convert camera distortion coefficients to solvePnP format
-		dist_coeffs = cameraDistortion.ravel()
-		try:
-			_, rvec, tvec = cv2.solvePnP(object_points, image_points, cameraMatrix, dist_coeffs)
-		except:
-			continue
+        dist_coeffs = cameraDistortion.ravel()
+        try:
+            _, rvec, tvec = cv2.solvePnP(object_points, image_points, cameraMatrix, dist_coeffs)
+        except:
+            continue
 			
-		#rvec,tvec = ret[0][0,0,:], ret[1][0,0,:]
-		x = "{:.2f}".format(float(tvec[0]))
-		y = "{:.2f}".format(float(tvec[1]))
-		z = "{:.2f}".format(float(tvec[2]))
+        #rvec,tvec = ret[0][0,0,:], ret[1][0,0,:]
+        x = "{:.2f}".format(float(tvec[0]))
+        y = "{:.2f}".format(float(tvec[1]))
+        z = "{:.2f}".format(float(tvec[2]))
 
+        marker_position="MARKER POSITION: x="+x+" y="+y+" z="+z
+        print(marker_position)
+        print("")
+        if viewVideo==True:
+            aruco.drawDetectedMarkers(frame_np,corners)
+            cv2.drawFrameAxes(frame_np,cameraMatrix,cameraDistortion,rvec,tvec,10)
+            cv2.imshow('frame',frame_np)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
-
-		marker_position="MARKER POSITION: x="+x+" y="+y+" z="+z
-		print(marker_position)
-		print("")
-		if viewVideo==True:
-			aruco.drawDetectedMarkers(frame_np,corners)
-			cv2.drawFrameAxes(frame_np,cameraMatrix,cameraDistortion,rvec,tvec,10)
-			cv2.imshow('frame',frame_np)
-			if cv2.waitKey(1) & 0xFF == ord('q'):
-				break
     else:
         print("ARUCO "+str(id_to_find)+"NOT FOUND IN FRAME.")
         print("")
@@ -121,4 +118,5 @@ if viewVideo==False:
         
         print("oops you messed up!!!")
     print("---------------------------")
+
 cv2.destroyAllWindows()
