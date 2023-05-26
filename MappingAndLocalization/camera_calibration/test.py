@@ -55,8 +55,9 @@ while time.time()-start_time<seconds:
     frame_np = np.array(frame)
     gray_img = cv2.cvtColor(frame_np,cv2.COLOR_BGR2GRAY)
     ids=''
-    detector = aruco.ArucoDetector(aruco_dict, parameters)
-    corners, ids, rejected = detector.detectMarkers(frame)
+    # detector = aruco.ArucoDetector(aruco_dict, parameters)
+    # corners, ids, rejected = detector.detectMarkers(frame)
+    corners, ids, rejected = aruco.detectMarkers(image=gray_img,dictionary=aruco_dict,parameters=parameters)
     if ids is not None:
         print("Found these IDs in the frame:")
         print(ids)
