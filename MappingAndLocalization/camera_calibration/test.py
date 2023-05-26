@@ -28,7 +28,7 @@ marker_size=20 #cm
 
 realWorldEfficiency=.7 
 aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_ARUCO_ORIGINAL)
-parameters = aruco.DetectorParameters()
+parameters = aruco.DetectorParameters_create()
 
 calib_path="./calibrationfiles/"
 cameraMatrix   = np.loadtxt(calib_path+'cameraMatrix.txt', delimiter=',')
