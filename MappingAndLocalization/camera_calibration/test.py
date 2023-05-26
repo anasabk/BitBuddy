@@ -49,8 +49,7 @@ counter=float(counter)
 start_time=time.time()
 while time.time()-start_time<seconds:
     frame = cap.read() 
-    
-#    frame = cv2.resize(frame,(width,height))
+    frame = cv2.resize(frame,(width,height))
     
     frame_np = np.array(frame)
     gray_img = cv2.cvtColor(frame_np,cv2.COLOR_BGR2GRAY)
