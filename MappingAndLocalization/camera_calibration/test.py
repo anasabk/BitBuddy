@@ -59,6 +59,7 @@ while time.time()-start_time<seconds:
     # corners, ids, rejected = detector.detectMarkers(frame)
     corners, ids, rejected = aruco.detectMarkers(image=gray_img,dictionary=aruco_dict,parameters=parameters)
     cv2.imshow('frame',frame_np)
+    cv2.waitKey(1)
     if ids is not None:
         print("Found these IDs in the frame:")
         print(ids)
