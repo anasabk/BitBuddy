@@ -107,18 +107,21 @@ class Leg
 private:
     CalServo *servos[3];
     int hip_l, l1, l2;
+    int last_pos[3];
 
     /**
-     * @note Left == false
      * @note Right == true
+     * @note Left == false
      */
-    bool side;
+    bool side_is_right;
     
 public:
     Leg(CalServo *hip, CalServo *shoulder, CalServo *knee, int hip_l, int l1, int l2, bool side);
     ~Leg();
 
     bool move(int x_mm, int y_mm, int z_mm);
+
+    bool move_offset(int x_mm, int y_mm, int z_mm);
 };
 
 Leg::Leg(
@@ -145,9 +148,48 @@ bool Leg::move(int x_mm, int y_mm, int z_mm) {
     degrees[1] = (acos((l2*l2 - l1*l1 - R2_xyz) / (2 * l1 * sqrt(R2_xyz))) - atan(x_mm / sqrt(R2_yz))) * 180 / M_PI;
     degrees[2] = acos((R2_xyz - l2*l2 - l1*l1) / (2 * l1 * l2)) * 180 / M_PI - 35;
 
+    if(side_is_right) {
+        degrees[0] = 180 - degrees[0];
+        degrees[1] = 180 - degrees[1];
+        degrees[2] = 180 - degrees[2];
+    }
+
     for(int i = 0; i < 3; i++) {
         servos[i]->sweep(degrees[i], 3000);
     }
+
+    last_pos[0] = x_mm;
+    last_pos[1] = y_mm;
+    last_pos[2] = z_mm;
+
+    return true;
+}
+
+bool Leg::move_offset(int x_mm, int y_mm, int z_mm) {
+    if(last_pos[0] == -1 || last_pos[0] == -1 || last_pos[0] == -1)
+        return false;
+
+    int R2_yz = pow(last_pos[1] + y_mm, 2) + pow(last_pos[2] + z_mm, 2);
+    int R2_xyz = pow(last_pos[0] + x_mm, 2) + pow(last_pos[1] + y_mm, 2) + pow(last_pos[2] + z_mm, 2);
+
+    int degrees[3];
+    degrees[0] = acos(hip_l/sqrt(R2_yz))*180/M_PI + 90;
+    degrees[1] = (acos((l2*l2 - l1*l1 - R2_xyz) / (2 * l1 * sqrt(R2_xyz))) - atan((last_pos[0] + x_mm) / sqrt(R2_yz))) * 180 / M_PI;
+    degrees[2] = acos((R2_xyz - l2*l2 - l1*l1) / (2 * l1 * l2)) * 180 / M_PI - 35;
+
+    if(side_is_right) {
+        degrees[0] = 180 - degrees[0];
+        degrees[1] = 180 - degrees[1];
+        degrees[2] = 180 - degrees[2];
+    }
+
+    for(int i = 0; i < 3; i++) {
+        servos[i]->sweep(degrees[i], 3000);
+    }
+
+    last_pos[0] += x_mm;
+    last_pos[1] += y_mm;
+    last_pos[2] += z_mm;
 
     return true;
 }
