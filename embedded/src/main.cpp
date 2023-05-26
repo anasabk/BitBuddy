@@ -36,28 +36,29 @@ int degree_list[12][20] = {
 	{0, 7, 15, 24, 34, 43, 51, 61, 70, 77, 86, 95, 103, 113, 121, 130, 138, 148, 155, 165}, 
 };
 
-CalServo *servo_g;
+Leg *legs_g;
+CalServo *servos_g;
 
-void *thread_stand(void *val) {
-	printf("Standing thread\n");
-	servo_g[(int)val].sweep(sit[(int)val], stand[(int)val], 3000);
-	pthread_exit(0);
-}
+// void *thread_stand(void *val) {
+// 	printf("Standing thread\n");
+// 	servo_g[(int)val].sweep(sit[(int)val], stand[(int)val], 3000);
+// 	pthread_exit(0);
+// }
 
 void *thread_sit(void *val) {
 	printf("Sitting thread\n");
-	servo_g[(int)val].sweep(stand[(int)val], sit[(int)val], 3000);
+	servos_g[(int)val].sweep(stand[(int)val], sit[(int)val], 3000);
 	pthread_exit(0);
 }
 
-void *thread_step(void *val) {
-	printf("Stepping thread\n");
-	for(int i =0; i < 5; i++) {
-		servo_g[(int)val].sweep(step_offset[i][(int)val], 3000);
-		sleep(2);
-	}
-	pthread_exit(0);
-}
+// void *thread_step(void *val) {
+// 	printf("Stepping thread\n");
+// 	for(int i =0; i < 5; i++) {
+// 		servo_g[(int)val].sweep(step_offset[i][(int)val], 3000);
+// 		sleep(2);
+// 	}
+// 	pthread_exit(0);
+// }
 
 extern "C" int main() {
 	// RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
@@ -88,14 +89,15 @@ extern "C" int main() {
 		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
 	};
 
-	servo_g = servo;
-
-	CalServo *joints[4][3] = {
-		{&servo[6], &servo[7], &servo[8]},
-		{&servo[9], &servo[10], &servo[11]},
-		{&servo[3], &servo[4], &servo[5]},
-		{&servo[0], &servo[1], &servo[2]}
+	Leg legs[4] {
+		Leg(&servo[0], &servo[1], &servo[2], 55, 110, 130, false),
+		Leg(&servo[3], &servo[4], &servo[5], 55, 110, 130, true),
+		Leg(&servo[6], &servo[7], &servo[8], 55, 110, 130, true),
+		Leg(&servo[9], &servo[10], &servo[11], 55, 110, 130, false),
 	};
+
+	servos_g = servo;
+	legs_g = legs;
 
     pca.set_pwm_freq(50);
 	usleep(1000000);
@@ -113,20 +115,17 @@ extern "C" int main() {
 		// servo[i].set_degree(sit[i]);
 	}
 	
-	sleep(2);
-	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_stand, (void*)i);
-	}
+	// sleep(2);
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
+	// }
 	
 	// sleep(2);
 	// for(int i = 0; i < 12; i++) {
 	// 	pthread_create(&temp, NULL, thread_step, (void*)i);
 	// }
 
-
-
-	// servo[7].set_degree(stand[7]);
-	// servo[8].set_degree(stand[8]);
+	legs[0].move(30, 55, 60);
 
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
