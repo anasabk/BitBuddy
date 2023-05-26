@@ -147,7 +147,7 @@ void* RobotDog::HCSR04_thread(void* args) {
 
     while (true) {
         for (int i = 0; i < NUM_HCSR04; i++) {
-            robot->hc_sr04[i].get_distance();
+            robot->front_dist[NUM_HCSR04] = robot->hc_sr04[i].get_distance();
 
             // Add dt_ns to current time
             timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
