@@ -117,7 +117,19 @@ private:
     bool side_is_right;
     
 public:
-    Leg(CalServo *hip, int off_hip, CalServo *shoulder, int off_shld, CalServo *knee, int off_knee, int hip_l, int l1, int l2, bool side);
+    Leg(
+        CalServo *hip, 
+        int off_hip,
+        CalServo *shoulder,
+        int off_shld, 
+        CalServo *knee,
+        int off_knee, 
+        int hip_l, 
+        int l1, 
+        int l2, 
+        bool side
+    );
+
     ~Leg();
 
     bool move(double x_mm, double y_mm, double z_mm);
@@ -133,8 +145,8 @@ Leg::Leg(
     CalServo *knee,
     int off_knee, 
     int hip_l, 
-    int l2, 
     int l1, 
+    int l2, 
     bool side)
 {
     servos[0] = hip;
