@@ -125,7 +125,7 @@ extern "C" int main() {
 	// 	pthread_create(&temp, NULL, thread_step, (void*)i);
 	// }
 
-	legs[0].move(30, 55, 60);
+	legs[3].move(30, 55, 60);
 
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
