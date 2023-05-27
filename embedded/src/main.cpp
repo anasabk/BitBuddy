@@ -115,7 +115,7 @@ extern "C" int main() {
 		// servo[i].set_degree(sit[i]);
 	}
 	
-	sleep(3);
+	sleep(5);
 	// for(int i = 0; i < 12; i++) {
 	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
 	// }
