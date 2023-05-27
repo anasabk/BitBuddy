@@ -174,8 +174,8 @@ bool Leg::move(double x_mm, double y_mm, double z_mm) {
 
     printf("%lf %lf %lf\n", degrees[0], degrees[1], degrees[2]);
 
-    for(int i = 0; i < 3; i++)
-        servos[i]->set_degree((int)degrees[i]);
+    // for(int i = 0; i < 3; i++)
+        // servos[i]->set_degree((int)degrees[i]);
 
     last_pos[0] = x_mm;
     last_pos[1] = y_mm;
