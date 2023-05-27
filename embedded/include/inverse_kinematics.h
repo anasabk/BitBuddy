@@ -135,7 +135,7 @@ Leg::Leg(
 {
     servos[0] = hip;
     servos[1] = shoulder;
-    servos[0] = knee;
+    servos[2] = knee;
     
     this->hip_l = hip_l;
     this->l1 = l1;
