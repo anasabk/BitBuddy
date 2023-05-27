@@ -15,6 +15,7 @@ def build_model(is_cuda):
         net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
     return net
 
+
 INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
 SCORE_THRESHOLD = 0.2
