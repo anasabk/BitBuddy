@@ -39,11 +39,11 @@ int degree_list[12][20] = {
 Leg *legs_g;
 CalServo *servos_g;
 
-// void *thread_stand(void *val) {
-// 	printf("Standing thread\n");
-// 	servo_g[(int)val].sweep(sit[(int)val], stand[(int)val], 3000);
-// 	pthread_exit(0);
-// }
+void *thread_stand(void *val) {
+	printf("Standing thread\n");
+	servos_g[(int)val].sweep(sit[(int)val], stand[(int)val], 3000);
+	pthread_exit(0);
+}
 
 void *thread_sit(void *val) {
 	printf("Sitting thread\n");
@@ -92,7 +92,7 @@ extern "C" int main() {
 	Leg legs[4] {
 		Leg(&servo[0], 0, &servo[1], 0, &servo[2], 0, 55, 110, 130, false),
 		Leg(&servo[3], 0, &servo[4], 0, &servo[5], 0, 55, 110, 130, true),
-		Leg(&servo[6], 0, &servo[7], 10, &servo[8], -9, 55, 110, 130, true),
+		Leg(&servo[6], 0, &servo[7], 0, &servo[8], -9, 55, 110, 130, true),
 		Leg(&servo[9], -10, &servo[10], 10, &servo[11], -9, 55, 110, 130, false),
 	};
 
@@ -111,16 +111,16 @@ extern "C" int main() {
 
 	pthread_t temp;
 	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_sit, (void*)i);
+		pthread_create(&temp, NULL, thread_stand, (void*)i);
 		// servo[i].set_degree(sit[i]);
 	}
 	
 	sleep(5);
-	// for(int i = 0; i < 12; i++) {
-	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
-	// }
+	for(int i = 0; i < 12; i++) {
+		pthread_create(&temp, NULL, thread_sit, (void*)i);
+	}
 	
-	// sleep(2);
+	sleep(5);
 	// for(int i = 0; i < 12; i++) {
 	// 	pthread_create(&temp, NULL, thread_step, (void*)i);
 	// }
