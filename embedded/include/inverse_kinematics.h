@@ -133,6 +133,15 @@ Leg::Leg(
     int l1, 
     bool side)
 {
+    servos[0] = hip;
+    servos[1] = shoulder;
+    servos[0] = knee;
+    
+    this->hip_l = hip_l;
+    this->l1 = l1;
+    this->l2 = l2;
+
+    side_is_right = side;
 }
 
 Leg::~Leg()
