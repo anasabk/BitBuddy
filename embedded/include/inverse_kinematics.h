@@ -106,6 +106,7 @@ class Leg
 {
 private:
     CalServo *servos[3];
+    int offsets[3];
     int hip_l, l1, l2;
     int last_pos[3];
 
@@ -116,7 +117,7 @@ private:
     bool side_is_right;
     
 public:
-    Leg(CalServo *hip, CalServo *shoulder, CalServo *knee, int hip_l, int l1, int l2, bool side);
+    Leg(CalServo *hip, int off_hip, CalServo *shoulder, int off_shld, CalServo *knee, int off_knee, int hip_l, int l1, int l2, bool side);
     ~Leg();
 
     bool move(int x_mm, int y_mm, int z_mm);
@@ -126,8 +127,11 @@ public:
 
 Leg::Leg(
     CalServo *hip, 
-    CalServo *shoulder, 
-    CalServo *knee, 
+    int off_hip,
+    CalServo *shoulder,
+    int off_shld, 
+    CalServo *knee,
+    int off_knee, 
     int hip_l, 
     int l2, 
     int l1, 
@@ -136,6 +140,10 @@ Leg::Leg(
     servos[0] = hip;
     servos[1] = shoulder;
     servos[2] = knee;
+
+    offsets[0] = off_hip;
+    offsets[1] = off_shld;
+    offsets[2] = off_knee;
     
     this->hip_l = hip_l;
     this->l1 = l1;
@@ -153,9 +161,9 @@ bool Leg::move(int x_mm, int y_mm, int z_mm) {
     int R2_xyz = x_mm*x_mm + y_mm*y_mm + z_mm*z_mm;
 
     int degrees[3];
-    degrees[0] = (acos(hip_l/sqrt(R2_yz)) - atan(z_mm / y_mm))*180/M_PI + 90;
-    degrees[1] = (acos((l2*l2 - l1*l1 - R2_xyz) / (2 * l1 * sqrt(R2_xyz))) - atan(x_mm / sqrt(R2_yz))) * 180 / M_PI;
-    degrees[2] = acos((R2_xyz - l2*l2 - l1*l1) / (2 * l1 * l2)) * 180 / M_PI - 35;
+    degrees[0] = (acos(hip_l/sqrt(R2_yz)) - atan(z_mm / y_mm))*180/M_PI + 90 + offsets[0];
+    degrees[1] = (acos((l2*l2 - l1*l1 - R2_xyz) / (2 * l1 * sqrt(R2_xyz))) - atan(x_mm / sqrt(R2_yz))) * 180 / M_PI + offsets[1];
+    degrees[2] = acos((R2_xyz - l2*l2 - l1*l1) / (2 * l1 * l2)) * 180 / M_PI - 35 + offsets[2];
 
     if(side_is_right) {
         degrees[0] = 180 - degrees[0];
@@ -183,7 +191,7 @@ bool Leg::move_offset(int x_mm, int y_mm, int z_mm) {
     int R2_xyz = pow(last_pos[0] + x_mm, 2) + pow(last_pos[1] + y_mm, 2) + pow(last_pos[2] + z_mm, 2);
 
     int degrees[3];
-    degrees[0] = acos(hip_l/sqrt(R2_yz))*180/M_PI - atan(z_mm / y_mm) + 90;
+    degrees[0] = (acos(hip_l/sqrt(R2_yz)) - atan((last_pos[2] + z_mm) / (last_pos[1] + y_mm)))*180/M_PI + 90 + offsets[0];
     degrees[1] = (acos((l2*l2 - l1*l1 - R2_xyz) / (2 * l1 * sqrt(R2_xyz))) - atan((last_pos[0] + x_mm) / sqrt(R2_yz))) * 180 / M_PI;
     degrees[2] = acos((R2_xyz - l2*l2 - l1*l1) / (2 * l1 * l2)) * 180 / M_PI - 35;
 
