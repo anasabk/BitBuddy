@@ -163,6 +163,8 @@ bool Leg::move(int x_mm, int y_mm, int z_mm) {
         degrees[2] = 180 - degrees[2];
     }
 
+    printf("%d %d %d\n", degrees[0], degrees[1], degrees[2]);
+
     for(int i = 0; i < 3; i++) {
         servos[i]->sweep(degrees[i], 3000);
     }
