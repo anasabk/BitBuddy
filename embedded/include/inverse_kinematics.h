@@ -166,7 +166,7 @@ bool Leg::move(int x_mm, int y_mm, int z_mm) {
     printf("%d %d %d\n", degrees[0], degrees[1], degrees[2]);
 
     for(int i = 0; i < 3; i++) {
-        servos[i]->sweep(degrees[i], 3000);
+        servos[i]->set_degree(degrees[i]);
     }
 
     last_pos[0] = x_mm;
