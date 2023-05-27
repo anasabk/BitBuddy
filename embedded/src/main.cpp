@@ -41,13 +41,13 @@ CalServo *servos_g;
 
 void *thread_stand(void *val) {
 	printf("Standing thread\n");
-	servos_g[(int)val].sweep(sit[(int)val], stand[(int)val], 3000);
+	servos_g[(int)val].sweep(sit[(int)val], stand[(int)val], 2000);
 	pthread_exit(0);
 }
 
 void *thread_sit(void *val) {
 	printf("Sitting thread\n");
-	servos_g[(int)val].sweep(stand[(int)val], sit[(int)val], 3000);
+	servos_g[(int)val].sweep(stand[(int)val], sit[(int)val], 2000);
 	pthread_exit(0);
 }
 
@@ -92,8 +92,8 @@ extern "C" int main() {
 	Leg legs[4] {
 		Leg(&servo[0], 0, &servo[1], 0, &servo[2], 0, 55, 110, 130, false),
 		Leg(&servo[3], 0, &servo[4], 0, &servo[5], 0, 55, 110, 130, true),
-		Leg(&servo[6], 0, &servo[7], 0, &servo[8], -9, 55, 110, 130, true),
-		Leg(&servo[9], -10, &servo[10], 10, &servo[11], -9, 55, 110, 130, false),
+		Leg(&servo[6], 0, &servo[7], -5, &servo[8], -11, 55, 110, 130, true),
+		Leg(&servo[9], -10, &servo[10], 5, &servo[11], -11, 55, 110, 130, false),
 	};
 
 	servos_g = servo;
