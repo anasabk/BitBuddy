@@ -120,9 +120,9 @@ public:
     Leg(CalServo *hip, int off_hip, CalServo *shoulder, int off_shld, CalServo *knee, int off_knee, int hip_l, int l1, int l2, bool side);
     ~Leg();
 
-    bool move(int x_mm, int y_mm, int z_mm);
+    bool move(double x_mm, double y_mm, double z_mm);
 
-    bool move_offset(int x_mm, int y_mm, int z_mm);
+    bool move_offset(double x_mm, double y_mm, double z_mm);
 };
 
 Leg::Leg(
@@ -156,14 +156,15 @@ Leg::~Leg()
 {
 }
 
-bool Leg::move(int x_mm, int y_mm, int z_mm) {
-    int R2_yz = y_mm*y_mm + z_mm*z_mm;
-    int R2_xyz = x_mm*x_mm + y_mm*y_mm + z_mm*z_mm;
+bool Leg::move(double x_mm, double y_mm, double z_mm) {
+    double R2_yz = pow(y_mm, 2) + pow(z_mm, 2);
+    double R2_xyz = pow(x_mm, 2) + pow(y_mm, 2) + pow(z_mm, 2);
+    double temp_theta = acos((l2*l2 - l1*l1 - R2_yz + hip_l*hip_l) / (2 * l1 * sqrt(R2_xyz - hip_l*hip_l)));
 
-    int degrees[3];
-    degrees[0] = (acos(hip_l/sqrt(R2_yz)) - atan(z_mm / y_mm))*180/M_PI + 90 + offsets[0];
-    degrees[1] = (acos((l2*l2 - l1*l1 - R2_xyz) / (2 * l1 * sqrt(R2_xyz))) - atan(x_mm / sqrt(R2_yz))) * 180 / M_PI + offsets[1];
-    degrees[2] = acos((R2_xyz - l2*l2 - l1*l1) / (2 * l1 * l2)) * 180 / M_PI - 35 + offsets[2];
+    double degrees[3];
+    degrees[0] = (acos(hip_l/sqrt(R2_yz)) + atan(y_mm / z_mm))*180/M_PI;
+    degrees[1] = (temp_theta - asin(x_mm/sqrt(R2_yz - hip_l*hip_l))) * 180 / M_PI;
+    degrees[2] = (temp_theta * sqrt(R2_yz - hip_l*hip_l)/ l2)*180/M_PI - 35;
 
     if(side_is_right) {
         degrees[0] = 180 - degrees[0];
@@ -183,7 +184,7 @@ bool Leg::move(int x_mm, int y_mm, int z_mm) {
     return true;
 }
 
-bool Leg::move_offset(int x_mm, int y_mm, int z_mm) {
+bool Leg::move_offset(double x_mm, double y_mm, double z_mm) {
     if(last_pos[0] == -1 || last_pos[0] == -1 || last_pos[0] == -1)
         return false;
 
