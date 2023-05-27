@@ -184,7 +184,7 @@ bool Leg::move_offset(int x_mm, int y_mm, int z_mm) {
     int R2_xyz = pow(last_pos[0] + x_mm, 2) + pow(last_pos[1] + y_mm, 2) + pow(last_pos[2] + z_mm, 2);
 
     int degrees[3];
-    degrees[0] = acos(hip_l/sqrt(R2_yz))*180/M_PI + 90;
+    degrees[0] = acos(hip_l/sqrt(R2_yz))*180/M_PI - atan(z_mm / y_mm) + 90;
     degrees[1] = (acos((l2*l2 - l1*l1 - R2_xyz) / (2 * l1 * sqrt(R2_xyz))) - atan((last_pos[0] + x_mm) / sqrt(R2_yz))) * 180 / M_PI;
     degrees[2] = acos((R2_xyz - l2*l2 - l1*l1) / (2 * l1 * l2)) * 180 / M_PI - 35;
 
