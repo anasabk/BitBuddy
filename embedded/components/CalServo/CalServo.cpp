@@ -83,7 +83,7 @@ void CalServo::sweep(int offset, int dur_ms) {
     int dir = (offset) > 0 ? 1 : -1;
     int current = last_deg;
     int dest = current + offset;
-    printf("%d\n", offset);
+    // printf("%d\n", offset);
     while(current*dir < dest*dir) {
         // printf("%d\n", current);
         set_degree(current);
