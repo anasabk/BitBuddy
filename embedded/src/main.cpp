@@ -93,7 +93,7 @@ extern "C" int main() {
 		Leg(&servo[0], 0, &servo[1], 0, &servo[2], 0, 55, 110, 130, false),
 		Leg(&servo[3], 0, &servo[4], 0, &servo[5], 0, 55, 110, 130, true),
 		Leg(&servo[6], 0, &servo[7], 0, &servo[8], 0, 55, 110, 130, true),
-		Leg(&servo[9], -10, &servo[10], 0, &servo[11], 0, 55, 110, 130, false),
+		Leg(&servo[9], -10, &servo[10], 10, &servo[11], -9, 55, 110, 130, false),
 	};
 
 	servos_g = servo;
@@ -125,7 +125,7 @@ extern "C" int main() {
 	// 	pthread_create(&temp, NULL, thread_step, (void*)i);
 	// }
 
-	// legs[3].move(30, 55, 60);
+	legs[3].move(30, 55, 65);
 
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
