@@ -88,107 +88,96 @@ void* thread_hcsr04(void *) {
 extern "C" int main() {
 	// RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
 	// robot.run();
-
-	if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
-
-	HC_SR04 hcsr04(5, 6);
-	hcsr04_g = &hcsr04;
-
-	LCD lcd(1, 0x27);
-	lcd_g = &lcd;
-
-	pthread_t temp1;
-	pthread_create(&temp1, NULL, thread_hcsr04, NULL);
-
-    PCA9685 pca(1, 0x40);
-	/** 
-	 * \verbatim
-	 * 		Numbers of servo channels
-	 * 			   of each leg
-	 * 				 | Top | Mid | Low |
-	 * 				 |  0  |  1  |  2  |
-	 * --------------|-----|-----|-----|
-	 * Front Right 0 |	6  |  7	 |	8  |
-	 * Front Left  1 |	9  |  10 |	11 |
-	 * Back Right  2 |	3  |  4	 |	5  |
-	 * Back Left   3 |	0  |  1	 |	2  |
-	 * \endverbatim
-	 */
-	CalServo servo[12] {
-		// Top, Mid, and Low motors for each leg
-		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
-		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
-		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
-		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
-	};
-
-	Leg legs[4] {
-		Leg(&servo[0], 0, &servo[1], 0, &servo[2], 0, 55, 110, 130, false),
-		Leg(&servo[3], 0, &servo[4], 0, &servo[5], 0, 55, 110, 130, true),
-		Leg(&servo[6], 0, &servo[7], -5, &servo[8], -11, 55, 110, 130, true),
-		Leg(&servo[9], -10, &servo[10], 5, &servo[11], -11, 55, 110, 130, false),
-	};
-
-	servos_g = servo;
-	legs_g = legs;
-
-    pca.set_pwm_freq(50);
-	usleep(1000000);
-
-	printf("Calibrating ...\n");
-
-	for(int i = 0; i < 12; i++)
-		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
-
-	printf("Moving ...\nStanding ...\n");
-
-	pthread_t temp;
-	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_stand, (void*)i);
-		// servo[i].set_degree(sit[i]);
-	}
 	
-	sleep(5);
-	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_sit, (void*)i);
-	}
-	
-	sleep(5);
-	// for(int i = 0; i < 12; i++) {
-	// 	pthread_create(&temp, NULL, thread_step, (void*)i);
+	// if (gpioInitialise() < 0) {
+	// 	printf("Failure...");
+	// 	exit(-1);
 	// }
 
-	legs[3].move(30, 55, 65);
-	legs[2].move(30, 55, 65);
+	// HC_SR04 hcsr04(5, 6);
+	// hcsr04_g = &hcsr04;
 
-	uint8_t dest_servo = 0;
-	int dest_degree = 0;
-    while(true) {
-		scanf("%d %d", &dest_servo, &dest_degree);
-		for(int i = 0; i < 12; i++){
-			printf("%d %d %d\n", i, servo[i].getChannel());
-			if(servo[i].getChannel() == dest_servo) {
-				servo[i].set_degree(dest_degree);
-				break;
-			}
-		}
-    }
+	// LCD lcd(1, 0x27);
+	// lcd_g = &lcd;
 
-	return 0;
+	// pthread_t temp1;
+	// pthread_create(&temp1, NULL, thread_hcsr04, NULL);
 
+    // PCA9685 pca(1, 0x40);
+	// /** 
+	//  * \verbatim
+	//  * 		Numbers of servo channels
+	//  * 			   of each leg
+	//  * 				 | Top | Mid | Low |
+	//  * 				 |  0  |  1  |  2  |
+	//  * --------------|-----|-----|-----|
+	//  * Front Right 0 |	6  |  7	 |	8  |
+	//  * Front Left  1 |	9  |  10 |	11 |
+	//  * Back Right  2 |	3  |  4	 |	5  |
+	//  * Back Left   3 |	0  |  1	 |	2  |
+	//  * \endverbatim
+	//  */
+	// CalServo servo[12] {
+	// 	// Top, Mid, and Low motors for each leg
+	// 	CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
+	// 	CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
+	// 	CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
+	// 	CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
+	// };
 
-	// // int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
-	// // char buffer[128];
-	// // for(int i = 0; i < 19; i++) {
-	// // 	sprintf(buffer, "%d, ", degree[i]);
-	// // 	write(servo_data_fd, buffer, strlen(buffer));
+	// Leg legs[4] {
+	// 	Leg(&servo[0], 0, &servo[1], 0, &servo[2], 0, 55, 110, 130, false),
+	// 	Leg(&servo[3], 0, &servo[4], 0, &servo[5], 0, 55, 110, 130, true),
+	// 	Leg(&servo[6], 0, &servo[7], -5, &servo[8], -11, 55, 110, 130, true),
+	// 	Leg(&servo[9], -10, &servo[10], 5, &servo[11], -11, 55, 110, 130, false),
+	// };
+
+	// servos_g = servo;
+	// legs_g = legs;
+
+    // pca.set_pwm_freq(50);
+	// usleep(1000000);
+
+	// printf("Calibrating ...\n");
+
+	// for(int i = 0; i < 12; i++)
+	// 	servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+
+	// printf("Moving ...\nStanding ...\n");
+
+	// pthread_t temp;
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
+	// 	// servo[i].set_degree(sit[i]);
+	// }
+	
+	// sleep(5);
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_sit, (void*)i);
+	// }
+	
+	// sleep(5);
+	// // for(int i = 0; i < 12; i++) {
+	// // 	pthread_create(&temp, NULL, thread_step, (void*)i);
 	// // }
-	// // sprintf(buffer, "%d", degree[19]);
-	// // write(servo_data_fd, buffer, sizeof(int));
-	// // close(servo_data_fd);
+
+	// legs[3].move(30, 55, 65);
+	// legs[2].move(30, 55, 65);
+
+	// uint8_t dest_servo = 0;
+	// int dest_degree = 0;
+    // while(true) {
+	// 	scanf("%d %d", &dest_servo, &dest_degree);
+	// 	for(int i = 0; i < 12; i++){
+	// 		printf("%d %d %d\n", i, servo[i].getChannel());
+	// 		if(servo[i].getChannel() == dest_servo) {
+	// 			servo[i].set_degree(dest_degree);
+	// 			break;
+	// 		}
+	// 	}
+    // }
+
+	// return 0;
 
 
 	// if (gpioInitialise() < 0) {
@@ -226,23 +215,24 @@ extern "C" int main() {
 	// // gpioTerminate();
 	// return 0;
 
-	// if (gpioInitialise() < 0) {
-	// 	printf("Failure...");
-	// 	exit(-1);
-	// }
 
-	// HC_SR04 sensor(5, 6);
-	// LCD lcd(1, 0x27);
+	if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
 
-	// while(1) {
-	// 	lcd.setPosition(0, 0);
-	// 	lcd.printf("dist = %.3f\n", sensor.get_distance());
-	// 	printf("distance = %f\n", sensor.get_distance());
-	// 	usleep(1000000);
-	// }
+	HC_SR04 sensor(5, 6);
+	LCD lcd(1, 0x27);
 
-	// gpioTerminate();
-	// return 0;
+	while(1) {
+		lcd.setPosition(0, 0);
+		lcd.printf("dist = %.3f\n", sensor.get_distance());
+		printf("distance = %f\n", sensor.get_distance());
+		usleep(1000000);
+	}
+
+	gpioTerminate();
+	return 0;
 	
 
 	// if (gpioInitialise() < 0) {
