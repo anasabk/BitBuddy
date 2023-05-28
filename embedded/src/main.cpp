@@ -51,6 +51,16 @@ void *thread_sit(void *val) {
 	pthread_exit(0);
 }
 
+HC_SR04 *hcsr04_g;
+LCD *lcd_g;
+
+void* thread_hcsr04(void *) {
+	while (true) {
+		lcd_g->printf("%lf", hcsr04_g->get_distance());
+		lcd_g->goHome();
+	}
+}
+
 // void *thread_step(void *val) {
 // 	printf("Stepping thread\n");
 // 	for(int i =0; i < 5; i++) {
@@ -64,8 +74,14 @@ extern "C" int main() {
 	// RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
 	// robot.run();
 
+	HC_SR04 hcsr04(5, 6);
+	hcsr04_g = &hcsr04;
+
 	LCD lcd(1, 0x27);
-	lcd.printf("Hello World");
+	lcd_g = &lcd;
+
+	pthread_t temp1;
+	pthread_create(&temp1, NULL, thread_hcsr04, NULL);
 
     PCA9685 pca(1, 0x40);
 	/** 
