@@ -160,14 +160,14 @@ extern "C" int main() {
 	legs[3].move(30, 55, 190);
 
 	sleep(3);
-	legs[2].move(70, 55, 160);
+	legs[2].move_offset(40, 0, -30);
 	sleep(1);
-	legs[2].move(90, 55, 190);
+	legs[2].move(40, 0, 30);
 	sleep(1);
-	legs[0].move(-90, 55, 190);
-	legs[1].move(-90, 55, 190);
-	legs[2].move(50, 55, 190);
-	legs[3].move(-10, 55, 190);
+	legs[0].move(-40, 0, 0);
+	legs[1].move(-40, 0, 0);
+	legs[2].move(-40, 0, 0);
+	legs[3].move(-40, 0, 0);
 
 
 	uint8_t dest_servo = 0;
