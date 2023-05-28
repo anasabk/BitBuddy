@@ -58,7 +58,7 @@ void* thread_hcsr04(void *) {
     // Get current time
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
-	
+
 	while (true) {
 		lcd_g->printf("%lf", hcsr04_g->get_distance());
 		lcd_g->goHome();
@@ -88,6 +88,11 @@ void* thread_hcsr04(void *) {
 extern "C" int main() {
 	// RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
 	// robot.run();
+
+	if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
 
 	HC_SR04 hcsr04(5, 6);
 	hcsr04_g = &hcsr04;
