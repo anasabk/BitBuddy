@@ -154,50 +154,50 @@ extern "C" int main() {
 	// legs[3].move(30, 55, 65);
 	
 	// sleep(4);
-	legs[0].move(-50, 55, 190);
-	legs[1].move(-50, 55, 190);
-	legs[2].move(30, 55, 190);
-	legs[3].move(30, 55, 190);
+	legs[0].move(-50, 55, 170);
+	legs[1].move(-50, 55, 170);
+	legs[2].move(30, 55, 170);
+	legs[3].move(30, 55, 170);
 
 	sleep(1);
-	legs[2].move_offset(40, 0, -30);
+	legs[2].move_offset(34, 0, -30);
 	sleep(1);
-	legs[2].move_offset(40, 0, 30);
+	legs[2].move_offset(34, 0, 30);
 	sleep(1);
-	legs[0].move_offset(-40, 0, 0);
-	legs[1].move_offset(-40, 0, 0);
-	legs[2].move_offset(-40, 0, 0);
-	legs[3].move_offset(-40, 0, 0);
+	legs[0].move_offset(-34, 0, 0);
+	legs[1].move_offset(-34, 0, 0);
+	legs[2].move_offset(-34, 0, 0);
+	legs[3].move_offset(-34, 0, 0);
 
 	sleep(1);
-	legs[0].move_offset(40, 0, -30);
+	legs[0].move_offset(34, 0, -30);
 	sleep(1);
-	legs[0].move_offset(40, 0, 30);
+	legs[0].move_offset(34, 0, 30);
 	sleep(1);
-	legs[0].move_offset(-40, 0, 0);
-	legs[1].move_offset(-40, 0, 0);
-	legs[2].move_offset(-40, 0, 0);
-	legs[3].move_offset(-40, 0, 0);
+	legs[0].move_offset(-34, 0, 0);
+	legs[1].move_offset(-34, 0, 0);
+	legs[2].move_offset(-34, 0, 0);
+	legs[3].move_offset(-34, 0, 0);
 
 	sleep(1);
-	legs[3].move_offset(40, 0, -30);
+	legs[3].move_offset(34, 0, -30);
 	sleep(1);
-	legs[3].move_offset(40, 0, 30);
+	legs[3].move_offset(34, 0, 30);
 	sleep(1);
-	legs[0].move_offset(-40, 0, 0);
-	legs[1].move_offset(-40, 0, 0);
-	legs[2].move_offset(-40, 0, 0);
-	legs[3].move_offset(-40, 0, 0);
+	legs[0].move_offset(-34, 0, 0);
+	legs[1].move_offset(-34, 0, 0);
+	legs[2].move_offset(-34, 0, 0);
+	legs[3].move_offset(-34, 0, 0);
 
 	sleep(1);
-	legs[1].move_offset(40, 0, -30);
+	legs[1].move_offset(34, 0, -30);
 	sleep(1);
-	legs[1].move_offset(40, 0, 30);
+	legs[1].move_offset(34, 0, 30);
 	sleep(1);
-	legs[0].move_offset(-40, 0, 0);
-	legs[1].move_offset(-40, 0, 0);
-	legs[2].move_offset(-40, 0, 0);
-	legs[3].move_offset(-40, 0, 0);
+	legs[0].move_offset(-34, 0, 0);
+	legs[1].move_offset(-34, 0, 0);
+	legs[2].move_offset(-34, 0, 0);
+	legs[3].move_offset(-34, 0, 0);
 
 
 	uint8_t dest_servo = 0;
