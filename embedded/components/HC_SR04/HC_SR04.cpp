@@ -35,7 +35,7 @@ float HC_SR04::get_distance() {
 
     while(gpioRead(echo) == PI_LOW);
     clock_gettime(CLOCK_MONOTONIC, &time_send);
-    while(gpioRead(echo) == PI_LOW);
+    while(gpioRead(echo) == PI_HIGH);
     clock_gettime(CLOCK_MONOTONIC, &time_rec);
 
     // while(gpioRead(echo) == PI_HIGH) {
