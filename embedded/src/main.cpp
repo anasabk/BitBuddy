@@ -226,7 +226,7 @@ extern "C" int main() {
 
 	while(1) {
 		lcd.setPosition(0, 0);
-		lcd.printf("dist = %.3f\n", sensor.get_distance());
+		lcd.printf("%.3f\n", sensor.get_distance());
 		printf("distance = %f\n", sensor.get_distance());
 		usleep(1000000);
 	}
