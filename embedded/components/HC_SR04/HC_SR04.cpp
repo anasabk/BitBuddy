@@ -45,8 +45,8 @@ float HC_SR04::get_distance() {
     // double timeElapsed = arrivalTime - startTime;
     // double distanceCalculated = (timeElapsed * 34300) / 2;
 
-    double dur_ms = (time_rec.tv_nsec - time_send.tv_nsec) / 1000000;
-    double result = (dur_ms * SPEED_OF_SOUND) / 2;
+    double dur_ms = (time_rec.tv_nsec - time_send.tv_nsec) / 1000000.0;
+    double result = (dur_ms * SPEED_OF_SOUND) / 2.0;
 
     return result;
 }
