@@ -153,11 +153,11 @@ extern "C" int main() {
 	legs[2].move(30, 55, 65);
 	legs[3].move(30, 55, 65);
 	
-	// sleep(4);
-	// legs[0].move(-50, 55, 190);
-	// legs[1].move(-50, 55, 190);
-	// legs[2].move(30, 55, 190);
-	// legs[3].move(30, 55, 190);
+	sleep(4);
+	legs[0].move(-50, 55, 190);
+	legs[1].move(-50, 55, 190);
+	legs[2].move(30, 55, 190);
+	legs[3].move(30, 55, 190);
 
 
 	uint8_t dest_servo = 0;
