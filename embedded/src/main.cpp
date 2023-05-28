@@ -112,9 +112,9 @@ extern "C" int main() {
 	};
 
 	Leg legs[4] {
-		Leg(&servo[0],   0, &servo[1], 0, &servo[2], -3.844949, 55, 110, 130, false),
-		Leg(&servo[3],  10, &servo[4], 0, &servo[5], -3.844949, 55, 110, 130, true),
-		Leg(&servo[6],   0, &servo[7], -5.957548, &servo[8], 1.594, 55, 110, 130, true),
+		Leg(&servo[0],   0, &servo[1], -1.443508, &servo[2], -3.844949, 55, 110, 130, false),
+		Leg(&servo[3],  10, &servo[4], -11.443508, &servo[5], -3.844949, 55, 110, 130, true),
+		Leg(&servo[6],   0, &servo[7], 0, &servo[8], 1.594, 55, 110, 130, true),
 		Leg(&servo[9], -10, &servo[10], 5.957548, &servo[11], 1.594, 55, 110, 130, false),
 	};
 
