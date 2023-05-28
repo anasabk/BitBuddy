@@ -152,8 +152,8 @@ extern "C" int main() {
 	legs[2].move(30, 55, 65);
 	
 	sleep(5);
-	legs[3].move(30, 55, 120);
-	legs[2].move(30, 55, 120);
+	legs[3].move(30, 55, 190);
+	legs[2].move(30, 55, 190);
 
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
