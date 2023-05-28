@@ -163,7 +163,9 @@ extern "C" int main() {
 		sleep(1);
 		legs[2].move_offset(34, 0, -40);
 		sleep(1);
-		legs[2].move_offset(34, 0, 40);
+		legs[2].move_offset(34, 0, 0);
+		sleep(1);
+		legs[2].move_offset(0, 0, 40);
 		sleep(1);
 		legs[0].move_offset(-34, 0, 0);
 		legs[1].move_offset(-34, 0, 0);
@@ -173,7 +175,9 @@ extern "C" int main() {
 		sleep(1);
 		legs[0].move_offset(34, 0, -40);
 		sleep(1);
-		legs[0].move_offset(34, 0, 40);
+		legs[0].move_offset(34, 0, 0);
+		sleep(1);
+		legs[0].move_offset(0, 0, 40);
 		sleep(1);
 		legs[0].move_offset(-34, 0, 0);
 		legs[1].move_offset(-34, 0, 0);
@@ -183,7 +187,9 @@ extern "C" int main() {
 		sleep(1);
 		legs[3].move_offset(34, 0, -40);
 		sleep(1);
-		legs[3].move_offset(34, 0, 40);
+		legs[3].move_offset(34, 0, 0);
+		sleep(1);
+		legs[3].move_offset(0, 0, 40);
 		sleep(1);
 		legs[0].move_offset(-34, 0, 0);
 		legs[1].move_offset(-34, 0, 0);
@@ -193,7 +199,9 @@ extern "C" int main() {
 		sleep(1);
 		legs[1].move_offset(34, 0, -40);
 		sleep(1);
-		legs[1].move_offset(34, 0, 40);
+		legs[1].move_offset(34, 0, 0);
+		sleep(1);
+		legs[1].move_offset(0, 0, 40);
 		sleep(1);
 		legs[0].move_offset(-34, 0, 0);
 		legs[1].move_offset(-34, 0, 0);
