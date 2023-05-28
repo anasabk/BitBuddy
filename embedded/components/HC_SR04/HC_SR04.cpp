@@ -21,19 +21,28 @@ float HC_SR04::get_distance() {
     gpioDelay(10);
     gpioWrite(trig, PI_LOW);
 
+    // Get current time
+    struct timespec time_send;
+    struct timespec time_rec;
+
     double startTime = time_time();
     double arrivalTime = time_time();
 
     while(gpioRead(echo) == PI_LOW) {
-        startTime = time_time();
+        // startTime = time_time();
+        clock_gettime(CLOCK_MONOTONIC, &time_send);
     }
 
     while(gpioRead(echo) == PI_HIGH) {
-        arrivalTime = time_time();
+        // arrivalTime = time_time();
+        clock_gettime(CLOCK_MONOTONIC, &time_rec);
     }
 
-    double timeElapsed = arrivalTime - startTime;
-    double distanceCalculated = (timeElapsed * 34300) / 2;
+    // double timeElapsed = arrivalTime - startTime;
+    // double distanceCalculated = (timeElapsed * 34300) / 2;
 
-    return distanceCalculated;
+    double dur_ms = (time_rec.tv_nsec - time_send.tv_nsec) / 1000000;
+    double result = (dur_ms * SPEED_OF_SOUND) / 2;
+
+    return result;
 }
