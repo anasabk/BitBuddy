@@ -142,13 +142,18 @@ extern "C" int main() {
 		pthread_create(&temp, NULL, thread_sit, (void*)i);
 	}
 	
-	sleep(5);
+	// sleep(5);
 	// for(int i = 0; i < 12; i++) {
 	// 	pthread_create(&temp, NULL, thread_step, (void*)i);
 	// }
 
+	sleep(5);
 	legs[3].move(30, 55, 65);
 	legs[2].move(30, 55, 65);
+	
+	sleep(5);
+	legs[3].move(30, 55, 120);
+	legs[2].move(30, 55, 120);
 
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
