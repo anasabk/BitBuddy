@@ -170,13 +170,13 @@ Leg::~Leg()
 
 bool Leg::move(double x_mm, double y_mm, double z_mm) {
     double R2_yz = pow(y_mm, 2) + pow(z_mm, 2);
-    double R2_xyz = pow(x_mm, 2) + pow(y_mm, 2) + pow(z_mm, 2);
-    double temp_theta = acos((l2*l2 - l1*l1 - R2_yz + hip_l*hip_l) / (-2 * l1 * sqrt(R2_xyz - hip_l*hip_l)));
+    double foot_to_shoulder_sq = pow(x_mm, 2) + pow(y_mm, 2) + pow(z_mm, 2) - pow(hip_l, 2);
+    double temp_theta = acos((l2*l2 - l1*l1 - foot_to_shoulder_sq) / (-2 * l1 * sqrt(foot_to_shoulder_sq)));
 
     double degrees[3];
-    degrees[0] = (acos(hip_l/sqrt(R2_yz)) + atan(y_mm / z_mm))*180/M_PI + offsets[0];
-    degrees[1] = (temp_theta - asin(x_mm/sqrt(R2_yz - hip_l*hip_l))) * 180 / M_PI + offsets[1];
-    degrees[2] = asin(sin(temp_theta) * sqrt(R2_yz - hip_l*hip_l) / l2)*180/M_PI - 35 + offsets[2];
+    degrees[0] = acos(hip_l / sqrt(R2_yz)) + atan(y_mm / z_mm)*180/M_PI + offsets[0];
+    degrees[1] = (temp_theta - atan(x_mm / sqrt(R2_yz - hip_l*hip_l)))*180/M_PI + offsets[1];
+    degrees[2] = acos((foot_to_shoulder_sq - l2*l2 - l1*l1) / (-2 * l1 * l2))*180/M_PI - 35 + offsets[2];
 
     if(side_is_right) {
         degrees[0] = 180 - degrees[0];
