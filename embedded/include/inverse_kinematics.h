@@ -106,8 +106,8 @@ class Leg
 {
 private:
     CalServo *servos[3];
-    int offsets[3];
-    int hip_l, l1, l2;
+    double offsets[3];
+    double hip_l, l1, l2;
     int last_pos[3];
 
     /**
@@ -119,14 +119,14 @@ private:
 public:
     Leg(
         CalServo *hip, 
-        int off_hip,
+        double off_hip,
         CalServo *shoulder,
-        int off_shld, 
+        double off_shld, 
         CalServo *knee,
-        int off_knee, 
-        int hip_l, 
-        int l1, 
-        int l2, 
+        double off_knee, 
+        double hip_l, 
+        double l1, 
+        double l2, 
         bool side
     );
 
@@ -139,14 +139,14 @@ public:
 
 Leg::Leg(
     CalServo *hip, 
-    int off_hip,
+    double off_hip,
     CalServo *shoulder,
-    int off_shld, 
+    double off_shld, 
     CalServo *knee,
-    int off_knee, 
-    int hip_l, 
-    int l1, 
-    int l2, 
+    double off_knee, 
+    double hip_l, 
+    double l1, 
+    double l2, 
     bool side)
 {
     servos[0] = hip;
