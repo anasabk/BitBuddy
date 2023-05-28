@@ -55,9 +55,24 @@ HC_SR04 *hcsr04_g;
 LCD *lcd_g;
 
 void* thread_hcsr04(void *) {
+    // Get current time
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+	
 	while (true) {
 		lcd_g->printf("%lf", hcsr04_g->get_distance());
 		lcd_g->goHome();
+
+		        // Add 10ms to current time
+        timeNow.tv_nsec += 10000000L; // 10 ms in nanoseconds
+        // Handle overflow
+        while (timeNow.tv_nsec >= 1000000000L) {
+            timeNow.tv_nsec -= 1000000000L;
+            timeNow.tv_sec++;
+        }
+
+        // Sleep until the next 10ms point
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 	}
 }
 
