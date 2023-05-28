@@ -176,7 +176,7 @@ bool Leg::move(double x_mm, double y_mm, double z_mm) {
     double degrees[3];
     degrees[0] = (acos(hip_l/sqrt(R2_yz)) + atan(y_mm / z_mm))*180/M_PI + offsets[0];
     degrees[1] = (temp_theta - asin(x_mm/sqrt(R2_yz - hip_l*hip_l))) * 180 / M_PI + offsets[1];
-    degrees[2] = (temp_theta * sqrt(R2_yz - hip_l*hip_l)/ l2)*180/M_PI - 35 + offsets[2];
+    degrees[2] = asin(sin(temp_theta) * sqrt(R2_yz - hip_l*hip_l) / l2)*180/M_PI - 35 + offsets[2];
 
     if(side_is_right) {
         degrees[0] = 180 - degrees[0];
