@@ -200,13 +200,18 @@ bool Leg::move_offset(double x_mm, double y_mm, double z_mm) {
     if(last_pos[0] == -1 || last_pos[0] == -1 || last_pos[0] == -1)
         return false;
 
-    int R2_yz = pow(last_pos[1] + y_mm, 2) + pow(last_pos[2] + z_mm, 2);
-    int R2_xyz = pow(last_pos[0] + x_mm, 2) + pow(last_pos[1] + y_mm, 2) + pow(last_pos[2] + z_mm, 2);
+    double dest_x = last_pos[0] + x_mm;
+    double dest_y = last_pos[1] + y_mm;
+    double dest_z = last_pos[2] + z_mm;
 
-    int degrees[3];
-    degrees[0] = (acos(hip_l/sqrt(R2_yz)) - atan((last_pos[2] + z_mm) / (last_pos[1] + y_mm)))*180/M_PI + 90 + offsets[0];
-    degrees[1] = (acos((l2*l2 - l1*l1 - R2_xyz) / (2 * l1 * sqrt(R2_xyz))) - atan((last_pos[0] + x_mm) / sqrt(R2_yz))) * 180 / M_PI;
-    degrees[2] = acos((R2_xyz - l2*l2 - l1*l1) / (2 * l1 * l2)) * 180 / M_PI - 35;
+    double R2_yz = pow(dest_y, 2) + pow(dest_z, 2);
+    double foot_to_shoulder_sq = pow(dest_x, 2) + pow(dest_y, 2) + pow(dest_z, 2) - pow(hip_l, 2);
+    double temp_theta = acos((l2*l2 - l1*l1 - foot_to_shoulder_sq) / (-2 * l1 * sqrt(foot_to_shoulder_sq)));
+
+    double degrees[3];
+    degrees[0] = (acos(hip_l / sqrt(R2_yz)) + atan(dest_y / dest_z))*180/M_PI + offsets[0];
+    degrees[1] = (temp_theta - atan(dest_x / sqrt(R2_yz - hip_l*hip_l)))*180/M_PI + offsets[1];
+    degrees[2] = acos((foot_to_shoulder_sq - l2*l2 - l1*l1) / (-2 * l1 * l2))*180/M_PI - 35 + offsets[2];
 
     if(side_is_right) {
         degrees[0] = 180 - degrees[0];
@@ -215,12 +220,12 @@ bool Leg::move_offset(double x_mm, double y_mm, double z_mm) {
     }
 
     for(int i = 0; i < 3; i++) {
-        servos[i]->sweep(degrees[i], 3000);
+        servos[i]->set_degree(degrees[i]);
     }
 
-    last_pos[0] += x_mm;
-    last_pos[1] += y_mm;
-    last_pos[2] += z_mm;
+    last_pos[0] = dest_x;
+    last_pos[1] = dest_y;
+    last_pos[2] = dest_z;
 
     return true;
 }
