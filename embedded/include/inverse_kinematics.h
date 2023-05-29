@@ -184,7 +184,7 @@ bool Leg::move(double x_mm, double y_mm, double z_mm) {
         degrees[2] = 180 - degrees[2];
     }
 
-    printf("%lf %lf %lf\n", degrees[0], degrees[1], degrees[2]);
+    printf("%d %d %d, %lf %lf %lf\n", x_mm, y_mm, z_mm, degrees[0], degrees[1], degrees[2]);
 
     for(int i = 0; i < 3; i++)
         servos[i]->set_degree((int)degrees[i]);
@@ -200,33 +200,7 @@ bool Leg::move_offset(double x_mm, double y_mm, double z_mm) {
     if(last_pos[0] == -1 || last_pos[0] == -1 || last_pos[0] == -1)
         return false;
 
-    double dest_x = last_pos[0] + x_mm;
-    double dest_y = last_pos[1] + y_mm;
-    double dest_z = last_pos[2] + z_mm;
-
-    double R2_yz = pow(dest_y, 2) + pow(dest_z, 2);
-    double foot_to_shoulder_sq = pow(dest_x, 2) + pow(dest_y, 2) + pow(dest_z, 2) - pow(hip_l, 2);
-    double temp_theta = acos((l2*l2 - l1*l1 - foot_to_shoulder_sq) / (-2 * l1 * sqrt(foot_to_shoulder_sq)));
-
-    double degrees[3];
-    degrees[0] = (acos(hip_l / sqrt(R2_yz)) + atan(dest_y / dest_z))*180/M_PI + offsets[0];
-    degrees[1] = (temp_theta - atan(dest_x / sqrt(R2_yz - hip_l*hip_l)))*180/M_PI + offsets[1];
-    degrees[2] = acos((foot_to_shoulder_sq - l2*l2 - l1*l1) / (-2 * l1 * l2))*180/M_PI - 35 + offsets[2];
-
-    if(side_is_right) {
-        degrees[0] = 180 - degrees[0];
-        degrees[1] = 180 - degrees[1];
-        degrees[2] = 180 - degrees[2];
-    }
-
-    printf("%lf %lf %lf\n", degrees[0], degrees[1], degrees[2]);
-
-    for(int i = 0; i < 3; i++)
-        servos[i]->set_degree((int)degrees[i]);
-
-    last_pos[0] = dest_x;
-    last_pos[1] = dest_y;
-    last_pos[2] = dest_z;
+    move(last_pos[0] + x_mm, last_pos[1] + y_mm, last_pos[2] + z_mm);
 
     return true;
 }
