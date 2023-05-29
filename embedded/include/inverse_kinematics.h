@@ -219,9 +219,10 @@ bool Leg::move_offset(double x_mm, double y_mm, double z_mm) {
         degrees[2] = 180 - degrees[2];
     }
 
-    for(int i = 0; i < 3; i++) {
-        servos[i]->set_degree(degrees[i]);
-    }
+    printf("%lf %lf %lf\n", degrees[0], degrees[1], degrees[2]);
+
+    for(int i = 0; i < 3; i++)
+        servos[i]->set_degree((int)degrees[i]);
 
     last_pos[0] = dest_x;
     last_pos[1] = dest_y;
