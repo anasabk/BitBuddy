@@ -32,7 +32,7 @@ int main() {
     // Set server address
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(12345);
-    serverAddr.sin_addr.s_addr = inet_addr("192.168.1.104");
+    serverAddr.sin_addr.s_addr = inet_addr("192.168.43.138");
 
     // connect to server
     if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
