@@ -26,45 +26,48 @@ void RobotDog::run() {
 	pthread_t mpu_thread_id;
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 
-        // Real-time scheduling
-    struct sched_param param;
-    param.sched_priority = 99; // Set priority to maximum
-    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
-        std::cerr << "sched_setscheduler error!" << std::endl;
-        return;
-    }
+	pthread_t hcsr04_thread_id;
+	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
 
-    std::ofstream outputFile("sensorData.txt");
+    // // Real-time scheduling
+    // struct sched_param param;
+    // param.sched_priority = 99; // Set priority to maximum
+    // if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+    //     std::cerr << "sched_setscheduler error!" << std::endl;
+    //     return;
+    // }
 
-    // Get current time
-    struct timespec timeNow;
-    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+    // std::ofstream outputFile("sensorData.txt");
 
-    while (true) {
-        std::time_t systemTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    // // Get current time
+    // struct timespec timeNow;
+    // clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
-        outputFile << "Time: " << std::ctime(&systemTime);
-        outputFile << "AccelX: " << mpu_buff.x_accel << ", AccelY: " << mpu_buff.y_accel << ", AccelZ: " << mpu_buff.z_accel << std::endl;
-        outputFile << "GyroX: " << mpu_buff.x_rot << ", GyroY: " << mpu_buff.y_rot << ", GyroZ: " << mpu_buff.z_rot << std::endl;
+    // while (true) {
+    //     std::time_t systemTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-        // Add 10ms to current time
-        timeNow.tv_nsec += 10000000L; // 10 ms in nanoseconds
-        // Handle overflow
-        while (timeNow.tv_nsec >= 1000000000L) {
-            timeNow.tv_nsec -= 1000000000L;
-            timeNow.tv_sec++;
-        }
+    //     outputFile << "Time: " << std::ctime(&systemTime);
+    //     outputFile << "AccelX: " << mpu_buff.x_accel << ", AccelY: " << mpu_buff.y_accel << ", AccelZ: " << mpu_buff.z_accel << std::endl;
+    //     outputFile << "GyroX: " << mpu_buff.x_rot << ", GyroY: " << mpu_buff.y_rot << ", GyroZ: " << mpu_buff.z_rot << std::endl;
 
-        // Sleep until the next 10ms point
-        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+    //     // Add 10ms to current time
+    //     timeNow.tv_nsec += 10000000L; // 10 ms in nanoseconds
+    //     // Handle overflow
+    //     while (timeNow.tv_nsec >= 1000000000L) {
+    //         timeNow.tv_nsec -= 1000000000L;
+    //         timeNow.tv_sec++;
+    //     }
 
-        // Check if 5 seconds have passed since the start
-        if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - std::chrono::system_clock::from_time_t(systemTime)).count() >= 5) {
-            break;
-        }
-    }
+    //     // Sleep until the next 10ms point
+    //     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 
-    outputFile.close();
+    //     // Check if 5 seconds have passed since the start
+    //     if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - std::chrono::system_clock::from_time_t(systemTime)).count() >= 5) {
+    //         break;
+    //     }
+    // }
+
+    // outputFile.close();
 
     return;
 }
@@ -147,7 +150,7 @@ void* RobotDog::HCSR04_thread(void* args) {
 
     while (true) {
         for (int i = 0; i < NUM_HCSR04; i++) {
-            robot->front_dist[NUM_HCSR04] = robot->hc_sr04[i].get_distance();
+            robot->front_dist[i] = robot->hc_sr04[i].get_distance();
 
             // Add dt_ns to current time
             timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds

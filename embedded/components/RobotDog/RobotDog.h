@@ -38,6 +38,10 @@ private:
     MPU6050::MPU6050_data_t mpu_buff;
     int front_dist[2];
 
+    // {Back left, Back right, Front right, Front left} {x, y, z}
+    double leg_move_buffer[4][3];
+    int movement_speed;
+
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
@@ -62,10 +66,7 @@ private:
     static void* mpu6050_thread(void* args);
     static void* HCSR04_thread(void*);
     static void* servo_thread(void*);
-    // static void* video_stream_thread(void*);
 };
-
-
 
 
 #endif
