@@ -131,10 +131,10 @@ extern "C" int main() {
 
 	printf("Moving ...\nStanding ...\n");
 
-	pthread_t temp;
-	for(int i = 0; i < 12; i++) {
-		pthread_create(&temp, NULL, thread_stand, (void*)i);
-	}
+	// pthread_t temp;
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
+	// }
 	
 	// sleep(5);
 	// for(int i = 0; i < 12; i++) {
@@ -152,11 +152,11 @@ extern "C" int main() {
 	// legs[2].move(30, 55, 65);
 	// legs[3].move(30, 55, 65);
 	
-	sleep(4);
 	legs[0].move(-50, 20, 170);
 	legs[1].move(-50, 20, 170);
 	legs[2].move(30, 20, 170);
 	legs[3].move(30, 20, 170);
+	sleep(4);
 
 	for(int i = 0; i < 10; i++) {
 		usleep(20000);
