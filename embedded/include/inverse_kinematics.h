@@ -114,7 +114,14 @@ private:
      * @note Right == true
      * @note Left == false
      */
-    bool side_is_right;
+    bool is_right;
+
+    /**
+     * @note Right == true
+     * @note Left == false
+     */
+    bool is_front;
+
     
 public:
     Leg(
@@ -127,7 +134,8 @@ public:
         double hip_l, 
         double l1, 
         double l2, 
-        bool side
+        bool is_right,
+        bool is_front
     );
 
     ~Leg();
@@ -147,7 +155,8 @@ Leg::Leg(
     double hip_l, 
     double l1, 
     double l2, 
-    bool side)
+    bool is_right,
+    bool is_front)
 {
     servos[0] = hip;
     servos[1] = shoulder;
@@ -161,7 +170,8 @@ Leg::Leg(
     this->l1 = l1;
     this->l2 = l2;
 
-    side_is_right = side;
+    this->is_right = is_right;
+    this->is_front = is_front;
 }
 
 Leg::~Leg()
@@ -178,11 +188,13 @@ bool Leg::move(double x_mm, double y_mm, double z_mm) {
     degrees[1] = (temp_theta - atan(x_mm / sqrt(R2_yz - hip_l*hip_l)))*180/M_PI + offsets[1];
     degrees[2] = acos((foot_to_shoulder_sq - l2*l2 - l1*l1) / (-2 * l1 * l2))*180/M_PI - 35 + offsets[2];
 
-    if(side_is_right) {
-        degrees[0] = 180 - degrees[0];
+    if(is_right) {
         degrees[1] = 180 - degrees[1];
         degrees[2] = 180 - degrees[2];
     }
+
+    if(is_front)
+        degrees[0] = 180 - degrees[0];
 
     printf("%lf %lf %lf, %lf %lf %lf\n", x_mm, y_mm, z_mm, degrees[0], degrees[1], degrees[2]);
 
