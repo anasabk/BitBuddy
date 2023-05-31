@@ -158,7 +158,7 @@ extern "C" int main() {
 	legs[2].move(30, 55, 170);
 	legs[3].move(30, 55, 170);
 
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < 10; i++) {
 		usleep(20000);
 		legs[2].move(35, 55, 130);
 		usleep(20000);
