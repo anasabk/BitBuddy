@@ -160,52 +160,52 @@ extern "C" int main() {
 
 	for(int i = 0; i < 4; i++) {
 		usleep(500000);
-		legs[2].move(34, 55, 130);
+		legs[2].move(40, 55, 130);
 		usleep(500000);
-		legs[2].move(58, 55, 130);
+		legs[2].move(65, 55, 130);
 		usleep(500000);
-		legs[2].move(58, 55, 170);
+		legs[2].move(65, 55, 170);
 		usleep(500000);
-		legs[0].move_offset(-30, 0, 0);
-		legs[1].move_offset(-30, 0, 0);
-		legs[2].move_offset(-30, 0, 0);
-		legs[3].move_offset(-30, 0, 0);
+		legs[0].move_offset(-25, 0, 0);
+		legs[1].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 0, 0);
+		legs[3].move_offset(-25, 0, 0);
 
 		usleep(500000);
 		legs[0].move(-50, 55, 130);
 		usleep(500000);
-		legs[0].move(-20, 55, 130);
+		legs[0].move(-25, 55, 130);
 		usleep(500000);
-		legs[0].move(-20, 55, 170);
+		legs[0].move(-25, 55, 170);
 		usleep(500000);
-		legs[0].move_offset(-34, 0, 0);
-		legs[1].move_offset(-34, 0, 0);
-		legs[2].move_offset(-34, 0, 0);
-		legs[3].move_offset(-34, 0, 0);
+		legs[0].move_offset(-25, 0, 0);
+		legs[1].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 0, 0);
+		legs[3].move_offset(-25, 0, 0);
 
 		usleep(500000);
-		legs[3].move(34, 55, 130);
+		legs[3].move(40, 55, 130);
 		usleep(500000);
-		legs[3].move(58, 55, 130);
+		legs[3].move(65, 55, 130);
 		usleep(500000);
-		legs[3].move(58, 55, 170);
+		legs[3].move(65, 55, 170);
 		usleep(500000);
-		legs[0].move_offset(-34, 0, 0);
-		legs[1].move_offset(-34, 0, 0);
-		legs[2].move_offset(-34, 0, 0);
-		legs[3].move_offset(-34, 0, 0);
+		legs[0].move_offset(-25, 0, 0);
+		legs[1].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 0, 0);
+		legs[3].move_offset(-25, 0, 0);
 
 		usleep(500000);
 		legs[1].move(-50, 55, 130);
 		usleep(500000);
-		legs[1].move(-20, 55, 130);
+		legs[1].move(-25, 55, 130);
 		usleep(500000);
-		legs[1].move(-20, 55, 170);
+		legs[1].move(-25, 55, 170);
 		usleep(500000);
-		legs[0].move_offset(-34, 0, 0);
-		legs[1].move_offset(-34, 0, 0);
-		legs[2].move_offset(-34, 0, 0);
-		legs[3].move_offset(-34, 0, 0);
+		legs[0].move_offset(-25, 0, 0);
+		legs[1].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 0, 0);
+		legs[3].move_offset(-25, 0, 0);
 	}
 
 
