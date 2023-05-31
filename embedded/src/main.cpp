@@ -172,11 +172,11 @@ extern "C" int main() {
 		legs[3].move_offset(-25, 0, 0);
 
 		usleep(20000);
-		legs[0].move(-50, 55, 130);
+		legs[0].move(-50, 65, 130);
 		usleep(20000);
-		legs[0].move(-25, 55, 130);
+		legs[0].move(-25, 65, 130);
 		usleep(100000);
-		legs[0].move(-25, 55, 170);
+		legs[0].move(-25, 65, 170);
 		usleep(200000);
 		legs[0].move_offset(-25, 0, 0);
 		legs[1].move_offset(-25, 0, 0);
@@ -184,11 +184,11 @@ extern "C" int main() {
 		legs[3].move_offset(-25, 0, 0);
 
 		usleep(20000);
-		legs[3].move(35, 50, 130);
+		legs[3].move(35, 45, 130);
 		usleep(20000);
-		legs[3].move(60, 50, 130);
+		legs[3].move(60, 45, 130);
 		usleep(100000);
-		legs[3].move(60, 50, 170);
+		legs[3].move(60, 45, 170);
 		usleep(200000);
 		legs[0].move_offset(-25, 0, 0);
 		legs[1].move_offset(-25, 0, 0);
