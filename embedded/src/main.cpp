@@ -159,23 +159,11 @@ extern "C" int main() {
 	legs[3].move(30, 55, 170);
 
 	for(int i = 0; i < 4; i++) {
-		usleep(200000);
-		legs[1].move(30, 55, 130);
-		usleep(200000);
-		legs[1].move(50, 55, 130);
-		usleep(200000);
-		legs[1].move(50, 55, 170);
-		usleep(200000);
-		legs[0].move_offset(-25, 0, 0);
-		legs[1].move_offset(-25, 0, 0);
-		legs[2].move_offset(-25, 0, 0);
-		legs[3].move_offset(-25, 0, 0);
-
-		usleep(200000);
+		usleep(20000);
 		legs[2].move(35, 55, 130);
-		usleep(200000);
+		usleep(20000);
 		legs[2].move(60, 55, 130);
-		usleep(200000);
+		usleep(20000);
 		legs[2].move(60, 55, 170);
 		usleep(200000);
 		legs[0].move_offset(-25, 0, 0);
@@ -183,12 +171,12 @@ extern "C" int main() {
 		legs[2].move_offset(-25, 0, 0);
 		legs[3].move_offset(-25, 0, 0);
 
-		usleep(200000);
-		legs[0].move(30, 55, 130);
-		usleep(200000);
-		legs[0].move(50, 55, 130);
-		usleep(200000);
-		legs[0].move(50, 55, 170);
+		usleep(20000);
+		legs[0].move(-50, 55, 130);
+		usleep(20000);
+		legs[0].move(-25, 55, 130);
+		usleep(20000);
+		legs[0].move(-25, 55, 170);
 		usleep(200000);
 		legs[0].move_offset(-25, 0, 0);
 		legs[1].move_offset(-25, 0, 0);
@@ -197,10 +185,22 @@ extern "C" int main() {
 
 		usleep(20000);
 		legs[3].move(35, 55, 130);
-		usleep(200000);
+		usleep(20000);
 		legs[3].move(60, 55, 130);
-		usleep(200000);
+		usleep(20000);
 		legs[3].move(60, 55, 170);
+		usleep(200000);
+		legs[0].move_offset(-25, 0, 0);
+		legs[1].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 0, 0);
+		legs[3].move_offset(-25, 0, 0);
+
+		usleep(20000);
+		legs[1].move(-50, 55, 130);
+		usleep(20000);
+		legs[1].move(-25, 55, 130);
+		usleep(20000);
+		legs[1].move(-25, 55, 170);
 		usleep(200000);
 		legs[0].move_offset(-25, 0, 0);
 		legs[1].move_offset(-25, 0, 0);
