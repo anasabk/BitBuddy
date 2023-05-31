@@ -178,7 +178,7 @@ extern "C" int main() {
 		usleep(100000);
 		legs[0].move(-25, 65, 170);
 		usleep(200000);
-		legs[0].move_offset(-25, 0, 0);
+		legs[0].move_offset(-25, -10, 0);
 		legs[1].move_offset(-25, 0, 0);
 		legs[2].move_offset(-25, 0, 0);
 		legs[3].move_offset(-25, 0, 0);
@@ -192,7 +192,7 @@ extern "C" int main() {
 		usleep(200000);
 		legs[0].move_offset(-25, 0, 0);
 		legs[1].move_offset(-25, 0, 0);
-		legs[2].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 10, 0);
 		legs[3].move_offset(-25, 0, 0);
 
 		usleep(20000);
