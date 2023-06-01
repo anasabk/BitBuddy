@@ -33,7 +33,7 @@ private:
     LCD lcd;
     MPU6050 mpu6050;
     HC_SR04 hc_sr04[2];
-    CalServo servos[4][3];
+    CalServo servos[12];
 
     MPU6050::MPU6050_data_t mpu_buff;
     int front_dist[2];
@@ -41,6 +41,10 @@ private:
     // {Back left, Back right, Front right, Front left} {x, y, z}
     double leg_move_buffer[4][3];
     int movement_speed;
+
+    // degree
+    int servo_buffer[12];
+    int dt_ms;
 
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
