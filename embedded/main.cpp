@@ -3,9 +3,18 @@
 #include "MPU6050.h"
 #include "LCD.h"
 #include "CalServo.h"
+#include "RobotDog.h"
 #include <cstdio>
 #include "cstring"
 #include "HC_SR04.h"
+#include <iostream>
+#include <chrono>
+#include <fstream>
+#include <time.h>
+#include <sched.h>
+#include <linux/i2c-dev.h>
+#include <i2c/smbus.h>
+#include "components/RobotDog/include/inv_kinematics.h"
 
 int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
@@ -27,14 +36,59 @@ int degree_list[12][20] = {
 	{0, 7, 15, 24, 34, 43, 51, 61, 70, 77, 86, 95, 103, 113, 121, 130, 138, 148, 155, 165}, 
 };
 
-int main() {
-	if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
-	LCD lcd(1, 0x27);
-	lcd.printf("Hello World");
+Leg *legs_g;
+CalServo *servos_g;
 
+// void *thread_stand(void *val) {
+// 	printf("Standing thread\n");
+// 	servos_g[(int)val].sweep(sit[(int)val], stand[(int)val], 2000);
+// 	pthread_exit(0);
+// }
+
+// void *thread_sit(void *val) {
+// 	printf("Sitting thread\n");
+// 	servos_g[(int)val].sweep(stand[(int)val], sit[(int)val], 2000);
+// 	pthread_exit(0);
+// }
+
+// HC_SR04 *hcsr04_g;
+// LCD *lcd_g;
+
+// void* thread_hcsr04(void *) {
+//     // Get current time
+//     struct timespec timeNow;
+//     clock_gettime(CLOCK_MONOTONIC, &timeNow);
+
+// 	while (true) {
+// 		lcd_g->printf("%lf", hcsr04_g->get_distance());
+// 		lcd_g->goHome();
+
+// 		        // Add 10ms to current time
+//         timeNow.tv_nsec += 10000000L; // 10 ms in nanoseconds
+//         // Handle overflow
+//         while (timeNow.tv_nsec >= 1000000000L) {
+//             timeNow.tv_nsec -= 1000000000L;
+//             timeNow.tv_sec++;
+//         }
+
+//         // Sleep until the next 10ms point
+//         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+// 	}
+// }
+
+// void *thread_step(void *val) {
+// 	printf("Stepping thread\n");
+// 	for(int i =0; i < 5; i++) {
+// 		servo_g[(int)val].sweep(step_offset[i][(int)val], 3000);
+// 		sleep(2);
+// 	}
+// 	pthread_exit(0);
+// }
+
+extern "C" int main() {
+	// RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
+	// robot.run();
+	
     PCA9685 pca(1, 0x40);
 	/** 
 	 * \verbatim
@@ -49,139 +103,164 @@ int main() {
 	 * Back Left   3 |	0  |  1	 |	2  |
 	 * \endverbatim
 	 */
-	CalServo servo[4][3] {
+	CalServo servo[12] {
 		// Top, Mid, and Low motors for each leg
-		{CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8)},		// Front Right 
-		{CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)},	// Front Left
-		{CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5)},		// Back Right
-		{CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)}		// Back Left
+		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
+		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
+		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
+		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
 	};
 
+	Leg legs[4] {
+		Leg(&servo[0],  -4, &servo[1], 2.443508, &servo[2], -8, 55, 110, 130, false, false),
+		Leg(&servo[3],  10, &servo[4], -3.443508, &servo[5], 0, 55, 110, 130, true, false),
+		Leg(&servo[6],   0, &servo[7], -4.042452, &servo[8], 13.594, 55, 110, 130, true, true),
+		Leg(&servo[9], 8, &servo[10], 5.957548, &servo[11], 14.594, 55, 110, 130, false, true),
+	};
+
+	servos_g = servo;
+	legs_g = legs;
+
     pca.set_pwm_freq(50);
-	usleep(2000000);
+	usleep(1000000);
+
+	printf("Calibrating ...\n");
+
+	for(int i = 0; i < 12; i++)
+		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+
+	printf("Moving ...\nStanding ...\n");
+
+	// pthread_t temp;
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
+	// }
 	
-	// servo[0][0].refresh_fitter(pwm_list, degree_list[6], 20);
-	// servo[0][1].refresh_fitter(pwm_list, degree_list[7], 20);
-	// servo[0][2].refresh_fitter(pwm_list, degree_list[8], 20);
-	// servo[1][0].refresh_fitter(pwm_list, degree_list[9], 20);
-	// servo[1][1].refresh_fitter(pwm_list, degree_list[10], 20);
-	// servo[1][2].refresh_fitter(pwm_list, degree_list[11], 20);
-	// servo[2][0].refresh_fitter(pwm_list, degree_list[3], 20);
-	// servo[2][1].refresh_fitter(pwm_list, degree_list[4], 20);
-	// servo[2][2].refresh_fitter(pwm_list, degree_list[5], 20);
-	// servo[3][0].refresh_fitter(pwm_list, degree_list[0], 20);
-	// servo[3][1].refresh_fitter(pwm_list, degree_list[1], 20);
-	// servo[3][2].refresh_fitter(pwm_list, degree_list[2], 20);
+	// sleep(5);
+	// for(int i = 0; i < 12; i++) {
+	// 	pthread_create(&temp, NULL, thread_sit, (void*)i);
+	// }
+	
+	// // sleep(5);
+	// // for(int i = 0; i < 12; i++) {
+	// // 	pthread_create(&temp, NULL, thread_step, (void*)i);
+	// // }
 
-	printf("Calibrating\n");
+	// sleep(4);
+	// legs[0].move(-50, 55, 65);
+	// legs[1].move(-50, 55, 65);
+	// legs[2].move(30, 55, 65);
+	// legs[3].move(30, 55, 65);
+	
+	legs[0].move(-50, 55, 170);
+	legs[1].move(-50, 55, 170);
+	legs[2].move(30, 55, 170);
+	legs[3].move(30, 55, 170);
+	sleep(4);
 
-	for(int i = 0; i < 4; i++)
-		for(int j = 0; j < 3; j++)
-			servo[i][j].refresh_fitter(pwm_list, degree_list[servo[i][j].getChannel()], 20);
+	for(int i = 0; i < 20; i++) {
+		usleep(20000);
+		legs[0].move_offset(0, 0, 0);
+		legs[1].move_offset(0, 0, 0);
+		legs[2].move_offset(0, 0, 0);
+		legs[3].move_offset(0, 0, 0);
+		usleep(20000);
+		legs[2].move(35, 55, 100);
+		usleep(20000);
+		legs[2].move(60, 55, 100);
+		usleep(100000);
+		legs[2].move(60, 55, 170);
+		usleep(200000);
+		legs[0].move_offset(-25, 0, 0);
+		legs[1].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 0, 0);
+		legs[3].move_offset(-25, 0, 0);
 
-	printf("Calibrated\n");
+		usleep(20000);
+		legs[0].move_offset(0, 0, 0);
+		legs[1].move_offset(0, 0, 0);
+		legs[2].move_offset(0, 0, 0);
+		legs[3].move_offset(0, 0, 0);
+		usleep(20000);
+		legs[0].move(-50, 55, 100);
+		usleep(20000);
+		legs[0].move(-25, 55, 100);
+		usleep(100000);
+		legs[0].move(-25, 55, 170);
+		usleep(200000);
+		legs[0].move_offset(-25, 0, 0);
+		legs[1].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 0, 0);
+		legs[3].move_offset(-25, 0, 0);
 
-	// for(int i = 0; i < 3; i++)
-	// 	for(int j = 0; j < 4; j++){
-	// 		servo[j][i].set_degree(70);
-	// 		usleep(500000);
-	// 		servo[j][i].set_degree(90);
-	// 		usleep(500000);
-	// 	}
+		usleep(20000);
+		legs[0].move_offset(0, 0, 0);
+		legs[1].move_offset(0, 0, 0);
+		legs[2].move_offset(0, 0, 0);
+		legs[3].move_offset(0, 0, 0);
+		usleep(20000);
+		legs[3].move(35, 55, 100);
+		usleep(20000);
+		legs[3].move(60, 55, 100);
+		usleep(100000);
+		legs[3].move(60, 55, 170);
+		usleep(200000);
+		legs[0].move_offset(-25, 0, 0);
+		legs[1].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 0, 0);
+		legs[3].move_offset(-25, 0, 0);
+
+		usleep(20000);
+		legs[0].move_offset(0, 0, 0);
+		legs[1].move_offset(0, 0, 0);
+		legs[2].move_offset(0, 0, 0);
+		legs[3].move_offset(0, 0, 0);
+		usleep(20000);
+		legs[1].move(-50, 55, 100);
+		usleep(20000);
+		legs[1].move(-25, 55, 100);
+		usleep(100000);
+		legs[1].move(-25, 55, 170);
+		usleep(200000);
+		legs[0].move_offset(-25, 0, 0);
+		legs[1].move_offset(-25, 0, 0);
+		legs[2].move_offset(-25, 0, 0);
+		legs[3].move_offset(-25, 0, 0);
+	}
+
 
 	uint8_t dest_servo = 0;
 	int dest_degree = 0;
     while(true) {
 		scanf("%d %d", &dest_servo, &dest_degree);
-		// if(dest_servo >= 0 && dest_servo <= 2)
-		// 	servo[3][dest_servo].set_degree(dest_degree);
-		// 	// printf("3, %d\n", dest_servo);
-		// else if(dest_servo >= 3 && dest_servo <= 5)
-		// 	servo[2][dest_servo - 3].set_degree(dest_degree);
-		// 	// printf("2, %d\n", dest_servo - 3);
-		// else if(dest_servo >= 6 && dest_servo <= 8)
-		// 	servo[0][dest_servo - 6].set_degree(dest_degree);
-		// 	// printf("0, %d\n", dest_servo - 6);
-		// else
-		// 	servo[1][dest_servo - 9].set_degree(dest_degree);
-		// 	// printf("1, %d\n", dest_servo - 9);
-
-		for(int i = 0; i < 4; i++)
-			for(int j = 0; j < 3; j++){
-				printf("%d %d %d\n", i, j, servo[i][j].getChannel());
-				if(servo[i][j].getChannel() == dest_servo) {
-					servo[i][j].set_degree(dest_degree);
-					break;
-				}
+		for(int i = 0; i < 12; i++){
+			printf("%d %d %d\n", i, servo[i].getChannel());
+			if(servo[i].getChannel() == dest_servo) {
+				servo[i].set_degree(dest_degree);
+				break;
 			}
-		// pca.set_pwm_us(dest_servo, dest_degree);
+		}
     }
-	
 
-	// printf("Finished moving\n");
-
-    
-	// gpioTerminate();
-	// return 0;
-
-	// printf("Moving\n");
-	// double degree[20];
-	// int i = 0;
-    // while(i < 20) {
-    //     servo.set_PWM(pwm_list[i]);
-	// 	scanf("%lf", &degree[i]);
-	// 	i++;
-    // }
-	// printf("Calibrating\n");
-	// servo.refresh_fitter(pwm_list, degree, 20);
-
-	// // int servo_data_fd = open("servo_data.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
-	// // char buffer[128];
-	// // for(int i = 0; i < 19; i++) {
-	// // 	sprintf(buffer, "%d, ", degree[i]);
-	// // 	write(servo_data_fd, buffer, strlen(buffer));
-	// // }
-	// // sprintf(buffer, "%d", degree[19]);
-	// // write(servo_data_fd, buffer, sizeof(int));
-	// // close(servo_data_fd);
-
-	// printf("Calibrated\n");
-	// int dest_degree = 0;
-    // while(true) {
-	// 	scanf("%d", &dest_degree);
-    //     servo.set_degree(dest_degree);
-    // }
+	return 0;
 
 
 	// if (gpioInitialise() < 0) {
 	// 	printf("Failure...");
 	// 	exit(-1);
 	// }
+
 	// MPU6050 device(1, 0x68);
 	// MPU6050::MPU6050_data_t data;
 	// float ax, ay, az, gr, gp, gy; //Variables to store the accel, gyro and angle values
+	// LCD lcd(1, 0x27);
 
 	// sleep(1); //Wait for the MPU6050 to stabilize
-
-	// /*
-	// //Calculate the offsets
-	// std::cout << "Calculating the offsets...\n    Please keep the accelerometer level and still\n    This could take a couple of minutes...";
-	// device.getOffsets(&ax, &ay, &az, &gr, &gp, &gy);
-	// std::cout << "Gyroscope R,P,Y: " << gr << "," << gp << "," << gy << "\nAccelerometer X,Y,Z: " << ax << "," << ay << "," << az << "\n";
-	// */
 
 	// //Read the current yaw angle
 	// device.calc_yaw = true;
 
 	// while(1) {
-	// 	// device.getAngle(0, &gr);
-	// 	// device.getAngle(1, &gp);
-	// 	// device.getAngle(2, &gy);
-
-	// 	// std::cout << "Current angle around the roll axis: " << gr << "\n";
-	// 	// std::cout << "Current angle around the pitch axis: " << gp << "\n";
-	// 	// std::cout << "Current angle around the yaw axis: " << gy << "\n";
-
 	// 	device.read_data(&data);
 	// 	printf("Accel x: %.3f, y: %.3f, z: %.3f / Gyro x: %3.f, y: %3.f, z: %3.f\n", 
 	// 		data.x_accel, 
@@ -191,32 +270,86 @@ int main() {
 	// 		data.y_rot,
 	// 		data.z_rot
 	// 	);
+
+	// 	lcd.setPosition(0, 0);
+	// 	lcd.printf("x = %0.3f", data.x_accel);
+		
 	// 	usleep(500000); //0.25sec
 	// }
 
-	// //Get the current accelerometer values
-	// device.getAccel(&ax, &ay, &az);
-	// std::cout << "Accelerometer Readings: X: " << ax << ", Y: " << ay << ", Z: " << az << "\n";
+	// // gpioTerminate();
+	// return 0;
 
-	// //Get the current gyroscope values
-	// device.getGyro(&gr, &gp, &gy);
-	// std::cout << "Gyroscope Readings: X: " << gr << ", Y: " << gp << ", Z: " << gy << "\n";
+
+	// if (gpioInitialise() < 0) {
+	// 	printf("Failure...");
+	// 	exit(-1);
+	// }
+
+	// HC_SR04 sensor(27, 17);
+	// LCD lcd(1, 0x27);
+
+	// while(1) {
+	// 	lcd.setPosition(0, 0);
+	// 	lcd.printf("%.3f\n", sensor.get_distance());
+	// 	printf("distance = %f\n", sensor.get_distance());
+	// 	usleep(1000000);
+	// }
 
 	// gpioTerminate();
 	// return 0;
+	
 
-	if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
+	// if (gpioInitialise() < 0) {
+	// 	printf("Failure...");
+	// 	exit(-1);
+	// }
 
-	HC_SR04 sensor(6, 5);
+    // // Real-time scheduling
+    // struct sched_param param;
+    // param.sched_priority = 99; // Set priority to maximum
+    // if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+    //     std::cerr << "sched_setscheduler error!" << std::endl;
+    //     return 1;
+    // }
 
-	while(1) {
-		printf("distance = %f\n", sensor.get_distance());
-		usleep(1000000);
-	}
+    // // Initalize
+    // MPU6050 mpu(1, I2C_ADDRESS);
 
-	gpioTerminate();
-	return 0;
+    // MPU6050::MPU6050_data_t data;
+    // mpu.read_data(&data);
+
+    // // Test connection
+    // if (data.x_accel == 0 && data.y_accel == 0 && data.z_accel == 0 && data.x_rot == 0 && data.y_rot == 0 && data.z_rot == 0) {
+    //     std::cerr << "MPU6050 connection error!" << std::endl;
+    //     return 1;
+    // }
+
+    // std::ofstream outputFile("sensorData.txt");
+
+    // auto startTime = std::chrono::system_clock::now();
+    // while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - startTime).count() < 5) {
+    //     mpu.read_data(&data);
+
+    //     auto timeNow = std::chrono::system_clock::now();
+    //     std::time_t systemTime = std::chrono::system_clock::to_time_t(timeNow);
+
+    //     outputFile << "Time: " << std::ctime(&systemTime);
+    //     outputFile << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
+    //     outputFile << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
+
+    //     std::cout << "Time: " << std::ctime(&systemTime);
+    //     std::cout << "AccelX: " << data.x_accel << ", AccelY: " << data.y_accel << ", AccelZ: " << data.z_accel << std::endl;
+    //     std::cout << "GyroX: " << data.x_rot << ", GyroY: " << data.y_rot << ", GyroZ: " << data.z_rot << std::endl;
+
+    //     // struct timespec sleepTime;
+    //     // sleepTime.tv_sec = 0;
+    //     // sleepTime.tv_nsec = 10000000; // 10 ms in nanoseconds
+    //     // nanosleep(&sleepTime, nullptr); // 100Hz = 10ms delay
+	// 	usleep(10000L);
+    // }
+
+    // outputFile.close();
+	// gpioTerminate();
+	// return 0;
 }

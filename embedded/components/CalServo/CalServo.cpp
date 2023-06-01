@@ -1,5 +1,4 @@
 #include "CalServo.h"
-#include <cstdio>
 
 
 CalServo::CalServo(PCA9685* cont_p, int channel) {
@@ -47,6 +46,78 @@ void CalServo::set_PWM(int pwm_us) {
 void CalServo::set_degree(int degree) {
     int pwm_us = fitter_a + fitter_b * degree;
     controller->set_pwm_us(channel, pwm_us);
+    last_deg = degree;
+}
+
+void CalServo::sweep(int start, int dest, int dur_ms) {
+    if(start == dest) {
+        set_degree(start);
+        return;
+    }
+    
+    int dt_ns = dur_ms / abs(dest - start) * 1000000;
+    int dir = (dest - start) > 0 ? 1 : -1;
+    int current = start;
+    
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+    
+    while(current*dir < dest*dir) {
+        set_degree(current);
+        current += dir;
+
+        // Add dt_ns to current time
+        timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
+
+        // Handle overflow
+        while (timeNow.tv_nsec >= 1000000000L) {
+            timeNow.tv_nsec -= 1000000000L;
+            timeNow.tv_sec++;
+        }
+
+        // Sleep until the next dt_ns point
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+    }
+}
+
+void CalServo::sweep(int offset, int dur_ms) {
+    if(last_deg == -1)
+        return;
+
+    if(offset == 0) {
+        set_degree(last_deg);
+        return;
+    }
+
+    if(offset + last_deg > 180 || offset + last_deg < 0) {
+        printf("Limit reached, degree: %d\n", offset + last_deg);
+        return;
+    }
+    
+    int dt_ns = dur_ms / abs(offset) * 1000000;
+    int dir = (offset) > 0 ? 1 : -1;
+    int current = last_deg;
+    int dest = current + offset;
+    
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+    
+    while(current*dir < dest*dir) {
+        set_degree(current);
+        current += dir;
+
+        // Add dt_ns to current time
+        timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
+
+        // Handle overflow
+        while (timeNow.tv_nsec >= 1000000000L) {
+            timeNow.tv_nsec -= 1000000000L;
+            timeNow.tv_sec++;
+        }
+
+        // Sleep until the next dt_ns point
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+    }
 }
 
 

@@ -2,6 +2,10 @@
 #define CALSERVO_H_
 
 #include <cmath>
+#include <unistd.h>
+#include <cstdio>
+#include <sys/time.h>
+
 #include "PCA9685.h"
 
 
@@ -16,12 +20,17 @@ public:
 
     void set_degree(int degree);
 
+    void sweep(int start, int dest, int duration_ms);
+
+    void sweep(int dest, int duration_ms);
+
     int getChannel();
 
 private:
     int channel;
     PCA9685* controller;
     double fitter_a, fitter_b;
+    int last_deg;
 };
 
 #endif

@@ -25,6 +25,7 @@
 #define _PCA9685_H
 
 #include <inttypes.h>
+#include "I2Cdev.h"
 
 // // Register Definitions
 // #define MODE1 0x00			//Mode  register  1
@@ -75,7 +76,7 @@
 
 
 //! Main class that exports features for PCA9685 chip
-class PCA9685 {
+class PCA9685 : public I2Cdev {
 public:
 	PCA9685(int bus, int address);
 	virtual ~PCA9685();
@@ -93,4 +94,3 @@ private:
 	void reset(void);
 };
 #endif
-

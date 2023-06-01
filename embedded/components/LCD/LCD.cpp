@@ -1,9 +1,5 @@
 #include "LCD.h"
-#include "pigpio.h"
-#include <cstdint>
-#include <cstdarg>
-#include <chrono>
-#include <thread>
+// #include "pigpio.h"
 
 
 #define LCD_CMD_CLEAR          0x01
@@ -41,8 +37,11 @@ enum I2C_EXPANDER {
 };
 
 
-LCD::LCD(const uint8_t bus, uint8_t addr, uint8_t width, bool backlight_on) {
-    m_i2cHandle = i2cOpen(bus, addr, 0);
+LCD::LCD(const uint8_t bus, uint8_t addr, uint8_t width, bool backlight_on) 
+    : I2Cdev(bus, addr) 
+{
+    // m_i2cHandle = i2cOpen(bus, addr, 0);
+
     m_backlight_on = backlight_on;
     m_displayFunction = LCD_CMD_FUNCTIONSET | LCD_CTRL_2LINE; // | LCD_4BITMODE;// | LCD_5x8DOTS;
     m_displayControl = LCD_CMD_DISPLAYCONTROL | LCD_DISPLAYON;
@@ -53,13 +52,14 @@ LCD::LCD(const uint8_t bus, uint8_t addr, uint8_t width, bool backlight_on) {
 }
 
 LCD::~LCD() {
-    i2cClose(m_i2cHandle);
+    
+    // i2cClose(m_i2cHandle);
 }
 
 /*
  * Initialise the LCD screen
  */
-void LCD::init() const {
+void LCD::init() {
     write4bits(0x3 << 4);
     std::this_thread::sleep_for(std::chrono::microseconds(4500));
     write4bits(0x3 << 4);
@@ -75,7 +75,7 @@ void LCD::init() const {
     goHome();
 }
 
-void LCD::sendCommand(const uint8_t cmd) const {
+void LCD::sendCommand(const uint8_t cmd) {
     uint8_t MSN = (cmd >> 4) & 0x0F;
     uint8_t LSN = cmd & 0x0F;
     uint8_t MSb = MSN << _B4;
@@ -86,7 +86,7 @@ void LCD::sendCommand(const uint8_t cmd) const {
 /*
  * Display a char
  */
-void LCD::putChar(const uint8_t bits) const {
+void LCD::putChar(const uint8_t bits) {
     uint8_t MSN = (bits >> 4) & 0x0F;
     uint8_t LSN = bits & 0x0F;
     uint8_t MSb = (MSN << _B4) | _RS;
@@ -94,7 +94,7 @@ void LCD::putChar(const uint8_t bits) const {
     sendByte(MSb, LSb);
 }
 
-void LCD::sendByte(uint8_t msb, uint8_t lsb) const {
+void LCD::sendByte(uint8_t msb, uint8_t lsb) {
     if (m_backlight_on) {
         lsb = lsb | LCD_BACKLIGHT;
         msb = msb | LCD_BACKLIGHT;
@@ -103,17 +103,19 @@ void LCD::sendByte(uint8_t msb, uint8_t lsb) const {
     write4bits(lsb);
 }
 
-void LCD::write4bits(uint8_t value) const {
-    i2cWriteByte(m_i2cHandle, value | _EN);
+void LCD::write4bits(uint8_t value) {
+    // i2cWriteByte(m_i2cHandle, value | _EN);
+    this->write_byte((uint8_t)(value | _EN));
     std::this_thread::sleep_for(std::chrono::microseconds(1));
-    i2cWriteByte(m_i2cHandle, value & ~_EN);
+    // i2cWriteByte(m_i2cHandle, value & ~_EN);
+    write_byte(value & ~_EN);
     std::this_thread::sleep_for(std::chrono::microseconds(50));
 }
 
 /*
  * Move the cursor to a position
  */
-void LCD::setPosition(const uint8_t x, const uint8_t y) const {
+void LCD::setPosition(const uint8_t x, uint8_t y) {
     sendCommand(m_lcdRowOffset[y] + x);
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
 }
@@ -121,24 +123,23 @@ void LCD::setPosition(const uint8_t x, const uint8_t y) const {
 /*
  * Clear the LCD screen
  */
-void LCD::clear() const {
+void LCD::clear() {
     sendCommand(LCD_CMD_CLEAR);
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
-
 }
 
 /*
  * Write a string
  */
 void LCD::puts(const char *str) {
-    while (*str)
-        putChar((uint8_t) *(str++));
+    for(int i = 0; str[i] != 0; i++)
+        putChar(str[i]);
 }
 
 /*
  * Set the cursor to position 0,0
  */
-void LCD::goHome() const {
+void LCD::goHome() {
     sendCommand(LCD_CMD_RETURNHOME);
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
 }
@@ -148,13 +149,14 @@ void LCD::goHome() const {
  */
 void LCD::enableBacklight(bool backlight_on) {
     m_backlight_on=backlight_on;
-    i2cWriteByte(m_i2cHandle, m_backlight_on ? LCD_BACKLIGHT : 0);
+    // i2cWriteByte(m_i2cHandle, m_backlight_on ? LCD_BACKLIGHT : 0);
+    write_byte(m_backlight_on ? LCD_BACKLIGHT : 0);
 }
 
 /*
  * Return the status of backlight
  */
-bool LCD::getBacklight() const {
+bool LCD::getBacklight() {
     return m_backlight_on;
 }
 
