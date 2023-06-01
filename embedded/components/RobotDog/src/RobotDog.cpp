@@ -9,7 +9,13 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11),	// Front Left
 		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),		// Back Right
 		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)		// Back Left
-    }
+    },
+    legs{
+		Leg(&servos[0], -4, &servos[1],  2.443508, &servos[2], -8, 55, 110, 130, false, false),
+		Leg(&servos[3], 10, &servos[4], -3.443508, &servos[5], 0, 55, 110, 130, true, false),
+		Leg(&servos[6],  0, &servos[7], -4.042452, &servos[8], 13.594, 55, 110, 130, true, true),
+		Leg(&servos[9],  8, &servos[10], 5.957548, &servos[11], 14.594, 55, 110, 130, false, true),
+	}
 {
 	for(int i = 0; i < 12; i++)
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
@@ -28,10 +34,10 @@ void RobotDog::run() {
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
 
     // Initialize and start the servo_thread
+    servo_params* params = new servo_params;
     pthread_t servo_thread_id[12];
     for (int i = 0; i < 12; ++i) {
         // Allocate memory
-        servo_params* params = new servo_params;
         params->args = this;
         params->servo_id = i;
 
@@ -85,7 +91,6 @@ void RobotDog::run() {
         pthread_join(servo_thread_id[i], NULL);
 
         // Free the memory for the struct
-        servo_params* params = (servo_params*) args;
         delete params;
     }
 
@@ -207,25 +212,166 @@ void* RobotDog::servo_thread(void* args) {
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
-    long dt_ns = 1000000000L / SERVO_FREQ_HZ;
+    long dt_ns = 1000000000L / SERVO_CMD_FREQ_HZ;
 
     while (true) {
-            // Sweep servo[i]
-            robot->servos[servo_id].sweep(robot->servo_buffer[i], dur_buffer[i]);
+        // Sweep servo[i]
+        robot->servos[servo_id].sweep(robot->servo_buffer[servo_id], robot->dur_buffer[servo_id]);
 
-            // Add dt_ns to current time
-            timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
+        // Add dt_ns to current time
+        timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
 
-            // Handle overflow
-            while (timeNow.tv_nsec >= 1000000000L) {
-                timeNow.tv_nsec -= 1000000000L;
-                timeNow.tv_sec++;
-            }
+        // Handle overflow
+        while (timeNow.tv_nsec >= 1000000000L) {
+            timeNow.tv_nsec -= 1000000000L;
+            timeNow.tv_sec++;
+        }
 
-            // Sleep until the next dt_ns point
-            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+        // Sleep until the next dt_ns point
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     }
 
     return NULL;
+}
 
+void RobotDog::move_forward(int dist_mm) {
+    // for(int i = 0, leg_id = 0; i < dist_mm; i += 25, leg_id -= 2) {
+    //     if(leg_id < 0) leg_id += 3;
+
+	// 	// usleep(20000);
+	// 	// legs[0].move_offset(0, 0, 0);
+	// 	// legs[1].move_offset(0, 0, 0);
+	// 	// legs[2].move_offset(0, 0, 0);
+	// 	// legs[3].move_offset(0, 0, 0);
+	// 	usleep(20000);
+	// 	legs[1].move(-50, 55, 100, &servo_buffer[3], &servo_buffer[4], &servo_buffer[5]);
+	// 	usleep(20000);
+	// 	legs[1].move(-25, 55, 100, &servo_buffer[3], &servo_buffer[4], &servo_buffer[5]);
+	// 	usleep(100000);
+	// 	legs[1].move(-25, 55, 170);
+	// 	usleep(200000);
+	// 	legs[0].move_offset(-25, 0, 0);
+	// 	legs[1].move_offset(-25, 0, 0);
+	// 	legs[2].move_offset(-25, 0, 0);
+	// 	legs[3].move_offset(-25, 0, 0);
+    // }
+    
+    struct sched_param param;
+    param.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return;
+    }
+
+    // Get current time
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+    int x, y, z;
+    for(int i = 0, leg_id = 2; i < dist_mm; i += 25, leg_id -= 2) {
+        if(leg_id < 0) leg_id += 3;
+
+		usleep(20000);
+		legs[2].move(35, 55, 100, &servo_buffer[6], &servo_buffer[7], &servo_buffer[8]);
+        dur_buffer[6] = 50;
+        dur_buffer[7] = 50;
+        dur_buffer[8] = 50;
+
+        timeNow.tv_nsec += 50000; // dt_ns in nanoseconds
+        while (timeNow.tv_nsec >= 1000000000L) {timeNow.tv_nsec -= 1000000000L; timeNow.tv_sec++;}
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+        
+
+		legs[2].move(60, 55, 100, &servo_buffer[6], &servo_buffer[7], &servo_buffer[8]);
+        dur_buffer[6] = 50;
+        dur_buffer[7] = 50;
+        dur_buffer[8] = 50;
+
+        timeNow.tv_nsec += 50000; // dt_ns in nanoseconds
+        while (timeNow.tv_nsec >= 1000000000L) {timeNow.tv_nsec -= 1000000000L; timeNow.tv_sec++;}
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+
+
+		legs[2].move(60, 55, 170, &servo_buffer[6], &servo_buffer[7], &servo_buffer[8]);
+        dur_buffer[6] = 50;
+        dur_buffer[7] = 50;
+        dur_buffer[8] = 50;
+
+        timeNow.tv_nsec += 50000; // dt_ns in nanoseconds
+        while (timeNow.tv_nsec >= 1000000000L) {timeNow.tv_nsec -= 1000000000L; timeNow.tv_sec++;}
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+
+
+		legs[0].move_offset(-25, 0, 0, &servo_buffer[0], &servo_buffer[1], &servo_buffer[2]);
+		legs[1].move_offset(-25, 0, 0, &servo_buffer[3], &servo_buffer[4], &servo_buffer[5]);
+		legs[2].move_offset(-25, 0, 0, &servo_buffer[6], &servo_buffer[7], &servo_buffer[8]);
+		legs[3].move_offset(-25, 0, 0, &servo_buffer[9], &servo_buffer[10], &servo_buffer[11]);
+
+        timeNow.tv_nsec += 50000; // dt_ns in nanoseconds
+        while (timeNow.tv_nsec >= 1000000000L) {timeNow.tv_nsec -= 1000000000L; timeNow.tv_sec++;}
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+        
+		// usleep(20000);
+		// legs[0].move_offset(0, 0, 0);
+		// legs[1].move_offset(0, 0, 0);
+		// legs[2].move_offset(0, 0, 0);
+		// legs[3].move_offset(0, 0, 0);
+		usleep(20000);
+		legs[0].move(-50, 55, 100, &servo_buffer[0], &servo_buffer[1], &servo_buffer[2]);
+		usleep(20000);
+		legs[0].move(-25, 55, 100, &servo_buffer[0], &servo_buffer[1], &servo_buffer[2]);
+		usleep(100000);
+		legs[0].move(-25, 55, 170, &servo_buffer[0], &servo_buffer[1], &servo_buffer[2]);
+		usleep(200000);
+		legs[0].move_offset(-25, 0, 0, &servo_buffer[0], &servo_buffer[1], &servo_buffer[2]);
+		legs[1].move_offset(-25, 0, 0, &servo_buffer[3], &servo_buffer[4], &servo_buffer[5]);
+		legs[2].move_offset(-25, 0, 0, &servo_buffer[6], &servo_buffer[7], &servo_buffer[8]);
+		legs[3].move_offset(-25, 0, 0, &servo_buffer[9], &servo_buffer[10], &servo_buffer[11]);
+
+		// usleep(20000);
+		// legs[0].move_offset(0, 0, 0);
+		// legs[1].move_offset(0, 0, 0);
+		// legs[2].move_offset(0, 0, 0);
+		// legs[3].move_offset(0, 0, 0);
+		usleep(20000);
+		legs[3].move(35, 55, 100, &servo_buffer[9], &servo_buffer[10], &servo_buffer[11]);
+		usleep(20000);
+		legs[3].move(60, 55, 100, &servo_buffer[9], &servo_buffer[10], &servo_buffer[11]);
+		usleep(100000);
+		legs[3].move(60, 55, 170, &servo_buffer[9], &servo_buffer[10], &servo_buffer[11]);
+		usleep(200000);
+		legs[0].move_offset(-25, 0, 0, &servo_buffer[0], &servo_buffer[1], &servo_buffer[2]);
+		legs[1].move_offset(-25, 0, 0, &servo_buffer[3], &servo_buffer[4], &servo_buffer[5]);
+		legs[2].move_offset(-25, 0, 0, &servo_buffer[6], &servo_buffer[7], &servo_buffer[8]);
+		legs[3].move_offset(-25, 0, 0, &servo_buffer[9], &servo_buffer[10], &servo_buffer[11]);
+
+		// usleep(20000);
+		// legs[0].move_offset(0, 0, 0);
+		// legs[1].move_offset(0, 0, 0);
+		// legs[2].move_offset(0, 0, 0);
+		// legs[3].move_offset(0, 0, 0);
+		usleep(20000);
+		legs[1].move(-50, 55, 100, &servo_buffer[3], &servo_buffer[4], &servo_buffer[5]);
+		usleep(20000);
+		legs[1].move(-25, 55, 100, &servo_buffer[3], &servo_buffer[4], &servo_buffer[5]);
+		usleep(100000);
+		legs[1].move(-25, 55, 170, &servo_buffer[3], &servo_buffer[4], &servo_buffer[5]);
+		usleep(200000);
+		legs[0].move_offset(-25, 0, 0, &servo_buffer[0], &servo_buffer[1], &servo_buffer[2]);
+		legs[1].move_offset(-25, 0, 0, &servo_buffer[3], &servo_buffer[4], &servo_buffer[5]);
+		legs[2].move_offset(-25, 0, 0, &servo_buffer[6], &servo_buffer[7], &servo_buffer[8]);
+		legs[3].move_offset(-25, 0, 0, &servo_buffer[9], &servo_buffer[10], &servo_buffer[11]);
+
+
+        // Add dt_ns to current time
+        timeNow.tv_nsec += 50000; // dt_ns in nanoseconds
+
+        // Handle overflow
+        while (timeNow.tv_nsec >= 1000000000L) {
+            timeNow.tv_nsec -= 1000000000L;
+            timeNow.tv_sec++;
+        }
+
+        // Sleep until the next dt_ns point
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+	}
 }
