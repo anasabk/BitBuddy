@@ -51,7 +51,6 @@ if __name__ == '__main__':
             if i % args.framestep != 0:
                 continue
 
-
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break
