@@ -51,7 +51,7 @@ if __name__ == '__main__':
             if i % args.framestep != 0:
                 continue
 
-        frame = cv2.resize(frame,(640,480))
+        img = cv2.resize(img,(640,480))
         cv2.imshow('Image',img)
 
         key = cv2.waitKey(1) & 0xFF
