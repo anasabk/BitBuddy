@@ -113,9 +113,9 @@ extern "C" int main() {
 
 	Leg legs[4] {
 		Leg(&servo[0],   0, &servo[1], 12.443508, &servo[2], -3.844949, 55, 110, 130, false, false),
-		Leg(&servo[3],  10, &servo[4], -3.443508, &servo[5], 6.844949, 55, 110, 130, true, false),
+		Leg(&servo[3],  0, &servo[4], -3.443508, &servo[5], 6.844949, 55, 110, 130, true, false),
 		Leg(&servo[6],   0, &servo[7], -4.042452, &servo[8], 13.594, 55, 110, 130, true, true),
-		Leg(&servo[9], -10, &servo[10], 5.957548, &servo[11], 14.594, 55, 110, 130, false, true),
+		Leg(&servo[9], 0, &servo[10], 5.957548, &servo[11], 14.594, 55, 110, 130, false, true),
 	};
 
 	servos_g = servo;
@@ -168,7 +168,7 @@ extern "C" int main() {
 		usleep(200000);
 		legs[0].move_offset(-25, 0, 0);
 		legs[1].move_offset(-25, 0, 0);
-		legs[2].move_offset(-25, 10, 0);
+		legs[2].move_offset(-25, 0, 0);
 		legs[3].move_offset(-25, 0, 0);
 
 		usleep(20000);
