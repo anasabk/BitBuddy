@@ -193,9 +193,9 @@ bool Leg::move(double x_mm, double y_mm, double z_mm) {
         degrees[2] = 180 - degrees[2];
     }
 
-    if(is_front != is_front) {
+    // if(is_front != is_front) {
         degrees[0] = 180 - degrees[0];
-    }
+    // }
 
     printf("%lf %lf %lf, %lf %lf %lf\n", x_mm, y_mm, z_mm, degrees[0], degrees[1], degrees[2]);
 
