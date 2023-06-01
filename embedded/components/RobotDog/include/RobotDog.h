@@ -16,6 +16,7 @@
 #define MPU6050_ACCEL_RANGE_MODE MPU6050_ACCEL_FS_2
 #define MPU6050_SAMPLE_FREQ_HZ 300
 #define HC_SR04_SAMPLE_FREQ_HZ 20
+#define SERVO_FREQ_HZ 300
 #define NUM_HCSR04 2
 
 
@@ -38,13 +39,18 @@ private:
     MPU6050::MPU6050_data_t mpu_buff;
     int front_dist[2];
 
+    typedef struct servo_params {
+        void* args;
+        int servo_id;
+    } servo_params;
+
     // {Back left, Back right, Front right, Front left} {x, y, z}
     double leg_move_buffer[4][3];
     int movement_speed;
 
     // degree
     int servo_buffer[12];
-    int dt_ms;
+    int dur_buffer{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};

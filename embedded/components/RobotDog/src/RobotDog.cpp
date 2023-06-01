@@ -27,6 +27,18 @@ void RobotDog::run() {
 	pthread_t hcsr04_thread_id;
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
 
+    // Initialize and start the servo_thread
+    pthread_t servo_thread_id[12];
+    for (int i = 0; i < 12; ++i) {
+        // Allocate memory
+        servo_params* params = new servo_params;
+        params->args = this;
+        params->servo_id = i;
+
+        // Create the thread
+        pthread_create(&servo_thread_id[i], NULL, &RobotDog::servo_thread, params);
+    }
+
     // // Real-time scheduling
     // struct sched_param param;
     // param.sched_priority = 99; // Set priority to maximum
@@ -66,6 +78,17 @@ void RobotDog::run() {
     // }
 
     // outputFile.close();
+
+    for (int i = 0; i < 12; ++i) {
+        // Terminate the thread
+        pthread_cancel(servo_thread_id[i]);
+        pthread_join(servo_thread_id[i], NULL);
+
+        // Free the memory for the struct
+        servo_params* params = (servo_params*) args;
+        delete params;
+    }
+
 
     return;
 }
@@ -165,4 +188,44 @@ void* RobotDog::HCSR04_thread(void* args) {
     }
 
     return NULL;
+}
+
+void* RobotDog::servo_thread(void* args) {
+    servo_params *params = (servo_params*) args;
+    RobotDog *robot = (RobotDog*) params->args;
+
+    struct sched_param param;
+    param.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return NULL;
+    }
+
+    int servo_id = params->servo_id;
+
+    // Get current time
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+
+    long dt_ns = 1000000000L / SERVO_FREQ_HZ;
+
+    while (true) {
+            // Sweep servo[i]
+            robot->servos[servo_id].sweep(robot->servo_buffer[i], dur_buffer[i]);
+
+            // Add dt_ns to current time
+            timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
+
+            // Handle overflow
+            while (timeNow.tv_nsec >= 1000000000L) {
+                timeNow.tv_nsec -= 1000000000L;
+                timeNow.tv_sec++;
+            }
+
+            // Sleep until the next dt_ns point
+            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+    }
+
+    return NULL;
+
 }
