@@ -16,6 +16,9 @@ class MainWindow : public QGroupBox
 public:
     MainWindow();
 
+public slots:
+    void setSizes();
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 

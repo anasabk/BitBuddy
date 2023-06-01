@@ -1,5 +1,11 @@
 #include "Joystick.h"
 
+#include <iostream>
+#include <cstring>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <termios.h>
 #include <QMouseEvent>
 #include <limits>
 
@@ -22,8 +28,37 @@ Joystick::Joystick(int size, QWidget *parent) :
     stick->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     stackUnder(stick);
-
+    setFocus();
     moveStick(QPoint(r, r));
+
+    connectToServer();
+}
+
+void Joystick::connectToServer()
+{
+    struct sockaddr_in serverAddr;
+    char message[1024];
+    std::string userInput;
+
+    // Create socket
+    clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (clientSocket < 0) {
+        std::cerr << "Error: Failed to create client socket for joystick." << std::endl;
+        return;
+    }
+
+    // Set server address
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(8081);
+    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    // connect to server
+    if (::connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+        std::cerr << "Error: Could not connect joystick to server." << std::endl;
+        return;
+    }
+
+    std::cout << "Connected joystick to server." << std::endl;
 }
 
 void Joystick::mousePressEvent(QMouseEvent *event)
@@ -51,10 +86,41 @@ void Joystick::moveEvent(QMoveEvent *event)
     moveStick(QPoint(r, r));
 }
 
-void Joystick::moveStick(QPoint pos)
+void Joystick::keyPressEvent(QKeyEvent *event)
 {
-    float x = pos.x() - r;
-    float y = -pos.y() + r;
+    pressedKeys += event->key();
+
+    moveWithPressedKeys();
+}
+
+void Joystick::keyReleaseEvent(QKeyEvent *event)
+{
+    pressedKeys -= event->key();
+
+    moveWithPressedKeys();
+}
+
+void Joystick::moveWithPressedKeys()
+{
+    QPoint axes(0, 0);
+
+    if (pressedKeys.contains(Qt::Key_D))
+        axes.rx() = 1;
+    else if (pressedKeys.contains(Qt::Key_A))
+        axes.rx() = -1;
+
+    if (pressedKeys.contains(Qt::Key_W))
+        axes.ry() = -1;
+    else if (pressedKeys.contains(Qt::Key_S))
+        axes.ry() = 1;
+
+    moveStick(QPoint(r, r) + axes * r);
+}
+
+void Joystick::moveStick(QPoint newPos)
+{
+    float x = newPos.x() - r;
+    float y = -newPos.y() + r;
     float m = x != 0 ? y / x : std::sqrt(std::numeric_limits<float>::max() - 1.0f);
 
     float cx = std::sqrt(std::pow(r, 2.0f) / (std::pow(m, 2.0f) + 1.0f)) * std::copysign(1.0f, x);
@@ -66,11 +132,30 @@ void Joystick::moveStick(QPoint pos)
         y = cy;
     }
 
-    qDebug() << "Joystick:" << "x:" << x / r << "y:" << y / r;
+    newPos.rx() = x + r - sr;
+    newPos.ry() = -(y - r) - sr;
+    newPos += pos();
 
-    pos.rx() = x + r - sr;
-    pos.ry() = -(y - r) - sr;
-    pos += this->pos();
+    stick->move(newPos);
 
-    stick->move(pos);
+    // Send joystick axes to server
+
+    char message[1024];
+
+    sprintf(message, "%f|%f", x / r, y / r);
+
+    write(clientSocket, message, 1024);
+
+    // Get Response
+    memset(message, 0, sizeof(message));
+    int bytesRead = read(clientSocket, message, sizeof(message));
+    if (bytesRead < 0) {
+        std::cerr << "Error: Could not read Response." << std::endl;
+        return;
+    } else if (bytesRead == 0) {
+        std::cout << "The server connection has been closed." << std::endl;
+        return;
+    }
+
+    std::cout << "Response from server: " << message << std::endl;
 }
