@@ -1,4 +1,4 @@
-add_library(RobotDog src/RobotDog.cpp)
+add_library(RobotDog src/RobotDog.cpp src/inv_kinematics.cpp)
 
 target_link_libraries(RobotDog 
     CalServo
