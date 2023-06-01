@@ -193,7 +193,7 @@ bool Leg::move(double x_mm, double y_mm, double z_mm) {
         degrees[2] = 180 - degrees[2];
     }
 
-    if(is_front == is_front) {
+    if(is_front != is_front) {
         degrees[0] = 180 - degrees[0];
     }
 
