@@ -27,6 +27,8 @@ MainWindow::MainWindow() :
 
     joystick(new Joystick(200, this))
 {
+    connect(camera, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
+
     VBoxLayout->addWidget(HBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
     VBoxLayout->addWidget(joystick, 0, Qt::AlignHCenter | Qt::AlignVCenter);
 
@@ -45,7 +47,7 @@ MainWindow::MainWindow() :
     mapVBoxLayout->addWidget(map);
     map->setStyleSheet("border: 2px solid #e0e0e0");
 
-    setStyleSheet("border: none");
+    setStyleSheet("border: none; background: #303030");
 
     HBox->stackUnder(joystick);
 
@@ -56,7 +58,12 @@ MainWindow::MainWindow() :
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
-    float height = event->size().height() / 2.0f;
+    setSizes();
+}
+
+void MainWindow::setSizes()
+{
+    float height = size().height() / 2.0f;
     float cameraAspectRatio = static_cast<float>(camera->pixmap().width()) / camera->pixmap().height();
     float mapAspectRatio = static_cast<float>(map->pixmap().width()) / map->pixmap().height();
 
