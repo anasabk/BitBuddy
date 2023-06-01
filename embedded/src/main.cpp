@@ -152,11 +152,11 @@ extern "C" int main() {
 	// legs[2].move(30, 55, 65);
 	// legs[3].move(30, 55, 65);
 	
-	// legs[0].move(-50, 0, 170);
-	// legs[1].move(-50, 0, 170);
-	// legs[2].move(30, 0, 170);
-	// legs[3].move(30, 0, 170);
-	// sleep(4);
+	legs[0].move(-50, 0, 170);
+	legs[1].move(-50, 0, 170);
+	legs[2].move(30, 0, 170);
+	legs[3].move(30, 0, 170);
+	sleep(4);
 
 	// for(int i = 0; i < 20; i++) {
 	// 	usleep(20000);
