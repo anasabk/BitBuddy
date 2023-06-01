@@ -164,30 +164,21 @@ extern "C" int main() {
 	// usleep(100000);
 	// legs[2].move(0, 80, 170, 0, 0, 0);
 	// usleep(200000);
-	legs[0].move_offset(0,-25, 0, 0, 0, 0);
-	legs[1].move_offset(0, 25, 0, 0, 0, 0);
-	legs[2].move_offset(0,-25, 0, 0, 0, 0);
-	legs[3].move_offset(0, 25, 0, 0, 0, 0);
 	
 
 	for(int i = 0; i < 20; i++) {
 		usleep(20000);
-		legs[2].move(0, 55, 100, 0, 0, 0);
+		legs[2].move(035, 55, 100, 0, 0, 0);
 		usleep(20000);
-		legs[2].move(0, 30, 100, 0, 0, 0);
+		legs[2].move(60, 30, 100, 0, 0, 0);
 		usleep(100000);
-		legs[2].move(0, 30, 170, 0, 0, 0);
+		legs[2].move(60, 30, 170, 0, 0, 0);
 		usleep(200000);
-		legs[0].move_offset(-30, -25, 0, 0, 0, 0);
-		legs[1].move_offset( 30,  25, 0, 0, 0, 0);
-		legs[2].move_offset( 30, -25, 0, 0, 0, 0);
-		legs[3].move_offset(-30,  25, 0, 0, 0, 0);
+		legs[0].move_offset(-25, 0, 0, 0, 0, 0);
+		legs[1].move_offset( 25, 0, 0, 0, 0, 0);
+		legs[2].move_offset( 25, 0, 0, 0, 0, 0);
+		legs[3].move_offset(-25, 0, 0, 0, 0, 0);
 
-		usleep(20000);
-		legs[0].move_offset(0, 0, 0, 0, 0, 0);
-		legs[1].move_offset(0, 0, 0, 0, 0, 0);
-		legs[2].move_offset(0, 0, 0, 0, 0, 0);
-		legs[3].move_offset(0, 0, 0, 0, 0, 0);
 		usleep(20000);
 		legs[0].move(-50, 55, 100, 0, 0, 0);
 		usleep(20000);
@@ -201,11 +192,6 @@ extern "C" int main() {
 		legs[3].move_offset(-25, 0, 0, 0, 0, 0);
 
 		usleep(20000);
-		legs[0].move_offset(0, 0, 0, 0, 0, 0);
-		legs[1].move_offset(0, 0, 0, 0, 0, 0);
-		legs[2].move_offset(0, 0, 0, 0, 0, 0);
-		legs[3].move_offset(0, 0, 0, 0, 0, 0);
-		usleep(20000);
 		legs[3].move(35, 55, 100, 0, 0, 0);
 		usleep(20000);
 		legs[3].move(60, 55, 100, 0, 0, 0);
@@ -217,11 +203,6 @@ extern "C" int main() {
 		legs[2].move_offset(-25, 0, 0, 0, 0, 0);
 		legs[3].move_offset(-25, 0, 0, 0, 0, 0);
 
-		usleep(20000);
-		legs[0].move_offset(0, 0, 0, 0, 0, 0);
-		legs[1].move_offset(0, 0, 0, 0, 0, 0);
-		legs[2].move_offset(0, 0, 0, 0, 0, 0);
-		legs[3].move_offset(0, 0, 0, 0, 0, 0);
 		usleep(20000);
 		legs[1].move(-50, 55, 100, 0, 0, 0);
 		usleep(20000);
