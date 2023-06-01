@@ -51,13 +51,13 @@ if __name__ == '__main__':
             if i % args.framestep != 0:
                 continue
 
-        img = cv2.resize(img,(640,480))
-        cv2.imshow('Image',img)
 
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break
         print('Searching for chessboard in frame ' + str(i) + '...')
+        img = cv2.resize(img,(640,480))
+        cv2.imshow('Image',img)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         h, w = img.shape[:2]
         found, corners = cv2.findChessboardCorners(img, pattern_size, flags=cv2.CALIB_CB_FILTER_QUADS)
