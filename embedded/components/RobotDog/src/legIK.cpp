@@ -64,7 +64,7 @@ Leg::~Leg() {
     pthread_join(servo_thread_id[2], NULL);
 }
 
-bool Leg::get_degree(double x_mm, double y_mm, double z_mm, double *theta1, double *theta2, double *theta3) {
+void Leg::get_degree(double x_mm, double y_mm, double z_mm, double *theta1, double *theta2, double *theta3) {
     double R2_yz = pow(y_mm, 2) + pow(z_mm, 2);
     double foot_to_shoulder_sq = pow(x_mm, 2) + pow(y_mm, 2) + pow(z_mm, 2) - pow(hip_l, 2);
     double temp_theta = acos((l2*l2 - l1*l1 - foot_to_shoulder_sq) / (-2 * l1 * sqrt(foot_to_shoulder_sq)));
@@ -89,46 +89,42 @@ bool Leg::get_degree(double x_mm, double y_mm, double z_mm, double *theta1, doub
     last_pos[0] = x_mm;
     last_pos[1] = y_mm;
     last_pos[2] = z_mm;
-
-    return true;
 }
 
-bool Leg::get_degree(const double (&dest)[3], double (&thetas)[3]) {
+void Leg::get_degree(const double (&dest)[3], double (&thetas)[3]) {
     get_degree(dest[0], dest[1], dest[2], &thetas[0], &thetas[1], &thetas[2]);
 }
 
-bool Leg::get_degree_offset(double x_mm, double y_mm, double z_mm, double *x_deg, double *y_deg, double *z_deg) {
+void Leg::get_degree_offset(double x_mm, double y_mm, double z_mm, double *x_deg, double *y_deg, double *z_deg) {
     if(last_pos[0] == -1 || last_pos[0] == -1 || last_pos[0] == -1)
-        return false;
+        return;
 
     get_degree(last_pos[0] + x_mm, last_pos[1] + y_mm, last_pos[2] + z_mm, x_deg, y_deg, z_deg);
-
-    return true;
 }
 
-bool Leg::get_degree_offset(const double (&offset)[3], double (&thetas)[3]) {
+void Leg::get_degree_offset(const double (&offset)[3], double (&thetas)[3]) {
     get_degree_offset(offset[0], offset[1], offset[2], &thetas[0], &thetas[1], &thetas[2]);
 }
 
-bool Leg::move(double x_mm, double y_mm, double z_mm) {
+void Leg::move(double x_mm, double y_mm, double z_mm) {
     get_degree(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     pthread_kill(servo_thread_id[0], SIGCONT);
     pthread_kill(servo_thread_id[1], SIGCONT);
     pthread_kill(servo_thread_id[2], SIGCONT);
 }
 
-bool Leg::move(const double (&dest)[3]) {
+void Leg::move(const double (&dest)[3]) {
     move(dest[0], dest[1], dest[2]);
 }
 
-bool Leg::move_offset(double x_mm, double y_mm, double z_mm) {
+void Leg::move_offset(double x_mm, double y_mm, double z_mm) {
     get_degree_offset(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     pthread_kill(servo_thread_id[0], SIGCONT);
     pthread_kill(servo_thread_id[1], SIGCONT);
     pthread_kill(servo_thread_id[2], SIGCONT);
 }
 
-bool Leg::move_offset(const double (&offset)[3]) {
+void Leg::move_offset(const double (&offset)[3]) {
     move_offset(offset[0], offset[1], offset[2]);
 }
 

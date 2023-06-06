@@ -23,17 +23,17 @@ public:
 
     ~Leg();
 
-    bool get_degree(const double (&dest)[3], double (&thetas)[3]);
-    bool get_degree(double x_mm, double y_mm, double z_mm, double *theta1, double *theta2, double *theta3);
+    void get_degree(const double (&dest)[3], double (&thetas)[3]);
+    void get_degree(double x_mm, double y_mm, double z_mm, double *theta1, double *theta2, double *theta3);
 
-    bool get_degree_offset(const double (&offset)[3], double (&thetas)[3]);
-    bool get_degree_offset(double x_mm, double y_mm, double z_mm, double *theta1, double *theta2, double *theta3);
+    void get_degree_offset(const double (&offset)[3], double (&thetas)[3]);
+    void get_degree_offset(double x_mm, double y_mm, double z_mm, double *theta1, double *theta2, double *theta3);
 
-    bool move(const double (&dest)[3]);
-    bool move(double x_mm, double y_mm, double z_mm);
+    void move(const double (&dest)[3]);
+    void move(double x_mm, double y_mm, double z_mm);
 
-    bool move_offset(const double (&offset)[3]);
-    bool move_offset(double x_mm, double y_mm, double z_mm);
+    void move_offset(const double (&offset)[3]);
+    void move_offset(double x_mm, double y_mm, double z_mm);
 
 private:
     CalServo *servos[3];
