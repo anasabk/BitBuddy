@@ -1,9 +1,8 @@
-#ifndef INVERSE_KINEMATICS_H
-#define INVERSE_KINEMATICS_H
+#ifndef LEGIK_H
+#define LEGIK_H
 
 
 #include "CalServo.h"
-#include "bodyFK.h"
 
 
 class Leg {

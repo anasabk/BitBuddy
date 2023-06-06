@@ -1,5 +1,5 @@
-#ifndef LEGIK_H
-#define LEGIK_H
+#ifndef BODYFK_H
+#define BODYFK_H
 
 #include "legIK.h"
 
