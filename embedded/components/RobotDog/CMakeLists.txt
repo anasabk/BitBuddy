@@ -1,4 +1,4 @@
-add_library(RobotDog src/RobotDog.cpp src/legIK.cpp, src/bodyFK.cpp)
+add_library(RobotDog src/RobotDog.cpp src/legIK.cpp src/bodyFK.cpp)
 
 target_link_libraries(RobotDog 
     CalServo
