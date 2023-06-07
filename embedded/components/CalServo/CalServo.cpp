@@ -6,6 +6,7 @@ CalServo::CalServo(PCA9685* cont_p, int channel) {
     this->channel = channel;
     this->fitter_a = 0;
     this->fitter_b = 1;
+    this->last_deg = 0;
 }
 
 CalServo::~CalServo() {
