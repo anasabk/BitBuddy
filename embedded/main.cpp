@@ -66,76 +66,76 @@ extern "C" int main() {
 	// 	exit(-1);
 	// }
 
-	// RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
-	// robot.run();
+	RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
+	robot.run();
 
-	// while(true);
+	while(true);
 
 	// gpioTerminate();
 	
-    PCA9685 pca(1, 0x40);
-	/** 
-	 * \verbatim
-	 * 		Numbers of servo channels
-	 * 			   of each leg
-	 * 				 | Top | Mid | Low |
-	 * 				 |  0  |  1  |  2  |
-	 * --------------|-----|-----|-----|
-	 * Front Right 0 |	6  |  7	 |	8  |
-	 * Front Left  1 |	9  |  10 |	11 |
-	 * Back Right  2 |	3  |  4	 |	5  |
-	 * Back Left   3 |	0  |  1	 |	2  |
-	 * \endverbatim
-	 */
-	CalServo servo[12] {
-		// Top, Mid, and Low motors for each leg
-		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
-		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
-		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
-		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
-	};
+    // PCA9685 pca(1, 0x40);
+	// /** 
+	//  * \verbatim
+	//  * 		Numbers of servo channels
+	//  * 			   of each leg
+	//  * 				 | Top | Mid | Low |
+	//  * 				 |  0  |  1  |  2  |
+	//  * --------------|-----|-----|-----|
+	//  * Front Right 0 |	6  |  7	 |	8  |
+	//  * Front Left  1 |	9  |  10 |	11 |
+	//  * Back Right  2 |	3  |  4	 |	5  |
+	//  * Back Left   3 |	0  |  1	 |	2  |
+	//  * \endverbatim
+	//  */
+	// CalServo servo[12] {
+	// 	// Top, Mid, and Low motors for each leg
+	// 	CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
+	// 	CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
+	// 	CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
+	// 	CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
+	// };
 
-	Leg legs[4] {
-		Leg(&servo[0],  -4, &servo[1], 2.443508, &servo[2], -8, 55, 110, 130, false, false),
-		Leg(&servo[3],  10, &servo[4], -3.443508, &servo[5], 0, 55, 110, 130, true, false),
-		Leg(&servo[6],   0, &servo[7], -4.042452, &servo[8], 13.594, 55, 110, 130, true, true),
-		Leg(&servo[9], 8, &servo[10], 5.957548, &servo[11], 14.594, 55, 110, 130, false, true),
-	};
+	// Leg legs[4] {
+	// 	Leg(&servo[0],  -4, &servo[1], 2.443508, &servo[2], -8, 55, 110, 130, false, false),
+	// 	Leg(&servo[3],  10, &servo[4], -3.443508, &servo[5], 0, 55, 110, 130, true, false),
+	// 	Leg(&servo[6],   0, &servo[7], -4.042452, &servo[8], 13.594, 55, 110, 130, true, true),
+	// 	Leg(&servo[9], 8, &servo[10], 5.957548, &servo[11], 14.594, 55, 110, 130, false, true),
+	// };
 
-	// servos_g = servo;
-	// legs_g = legs;
+	// // servos_g = servo;
+	// // legs_g = legs;
 
-    pca.set_pwm_freq(50);
-	// usleep(1000000);
+    // pca.set_pwm_freq(50);
+	// // usleep(1000000);
 
-	// printf("Calibrating ...\n");
+	// // printf("Calibrating ...\n");
 
-	for(int i = 0; i < 12; i++)
-		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+	// for(int i = 0; i < 12; i++)
+	// 	servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
 
-	// printf("Moving ...\nStanding ...\n");
+	// // printf("Moving ...\nStanding ...\n");
 
-	// pthread_t temp;
-	// for(int i = 0; i < 12; i++) {
-	// 	pthread_create(&temp, NULL, thread_stand, (void*)i);
-	// }
-	
-	// sleep(5);
-	// for(int i = 0; i < 12; i++) {
-	// 	pthread_create(&temp, NULL, thread_sit, (void*)i);
-	// }
+	// // pthread_t temp;
+	// // for(int i = 0; i < 12; i++) {
+	// // 	pthread_create(&temp, NULL, thread_stand, (void*)i);
+	// // }
 	
 	// // sleep(5);
 	// // for(int i = 0; i < 12; i++) {
-	// // 	pthread_create(&temp, NULL, thread_step, (void*)i);
+	// // 	pthread_create(&temp, NULL, thread_sit, (void*)i);
 	// // }
+	
+	// // // sleep(5);
+	// // // for(int i = 0; i < 12; i++) {
+	// // // 	pthread_create(&temp, NULL, thread_step, (void*)i);
+	// // // }
 
-	sleep(2);
-	legs[0].move(-50, 55, 65);
-	legs[1].move(-50, 55, 65);
-	legs[2].move(30, 55, 65);
-	legs[3].move(30, 55, 65);
-	sleep(2);
+	// sleep(2);
+	// legs[0].move(-50, 55, 65);
+	// legs[1].move(-50, 55, 65);
+	// legs[2].move(30, 55, 65);
+	// legs[3].move(30, 55, 65);
+	// sleep(2);
 	
 	// legs[0].move(-50, 55, 170, 0, 0, 0);
 	// legs[1].move(-50, 55, 170, 0, 0, 0);
@@ -206,20 +206,20 @@ extern "C" int main() {
 	// }
 
 
-	uint8_t dest_servo = 0;
-	int dest_degree = 0;
-    while(true) {
-		scanf("%d %d", &dest_servo, &dest_degree);
-		for(int i = 0; i < 12; i++){
-			printf("%d %d %d\n", i, servo[i].getChannel());
-			if(servo[i].getChannel() == dest_servo) {
-				servo[i].set_degree(dest_degree);
-				break;
-			}
-		}
-    }
+	// uint8_t dest_servo = 0;
+	// int dest_degree = 0;
+    // while(true) {
+	// 	scanf("%d %d", &dest_servo, &dest_degree);
+	// 	for(int i = 0; i < 12; i++){
+	// 		printf("%d %d %d\n", i, servo[i].getChannel());
+	// 		if(servo[i].getChannel() == dest_servo) {
+	// 			servo[i].set_degree(dest_degree);
+	// 			break;
+	// 		}
+	// 	}
+    // }
 
-	return 0;
+	// return 0;
 
 
 	// if (gpioInitialise() < 0) {

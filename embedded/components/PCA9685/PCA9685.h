@@ -78,7 +78,7 @@
 //! Main class that exports features for PCA9685 chip
 class PCA9685 : public I2Cdev {
 public:
-	PCA9685(int bus, int address);
+	PCA9685(int bus, int address, int frequency);
 	virtual ~PCA9685();
 
 	void set_pwm_freq(int freq_hz);

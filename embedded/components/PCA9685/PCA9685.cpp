@@ -32,12 +32,12 @@
  \param bus the bus to use in /dev/i2c-%d.
  \param address the device address on bus
  */
-PCA9685::PCA9685(int bus, int address) 
+PCA9685::PCA9685(int bus, int address, int frequency) 
 	: I2Cdev(bus, address) 
 {
 	// i2c_fd = i2cOpen(bus, address, 0);
 	reset();
-	set_pwm_freq(1000);
+	set_pwm_freq(frequency);
 	set_all_pwm(0,0);
 
 	// i2cWriteByteData(i2c_fd, MODE2, OUTDRV);
