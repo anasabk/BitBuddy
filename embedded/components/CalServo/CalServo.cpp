@@ -102,35 +102,7 @@ void CalServo::sweep_offset(int offset, int dur_ms) {
         return;
     }
 
-    if(offset + last_deg > 180 || offset + last_deg < 0) {
-        printf("Limit reached, degree: %d\n", offset + last_deg);
-        return;
-    }
-    
-    int dt_ns = dur_ms / abs(offset) * 1000000;
-    int dir = (offset) > 0 ? 1 : -1;
-    int current = last_deg;
-    int dest = current + offset;
-    
-    struct timespec timeNow;
-    clock_gettime(CLOCK_MONOTONIC, &timeNow);
-    
-    while(current*dir < dest*dir) {
-        set_degree(current);
-        current += dir;
-
-        // Add dt_ns to current time
-        timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
-
-        // Handle overflow
-        while (timeNow.tv_nsec >= 1000000000L) {
-            timeNow.tv_nsec -= 1000000000L;
-            timeNow.tv_sec++;
-        }
-
-        // Sleep until the next dt_ns point
-        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
-    }
+    sweep(last_deg, last_deg + offset, dur_ms);
 }
 
 
