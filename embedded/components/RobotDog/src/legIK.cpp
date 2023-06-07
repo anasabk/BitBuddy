@@ -37,25 +37,33 @@ Leg::Leg(
 
     this->running = true;
 
+    buf_gate[0] = PTHREAD_COND_INITIALIZER;
+    buf_gate[1] = PTHREAD_COND_INITIALIZER;
+    buf_gate[2] = PTHREAD_COND_INITIALIZER;
+
+    buf_mut[0] = PTHREAD_MUTEX_INITIALIZER;
+    buf_mut[1] = PTHREAD_MUTEX_INITIALIZER;
+    buf_mut[2] = PTHREAD_MUTEX_INITIALIZER;
+
     pthread_create(
         &servo_thread_id[0], 
         NULL, 
         servo_thread, 
-        new struct servo_param(&theta_buf[0], servos[0])
+        new struct servo_param(&theta_buf[0], servos[0], &buf_gate[0], &buf_mut[0])
     );
 
     pthread_create(
         &servo_thread_id[1], 
         NULL, 
         servo_thread, 
-        new struct servo_param(&theta_buf[1], servos[1])
+        new struct servo_param(&theta_buf[1], servos[1], &buf_gate[1], &buf_mut[1])
     );
 
     pthread_create(
         &servo_thread_id[2], 
         NULL, 
         servo_thread, 
-        new struct servo_param(&theta_buf[2], servos[2])
+        new struct servo_param(&theta_buf[2], servos[2], &buf_gate[2], &buf_mut[2])
     );
 }
 
@@ -114,9 +122,9 @@ void Leg::get_degree_offset(const double (&offset)[3], int (&thetas)[3]) {
 void Leg::move(double x_mm, double y_mm, double z_mm) {
     get_degree(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     printf("degrees: %d %d %d\n", theta_buf[0], theta_buf[1], theta_buf[2]);
-    pthread_kill(servo_thread_id[0], SIGUSR1);
-    pthread_kill(servo_thread_id[1], SIGUSR1);
-    pthread_kill(servo_thread_id[2], SIGUSR1);
+    pthread_kill(servo_thread_id[0], SIGCONT);
+    pthread_kill(servo_thread_id[1], SIGCONT);
+    pthread_kill(servo_thread_id[2], SIGCONT);
 }
 
 void Leg::move(const double (&dest)[3]) {
@@ -125,27 +133,38 @@ void Leg::move(const double (&dest)[3]) {
 
 void Leg::move_offset(double x_mm, double y_mm, double z_mm) {
     get_degree_offset(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
-    pthread_kill(servo_thread_id[0], SIGUSR1);
-    pthread_kill(servo_thread_id[1], SIGUSR1);
-    pthread_kill(servo_thread_id[2], SIGUSR1);
+    pthread_kill(servo_thread_id[0], SIGCONT);
+    pthread_kill(servo_thread_id[1], SIGCONT);
+    pthread_kill(servo_thread_id[2], SIGCONT);
 }
 
 void Leg::move_offset(const double (&offset)[3]) {
     move_offset(offset[0], offset[1], offset[2]);
 }
 
+void handler(int sig) {
+
+}
+
 void* Leg::servo_thread(void* param) {
     printf("Entered servo thread\n");
     const int *buffer = ((struct servo_param*)param)->theta_buf;
     CalServo *servo = ((struct servo_param*)param)->servo;
+    pthread_cond_t *gate = ((struct servo_param*)param)->buf_gate;
+    pthread_mutex_t *mut = ((struct servo_param*)param)->buf_mut;
 
     sigset_t set;
     sigemptyset(&set);
-    sigaddset(&set, SIGUSR1);
+    sigaddset(&set, SIGCONT);
     sigaddset(&set, SIGTERM);
-    int sig;
 
-    while(sigwait(&set, &sig) == 0 && sig != SIGTERM){
+    struct sigaction cont_act;
+    cont_act.sa_handler = handler;
+    sigaction(SIGCONT, &cont_act, NULL);
+
+    int sig;
+    // while(pthread_cond_wait(gate, mut)){
+    while(sigwait(&set, &sig) == 0 && sig != SIGTERM) {
         printf("Moving Servo %d %d degrees\n", servo->getChannel(), *buffer);
         // servo->sweep(*buffer, 700);
     }

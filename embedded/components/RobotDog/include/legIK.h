@@ -37,8 +37,10 @@ public:
 
 private:
     CalServo *servos[3];
-    int theta_buf[3];
     pthread_t servo_thread_id[3];
+    pthread_cond_t buf_gate[3];
+    pthread_mutex_t buf_mut[3];
+    int theta_buf[3];
     int offsets[3];
     double hip_l, l1, l2;
     double last_pos[3];
@@ -57,15 +59,21 @@ private:
     bool is_front;
 
     struct servo_param {
-        const int* theta_buf;
+        const int *theta_buf;
         CalServo *servo;
+        pthread_cond_t *buf_gate;
+        pthread_mutex_t *buf_mut;
 
         servo_param(
             const int* theta_buf,
-            CalServo *servo) 
+            CalServo *servo,
+            pthread_cond_t *buf_gate,
+            pthread_mutex_t *buf_mut) 
         {
             this->servo = servo;
             this->theta_buf = theta_buf;
+            this->buf_gate = buf_gate;
+            this->buf_mut = buf_mut;
         }
     };
 
