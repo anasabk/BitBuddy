@@ -81,7 +81,19 @@ void CalServo::sweep(int start, int dest, int dur_ms) {
     }
 }
 
-void CalServo::sweep(int offset, int dur_ms) {
+void CalServo::sweep(int dest, int dur_ms) {
+    if(last_deg == -1)
+        return;
+
+    if(dest > 180 || dest < 0) {
+        printf("Limit reached, degree: %d\n", dest);
+        return;
+    }
+    
+    sweep(last_deg, dest, dur_ms);
+}
+
+void CalServo::sweep_offset(int offset, int dur_ms) {
     if(last_deg == -1)
         return;
 
