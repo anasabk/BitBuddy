@@ -28,12 +28,12 @@ RobotDog::~RobotDog()
 {
     running_flag = false;
     sleep(1);
-    // pthread_join(mpu_thread_id, NULL);
+    pthread_join(mpu_thread_id, NULL);
     // pthread_join(hcsr04_thread_id, NULL);
 }
 
 void RobotDog::run() {
-	// pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
+	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 	// pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
     
     main_body.sit_down();
