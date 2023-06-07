@@ -195,6 +195,7 @@ void* RobotDog::HCSR04_thread(void* args) {
                 timeNow.tv_sec++;
             }
 
+            printf("sleeping %ld nsec\n", timeNow.tv_nsec);
             // Sleep until the next dt_ns point
             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
         }
