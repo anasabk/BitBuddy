@@ -17,8 +17,8 @@ public:
         Leg* right_front, 
         Leg* left_back, 
         Leg* right_back, 
-        int len_mm, 
-        int width_mm
+        double len_mm, 
+        double width_mm
     );
     
     ~Body();
