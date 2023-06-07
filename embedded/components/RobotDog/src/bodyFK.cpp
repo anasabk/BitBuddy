@@ -312,10 +312,10 @@ void Body::pose(
 }
 
 void Body::sit_down() {
-    leg_buf[RIGHTBACK][0]  = -50, leg_buf[RIGHTBACK][1]  = 55, leg_buf[RIGHTBACK][0]  = 0;
-    leg_buf[RIGHTFRONT][0] =  30, leg_buf[RIGHTFRONT][1] = 55, leg_buf[RIGHTFRONT][0] = 0;
-    leg_buf[LEFTBACK][0]   = -50, leg_buf[LEFTBACK][1]   = 55, leg_buf[LEFTBACK][0]   = 0;
-    leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  = 55, leg_buf[LEFTFRONT][0]  = 0;
+    leg_buf[RIGHTBACK][0]  = -50, leg_buf[RIGHTBACK][1]  = 55, leg_buf[RIGHTBACK][2]  = 0;
+    leg_buf[RIGHTFRONT][0] =  30, leg_buf[RIGHTFRONT][1] = 55, leg_buf[RIGHTFRONT][2] = 0;
+    leg_buf[LEFTBACK][0]   = -50, leg_buf[LEFTBACK][1]   = 55, leg_buf[LEFTBACK][2]   = 0;
+    leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  = 55, leg_buf[LEFTFRONT][2]  = 0;
     
     // pose(0, 0, 0, 0, 0, 65);
 
