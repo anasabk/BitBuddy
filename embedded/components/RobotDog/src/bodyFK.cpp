@@ -25,15 +25,15 @@ Body::Body(
     this->last_y_mm = 0;
     this->last_z_mm = 0;
 
-    pose_buf[RIGHTBACK][0]  = 0, pose_buf[RIGHTBACK][1]  = 0, pose_buf[RIGHTBACK][2]  = 0;
-    pose_buf[RIGHTFRONT][0] = 0, pose_buf[RIGHTFRONT][1] = 0, pose_buf[RIGHTFRONT][2] = 0;
-    pose_buf[LEFTBACK][0]   = 0, pose_buf[LEFTBACK][1]   = 0, pose_buf[LEFTBACK][2]   = 0;
-    pose_buf[LEFTFRONT][0]  = 0, pose_buf[LEFTFRONT][1]  = 0, pose_buf[LEFTFRONT][2]  = 0;
+    pose_buf[RIGHTBACK][0]  = 0, pose_buf[RIGHTBACK][1]  = 0, pose_buf[RIGHTBACK][2]  = 65;
+    pose_buf[RIGHTFRONT][0] = 0, pose_buf[RIGHTFRONT][1] = 0, pose_buf[RIGHTFRONT][2] = 65;
+    pose_buf[LEFTBACK][0]   = 0, pose_buf[LEFTBACK][1]   = 0, pose_buf[LEFTBACK][2]   = 65;
+    pose_buf[LEFTFRONT][0]  = 0, pose_buf[LEFTFRONT][1]  = 0, pose_buf[LEFTFRONT][2]  = 65;
 
-    leg_buf[RIGHTBACK][0]  = 0, leg_buf[RIGHTBACK][1]  = 0, leg_buf[RIGHTBACK][2]  = 0;
-    leg_buf[RIGHTFRONT][0] = 0, leg_buf[RIGHTFRONT][1] = 0, leg_buf[RIGHTFRONT][2] = 0;
-    leg_buf[LEFTBACK][0]   = 0, leg_buf[LEFTBACK][1]   = 0, leg_buf[LEFTBACK][2]   = 0;
-    leg_buf[LEFTFRONT][0]  = 0, leg_buf[LEFTFRONT][1]  = 0, leg_buf[LEFTFRONT][2]  = 0;
+    leg_buf[RIGHTBACK][0]  = -50, leg_buf[RIGHTBACK][1]  = 55, leg_buf[RIGHTBACK][2]  = 0;
+    leg_buf[RIGHTFRONT][0] = -50, leg_buf[RIGHTFRONT][1] = 55, leg_buf[RIGHTFRONT][2] = 0;
+    leg_buf[LEFTBACK][0]   =  30, leg_buf[LEFTBACK][1]   = 55, leg_buf[LEFTBACK][2]   = 0;
+    leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  = 55, leg_buf[LEFTFRONT][2]  = 0;
 }
 
 Body::~Body() {
@@ -122,16 +122,16 @@ void Body::get_pose(
 
     double Ry[4][4] = {
         { cos(pitch), 0, sin(pitch), 0}, 
-        {        0, 1,        0, 0},
+        {          0, 1,          0, 0},
         {-sin(pitch), 0, cos(pitch), 0},
-        {        0, 0,        0, 1}
+        {          0, 0,          0, 1}
     };
 
     double Rz[4][4] = {
         {cos(yaw),-sin(yaw), 0, 0}, 
         {sin(yaw), cos(yaw), 0, 0},
-        {         0,          0, 1, 0},
-        {         0,          0, 0, 1}
+        {        0,       0, 1, 0},
+        {        0,       0, 0, 1}
     };
 
     double Rxy[4][4];
@@ -312,10 +312,10 @@ void Body::pose(
 }
 
 void Body::sit_down() {
-    leg_buf[RIGHTBACK][0]  = -50, leg_buf[RIGHTBACK][1]  = 55, leg_buf[RIGHTBACK][2]  = 65;
-    leg_buf[RIGHTFRONT][0] = -50, leg_buf[RIGHTFRONT][1] = 55, leg_buf[RIGHTFRONT][2] = 65;
-    leg_buf[LEFTBACK][0]   =  30, leg_buf[LEFTBACK][1]   = 55, leg_buf[LEFTBACK][2]   = 65;
-    leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  = 55, leg_buf[LEFTFRONT][2]  = 65;
+    leg_buf[RIGHTBACK][0]  = -50, leg_buf[RIGHTBACK][1]  = 55, leg_buf[RIGHTBACK][0]  = 0;
+    leg_buf[RIGHTFRONT][0] =  30, leg_buf[RIGHTFRONT][1] = 55, leg_buf[RIGHTFRONT][0] = 0;
+    leg_buf[LEFTBACK][0]   = -50, leg_buf[LEFTBACK][1]   = 55, leg_buf[LEFTBACK][0]   = 0;
+    leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  = 55, leg_buf[LEFTFRONT][0]  = 0;
     
     // pose(0, 0, 0, 0, 0, 65);
 
@@ -327,8 +327,8 @@ void Body::sit_down() {
 
 void Body::stand_up() {
     leg_buf[RIGHTBACK][0]  = -50, leg_buf[RIGHTBACK][1]  = 55, leg_buf[RIGHTBACK][0]  = 0;
-    leg_buf[RIGHTFRONT][0] = -50, leg_buf[RIGHTFRONT][1] = 55, leg_buf[RIGHTFRONT][0] = 0;
-    leg_buf[LEFTBACK][0]   =  30, leg_buf[LEFTBACK][1]   = 55, leg_buf[LEFTBACK][0]   = 0;
+    leg_buf[RIGHTFRONT][0] =  30, leg_buf[RIGHTFRONT][1] = 55, leg_buf[RIGHTFRONT][0] = 0;
+    leg_buf[LEFTBACK][0]   = -50, leg_buf[LEFTBACK][1]   = 55, leg_buf[LEFTBACK][0]   = 0;
     leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  = 55, leg_buf[LEFTFRONT][0]  = 0;
     
     pose(0, 0, 0, 0, 0, 170);
