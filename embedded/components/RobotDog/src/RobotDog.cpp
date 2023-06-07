@@ -18,12 +18,18 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 	},
     main_body(&legs[Body::LEFTFRONT], &legs[Body::RIGHTFRONT], &legs[Body::LEFTBACK], &legs[Body::RIGHTBACK], 18.5, 7.75)
 {
+    if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
+
 	for(int i = 0; i < 12; i++)
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
 }
 
 RobotDog::~RobotDog()
 {
+	gpioTerminate();
 }
 
 void RobotDog::run() {
