@@ -152,6 +152,7 @@ void* Leg::servo_thread(void* param) {
         servo->sweep(*buffer, 700);
     }
 
+    printf("Exitting servo thread\n");
     servo->set_PWM(0);
     pthread_exit(NULL);
 }
