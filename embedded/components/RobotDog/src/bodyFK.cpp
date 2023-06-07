@@ -176,19 +176,23 @@ void Body::get_pose(
 
     rb[0] = Trb[0][3] + 9.25;
     rb[1] = Trb[1][3] + 3.875;
-    rb[2] = Trb[2][3];    
+    rb[2] = Trb[2][3];
+    printf("rb : %lf, %lf, %lf\n", rb[0], rb[1], rb[2]);
 
     rf[0] = Trf[0][3] - 9.25;
     rf[1] = Trf[1][3] + 3.875;
-    rf[2] = Trf[2][3];  
+    rf[2] = Trf[2][3];
+    printf("rb : %lf, %lf, %lf\n", rf[0], rf[1], rf[2]);
 
     lb[0] = Tlb[0][3] + 9.25;
     lb[1] = Tlb[1][3] - 3.875;
-    lb[2] = Tlb[2][3];  
+    lb[2] = Tlb[2][3];
+    printf("rb : %lf, %lf, %lf\n", lb[0], lb[1], lb[2]);
 
     lf[0] = Tlf[0][3] - 9.25;
     lf[1] = Tlf[1][3] - 3.875;
-    lf[2] = Tlf[2][3];  
+    lf[2] = Tlf[2][3];
+    printf("rb : %lf, %lf, %lf\n", lf[0], lf[1], lf[2]);
 }
 
 /**
