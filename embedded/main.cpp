@@ -135,6 +135,7 @@ extern "C" int main() {
 	legs[1].move(-50, 55, 65);
 	legs[2].move(30, 55, 65);
 	legs[3].move(30, 55, 65);
+	sleep(2);
 	
 	// legs[0].move(-50, 55, 170, 0, 0, 0);
 	// legs[1].move(-50, 55, 170, 0, 0, 0);
