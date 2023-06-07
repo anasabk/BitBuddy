@@ -91,6 +91,13 @@ extern "C" int main() {
 		exit(-1);
 	}
 
+	printf("by hand\n");
+	legs[0].move(-50, 55, 65);
+	legs[1].move(-50, 55, 65);
+	legs[2].move(30, 55, 65);
+	legs[3].move(30, 55, 65);
+
+	printf("\nBy algorithm\n");
 	RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
 	robot.run();
 
