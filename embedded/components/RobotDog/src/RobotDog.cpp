@@ -20,18 +20,20 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 {
 	for(int i = 0; i < 12; i++)
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
+    
+    running_flag = true;
 }
 
 RobotDog::~RobotDog()
 {
-    
+    running_flag = false;
+
+    pthread_join(mpu_thread_id, NULL);
+    pthread_join(hcsr04_thread_id, NULL);
 }
 
 void RobotDog::run() {
-	pthread_t mpu_thread_id;
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
-
-	pthread_t hcsr04_thread_id;
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
     
     main_body.sit_down();
@@ -134,7 +136,7 @@ void* RobotDog::mpu6050_thread(void* args) {
 
     long dt_ns = 1000000000L / MPU6050_SAMPLE_FREQ_HZ;
 
-    while (true) {
+    while (robot->running_flag) {
     	robot->mpu6050.read_data(&robot->mpu_buff);
 
         // Add 10ms to current time
@@ -150,7 +152,7 @@ void* RobotDog::mpu6050_thread(void* args) {
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     }
 
-    return NULL;
+    pthread_exit(NULL);
 }
 
 void* RobotDog::HCSR04_thread(void* args) {
@@ -180,7 +182,7 @@ void* RobotDog::HCSR04_thread(void* args) {
 
     long dt_ns = 1000000000L / HC_SR04_SAMPLE_FREQ_HZ;
 
-    while (true) {
+    while (robot->running_flag) {
         for (int i = 0; i < NUM_HCSR04; i++) {
             robot->front_dist[i] = robot->hc_sr04[i].get_distance();
 
@@ -198,7 +200,7 @@ void* RobotDog::HCSR04_thread(void* args) {
         }
     }
 
-    return NULL;
+    pthread_exit(NULL);
 }
 
 // void* RobotDog::servo_thread(void* args) {
