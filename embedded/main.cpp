@@ -130,7 +130,7 @@ extern "C" int main() {
 	// // 	pthread_create(&temp, NULL, thread_step, (void*)i);
 	// // }
 
-	sleep(4);
+	sleep(2);
 	legs[0].move(-50, 55, 65);
 	legs[1].move(-50, 55, 65);
 	legs[2].move(30, 55, 65);
