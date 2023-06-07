@@ -56,6 +56,7 @@ Leg::Leg(
 }
 
 Leg::~Leg() {
+    printf("destroying leg\n");
     pthread_kill(servo_thread_id[0], SIGTERM);
     pthread_join(servo_thread_id[0], NULL);
     pthread_kill(servo_thread_id[1], SIGTERM);
@@ -129,6 +130,7 @@ void Leg::move_offset(const double (&offset)[3]) {
 }
 
 void* Leg::servo_thread(void* param) {
+    printf("Entered servo thread\n");
     const double *buffer = ((struct servo_param*)param)->theta_buf;
     CalServo *servo = ((struct servo_param*)param)->servo;
 
