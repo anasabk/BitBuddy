@@ -27,10 +27,10 @@ RobotDog::~RobotDog()
     hc_sr04[0].~HC_SR04();
     hc_sr04[1].~HC_SR04();
     
-    legs[0].~Leg();
-    legs[1].~Leg();
-    legs[2].~Leg();
-    legs[3].~Leg();
+    // legs[0].~Leg();
+    // legs[1].~Leg();
+    // legs[2].~Leg();
+    // legs[3].~Leg();
 
 	gpioTerminate();
 }
