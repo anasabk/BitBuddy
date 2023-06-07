@@ -14,6 +14,7 @@
 #include <sched.h>
 #include <linux/i2c-dev.h>
 #include <i2c/smbus.h>
+#include <signal.h>
 // #include "components/RobotDog/include/inv_kinematics.h"
 
 int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
@@ -60,16 +61,26 @@ CalServo *servos_g;
 // 	pthread_exit(0);
 // }
 
+bool flag = true;
+
+void handler(int sig) {
+	flag = false;
+}
+
 extern "C" int main() {
 	if (gpioInitialise() < 0) {
 		printf("Failure...");
 		exit(-1);
 	}
 
+	struct sigaction act;
+	act.sa_handler = handler;
+	sigaction(SIGINT, &act, nullptr);
+
 	RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
 	robot.run();
 
-	while(true);
+	while(flag);
 
 	// gpioTerminate();
 	
