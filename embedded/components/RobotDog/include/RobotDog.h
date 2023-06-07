@@ -41,13 +41,13 @@ private:
 
     pthread_t hcsr04_thread_id;
     HC_SR04 hc_sr04[2];
-    
+
     CalServo servos[12];
     Leg legs[4];
     Body main_body;
 
     MPU6050::MPU6050_data_t mpu_buff;
-    int front_dist[2];
+    double front_dist[2];
 
     bool running_flag;
 
