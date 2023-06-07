@@ -183,22 +183,21 @@ void* RobotDog::HCSR04_thread(void* args) {
     long dt_ns = 1000000000L / HC_SR04_SAMPLE_FREQ_HZ;
 
     while (robot->running_flag) {
-        for (int i = 0; i < NUM_HCSR04; i++) {
-            robot->front_dist[i] = robot->hc_sr04[i].get_distance();
+        robot->front_dist[0] = robot->hc_sr04[0].get_distance();
+        robot->front_dist[1] = robot->hc_sr04[1].get_distance();
 
-            // Add dt_ns to current time
-            timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
+        // Add dt_ns to current time
+        timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
 
-            // Handle overflow
-            while (timeNow.tv_nsec >= 1000000000L) {
-                timeNow.tv_nsec -= 1000000000L;
-                timeNow.tv_sec++;
-            }
-
-            printf("sleeping %ld nsec\n", timeNow.tv_nsec);
-            // Sleep until the next dt_ns point
-            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+        // Handle overflow
+        while (timeNow.tv_nsec >= 1000000000L) {
+            timeNow.tv_nsec -= 1000000000L;
+            timeNow.tv_sec++;
         }
+
+        printf("sleeping %ld nsec\n", timeNow.tv_nsec);
+        // Sleep until the next dt_ns point
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     }
 
     pthread_exit(NULL);
