@@ -130,7 +130,7 @@ extern "C" int main() {
 	// servos_g = servo;
 	// legs_g = legs;
 
-    // pca.set_pwm_freq(50);
+    pca.set_pwm_freq(50);
 	// usleep(1000000);
 
 	// printf("Calibrating ...\n");
