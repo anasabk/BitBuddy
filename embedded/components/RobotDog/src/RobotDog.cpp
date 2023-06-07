@@ -18,17 +18,20 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 	},
     main_body(&legs[Body::LEFTFRONT], &legs[Body::RIGHTFRONT], &legs[Body::LEFTBACK], &legs[Body::RIGHTBACK], 18.5, 7.75)
 {
-    if (gpioInitialise() < 0) {
-		printf("Failure...");
-		exit(-1);
-	}
-
 	for(int i = 0; i < 12; i++)
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
 }
 
 RobotDog::~RobotDog()
 {
+    hc_sr04[0].~HC_SR04();
+    hc_sr04[1].~HC_SR04();
+    
+    legs[0].~Leg();
+    legs[1].~Leg();
+    legs[2].~Leg();
+    legs[3].~Leg();
+
 	gpioTerminate();
 }
 
@@ -36,8 +39,8 @@ void RobotDog::run() {
 	pthread_t mpu_thread_id;
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 
-	pthread_t hcsr04_thread_id;
-	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
+	// pthread_t hcsr04_thread_id;
+	// pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
     
     main_body.sit_down();
     sleep(2);
