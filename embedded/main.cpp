@@ -63,7 +63,7 @@ CalServo *servos_g;
 
 bool flag = true;
 
-void handler(int sig) {
+void int_handler(int sig) {
 	flag = false;
 }
 
@@ -74,7 +74,7 @@ extern "C" int main() {
 	}
 
 	struct sigaction act;
-	act.sa_handler = handler;
+	act.sa_handler = int_handler;
 	sigaction(SIGINT, &act, nullptr);
 
 	RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
