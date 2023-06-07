@@ -140,9 +140,10 @@ void* Leg::servo_thread(void* param) {
     sigaddset(&set, SIGTERM);
     int sig;
 
-    while(sigwait(&set, &sig) == 0 && sig != SIGTERM)
-        // printf("Moving Servo %d %lf degrees\n", servo->getChannel(), *buffer);
-        servo->sweep((int)*buffer, 700);
+    while(sigwait(&set, &sig) == 0 && sig != SIGTERM){
+        printf("Moving Servo %d %d degrees\n", servo->getChannel(), *((int*)buffer));
+        // servo->sweep(*((int*)buffer), 700);
+    }
 
     servo->set_PWM(0);
     pthread_exit(NULL);
