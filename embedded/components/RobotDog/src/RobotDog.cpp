@@ -28,8 +28,8 @@ RobotDog::~RobotDog()
 {
     running_flag = false;
     sleep(1);
-    pthread_join(mpu_thread_id, NULL);
-    pthread_join(hcsr04_thread_id, NULL);
+    // pthread_join(mpu_thread_id, NULL);
+    // pthread_join(hcsr04_thread_id, NULL);
 }
 
 void RobotDog::run() {
