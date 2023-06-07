@@ -6,9 +6,9 @@
 class Body {
 public:
     enum LegSide {
+        LEFTBACK = 0,
         RIGHTBACK = 1,
         RIGHTFRONT = 2,
-        LEFTBACK = 0,
         LEFTFRONT = 3
     };
 
