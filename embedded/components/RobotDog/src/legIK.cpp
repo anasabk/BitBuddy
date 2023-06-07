@@ -20,6 +20,10 @@ Leg::Leg(
     servos[1] = shoulder;
     servos[2] = knee;
 
+    theta_buf[0] = 0;
+    theta_buf[1] = 0;
+    theta_buf[2] = 0;
+
     offsets[0] = off_hip;
     offsets[1] = off_shld;
     offsets[2] = off_knee;
@@ -65,7 +69,7 @@ Leg::~Leg() {
     pthread_join(servo_thread_id[2], NULL);
 }
 
-void Leg::get_degree(double x_mm, double y_mm, double z_mm, double *theta1, double *theta2, double *theta3) {
+void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *theta2, int *theta3) {
     double R2_yz = pow(y_mm, 2) + pow(z_mm, 2);
     double foot_to_shoulder_sq = pow(x_mm, 2) + pow(y_mm, 2) + pow(z_mm, 2) - pow(hip_l, 2);
     double temp_theta = acos((l2*l2 - l1*l1 - foot_to_shoulder_sq) / (-2 * l1 * sqrt(foot_to_shoulder_sq)));
@@ -92,18 +96,18 @@ void Leg::get_degree(double x_mm, double y_mm, double z_mm, double *theta1, doub
     last_pos[2] = z_mm;
 }
 
-void Leg::get_degree(const double (&dest)[3], double (&thetas)[3]) {
+void Leg::get_degree(const double (&dest)[3], int (&thetas)[3]) {
     get_degree(dest[0], dest[1], dest[2], &thetas[0], &thetas[1], &thetas[2]);
 }
 
-void Leg::get_degree_offset(double x_mm, double y_mm, double z_mm, double *x_deg, double *y_deg, double *z_deg) {
+void Leg::get_degree_offset(double x_mm, double y_mm, double z_mm, int *x_deg, int *y_deg, int *z_deg) {
     if(last_pos[0] == -1 || last_pos[0] == -1 || last_pos[0] == -1)
         return;
 
     get_degree(last_pos[0] + x_mm, last_pos[1] + y_mm, last_pos[2] + z_mm, x_deg, y_deg, z_deg);
 }
 
-void Leg::get_degree_offset(const double (&offset)[3], double (&thetas)[3]) {
+void Leg::get_degree_offset(const double (&offset)[3], int (&thetas)[3]) {
     get_degree_offset(offset[0], offset[1], offset[2], &thetas[0], &thetas[1], &thetas[2]);
 }
 
@@ -131,7 +135,7 @@ void Leg::move_offset(const double (&offset)[3]) {
 
 void* Leg::servo_thread(void* param) {
     printf("Entered servo thread\n");
-    const double *buffer = ((struct servo_param*)param)->theta_buf;
+    const int *buffer = ((struct servo_param*)param)->theta_buf;
     CalServo *servo = ((struct servo_param*)param)->servo;
 
     sigset_t set;
@@ -141,8 +145,8 @@ void* Leg::servo_thread(void* param) {
     int sig;
 
     while(sigwait(&set, &sig) == 0 && sig != SIGTERM){
-        printf("Moving Servo %d %d degrees\n", servo->getChannel(), int(*buffer));
-        servo->sweep(int(*buffer), 700);
+        printf("Moving Servo %d %d degrees\n", servo->getChannel(), *buffer);
+        // servo->sweep(int(*buffer), 700);
     }
 
     servo->set_PWM(0);
