@@ -23,11 +23,11 @@ public:
 
     ~Leg();
 
-    void get_degree(const double (&dest)[3], double (&thetas)[3]);
-    void get_degree(double x_mm, double y_mm, double z_mm, double *theta1, double *theta2, double *theta3);
+    void get_degree(const double (&dest)[3], int (&thetas)[3]);
+    void get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *theta2, int *theta3);
 
-    void get_degree_offset(const double (&offset)[3], double (&thetas)[3]);
-    void get_degree_offset(double x_mm, double y_mm, double z_mm, double *theta1, double *theta2, double *theta3);
+    void get_degree_offset(const double (&offset)[3], int (&thetas)[3]);
+    void get_degree_offset(double x_mm, double y_mm, double z_mm, int *theta1, int *theta2, int *theta3);
 
     void move(const double (&dest)[3]);
     void move(double x_mm, double y_mm, double z_mm);
@@ -37,11 +37,11 @@ public:
 
 private:
     CalServo *servos[3];
-    double theta_buf[3];
+    int theta_buf[3];
     pthread_t servo_thread_id[3];
-    double offsets[3];
+    int offsets[3];
     double hip_l, l1, l2;
-    int last_pos[3];
+    double last_pos[3];
     bool running;
 
     /**
@@ -57,11 +57,11 @@ private:
     bool is_front;
 
     struct servo_param {
-        const double* theta_buf;
+        const int* theta_buf;
         CalServo *servo;
 
         servo_param(
-            const double* theta_buf,
+            const int* theta_buf,
             CalServo *servo) 
         {
             this->servo = servo;
