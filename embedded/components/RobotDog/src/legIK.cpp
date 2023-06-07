@@ -87,6 +87,8 @@ void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *th
     if(is_right != is_front)
         degrees[0] = 180 - degrees[0];
 
+    printf("degrees: %lf %lf %lf\n", degrees[0], degrees[1], degrees[2]);
+
     *theta1 = degrees[0];
     *theta2 = degrees[1];
     *theta3 = degrees[2];
