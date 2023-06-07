@@ -135,8 +135,8 @@ extern "C" int main() {
 
 	// printf("Calibrating ...\n");
 
-	// for(int i = 0; i < 12; i++)
-	// 	servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+	for(int i = 0; i < 12; i++)
+		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
 
 	// printf("Moving ...\nStanding ...\n");
 
