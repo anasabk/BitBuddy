@@ -47,4 +47,4 @@ target_link_libraries(${PROJECT_NAME}
     # pigpio
 )
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -g")
