@@ -22,7 +22,13 @@ float HC_SR04::get_distance() {
     struct timespec time_rec;
 
     gpioWrite(trig, PI_HIGH);
-    gpioDelay(10);
+    clock_gettime(CLOCK_MONOTONIC, &time_send);
+    time_send.tv_nsec += 20000;
+    if (time_send.tv_nsec >= 1000000000L) {
+        time_send.tv_nsec -= 1000000000L;
+        time_send.tv_sec++;
+    }
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &time_send, nullptr);
     gpioWrite(trig, PI_LOW);
 
     while(gpioRead(echo) == PI_LOW);
