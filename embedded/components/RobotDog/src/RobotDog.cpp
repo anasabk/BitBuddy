@@ -34,7 +34,7 @@ void RobotDog::run() {
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
     
     main_body.sit_down();
-    // sleep(2);
+    sleep(2);
     // main_body.stand_up();
 
     // Initialize and start the servo_thread
