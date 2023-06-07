@@ -53,6 +53,9 @@ void RobotDog::run() {
     main_body.sit_down();
     sleep(2);
     main_body.stand_up();
+    sleep(2);
+    main_body.pose(0, M_PI/4, 0, 0, 0, 170);
+    sleep(2);
 
     // Initialize and start the servo_thread
     // servo_params* params = new servo_params;
