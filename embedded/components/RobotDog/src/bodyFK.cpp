@@ -318,11 +318,6 @@ void Body::sit_down() {
     leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  = 55, leg_buf[LEFTFRONT][2]  = 0;
     
     pose(0, 0, 0, 0, 0, 65);
-
-    // legs[RIGHTBACK]->move(leg_buf[RIGHTBACK]);
-    // legs[RIGHTFRONT]->move(leg_buf[RIGHTFRONT]);
-    // legs[LEFTBACK]->move(leg_buf[LEFTBACK]);
-    // legs[LEFTFRONT]->move(leg_buf[LEFTFRONT]);
 }
 
 void Body::stand_up() {
