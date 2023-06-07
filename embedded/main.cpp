@@ -94,6 +94,8 @@ extern "C" int main() {
 	RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
 	robot.run();
 
+	while(true);
+
 	gpioTerminate();
 	
     // PCA9685 pca(1, 0x40);
