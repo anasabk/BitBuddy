@@ -16,7 +16,7 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
         Leg(&servos[6], 0, &servos[7], -4.042452, &servos[8], 13.594, 55, 110, 130,  true, true),
         Leg(&servos[9], 8, &servos[10], 5.957548, &servos[11],14.594, 55, 110, 130, false, true),
 	},
-    main_body(&legs[Body::LEFTFRONT], &legs[Body::RIGHTFRONT], &legs[Body::LEFTBACK], &legs[Body::RIGHTBACK], 18.5, 7.75)
+    main_body(&legs[Body::LEFTFRONT], &legs[Body::RIGHTFRONT], &legs[Body::LEFTBACK], &legs[Body::RIGHTBACK], 185, 77.5)
 {
 	for(int i = 0; i < 12; i++)
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
@@ -194,7 +194,7 @@ void* RobotDog::HCSR04_thread(void* args) {
             timeNow.tv_nsec -= 1000000000L;
             timeNow.tv_sec++;
         }
-        
+
         // Sleep until the next dt_ns point
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     }
