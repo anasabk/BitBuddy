@@ -27,7 +27,7 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 RobotDog::~RobotDog()
 {
     running_flag = false;
-
+    sleep(1);
     pthread_join(mpu_thread_id, NULL);
     pthread_join(hcsr04_thread_id, NULL);
 }
