@@ -5,10 +5,10 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
     : pca(pca_bus, pca_addr), lcd(lcd_bus, lcd_addr), mpu6050(mpu_bus, mpu_addr), hc_sr04{HC_SR04(27, 17), HC_SR04(5, 6)},
     servos{ 
 		// Top, Mid, and Low motors for each leg
-		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
-		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11),	// Front Left
+		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
 		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
-		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2)		// Back Left
+		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
+		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
     },
     legs{
         Leg(&servos[0],-4, &servos[1],  2.443508, &servos[2],     1, 55, 110, 130, false, false),
