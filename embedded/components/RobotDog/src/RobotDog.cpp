@@ -24,23 +24,15 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 
 RobotDog::~RobotDog()
 {
-    hc_sr04[0].~HC_SR04();
-    hc_sr04[1].~HC_SR04();
     
-    // legs[0].~Leg();
-    // legs[1].~Leg();
-    // legs[2].~Leg();
-    // legs[3].~Leg();
-
-	gpioTerminate();
 }
 
 void RobotDog::run() {
 	pthread_t mpu_thread_id;
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 
-	// pthread_t hcsr04_thread_id;
-	// pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
+	pthread_t hcsr04_thread_id;
+	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
     
     main_body.sit_down();
     sleep(2);
