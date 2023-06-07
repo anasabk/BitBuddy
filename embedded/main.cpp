@@ -96,7 +96,7 @@ extern "C" int main() {
 
 	while(true);
 
-	gpioTerminate();
+	// gpioTerminate();
 	
     // PCA9685 pca(1, 0x40);
 	// /** 
