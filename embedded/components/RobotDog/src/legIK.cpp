@@ -166,7 +166,7 @@ void* Leg::servo_thread(void* param) {
     // while(pthread_cond_wait(gate, mut)){
     while(sigwait(&set, &sig) == 0 && sig != SIGTERM) {
         printf("Moving Servo %d %d degrees\n", servo->getChannel(), *buffer);
-        // servo->sweep(*buffer, 700);
+        servo->sweep(*buffer, 700);
     }
 
     printf("Exitting servo thread\n");
