@@ -148,7 +148,7 @@ void* Leg::servo_thread(void* param) {
     int sig;
 
     while(sigwait(&set, &sig) == 0 && sig != SIGTERM){
-        // printf("Moving Servo %d %d degrees\n", servo->getChannel(), *buffer);
+        printf("Moving Servo %d %d degrees\n", servo->getChannel(), *buffer);
         servo->sweep(*buffer, 700);
     }
 
