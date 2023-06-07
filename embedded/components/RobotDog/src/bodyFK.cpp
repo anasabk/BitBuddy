@@ -317,7 +317,7 @@ void Body::sit_down() {
     leg_buf[LEFTBACK][0]   = -50, leg_buf[LEFTBACK][1]   = 55, leg_buf[LEFTBACK][2]   = 0;
     leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  = 55, leg_buf[LEFTFRONT][2]  = 0;
     
-    // pose(0, 0, 0, 0, 0, 65);
+    pose(0, 0, 0, 0, 0, 65);
 
     // legs[RIGHTBACK]->move(leg_buf[RIGHTBACK]);
     // legs[RIGHTFRONT]->move(leg_buf[RIGHTFRONT]);
