@@ -13,7 +13,7 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
     legs{
         Leg(&servos[0],-4, &servos[1],  7, &servos[2], 1, 55, 110, 130, false, false),
         Leg(&servos[3],-10, &servos[4], -3, &servos[5], 0, 55, 110, 130,  true, false),
-        Leg(&servos[6], 0, &servos[7], -4, &servos[8], 5, 55, 110, 130,  true, true),
+        Leg(&servos[6], 0, &servos[7], 4, &servos[8], 5, 55, 110, 130,  true, true),
         Leg(&servos[9],-8, &servos[10], 6, &servos[11],5, 55, 110, 130, false, true),
 	},
     main_body(&legs[Body::LEFTFRONT], &legs[Body::RIGHTFRONT], &legs[Body::LEFTBACK], &legs[Body::RIGHTBACK], 185, 77.5)
