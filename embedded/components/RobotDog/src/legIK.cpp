@@ -105,7 +105,6 @@ void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *th
 
     if(!is_right) {
         degrees[1] = 180 - degrees[1];
-    } else {
         degrees[2] = 180 - degrees[2];
     }
 
