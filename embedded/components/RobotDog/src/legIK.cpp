@@ -91,9 +91,9 @@ void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *th
     double hip_dir = is_right ? 1 : -1;
 
     double degrees[3];
-    degrees[0] = (acos(hip_dir*hip_l / sqrt(R2_yz)) + atan(y_mm / fabs(z_mm)))*180/M_PI + offsets[0];
-    degrees[1] = (temp_theta - atan(x_mm / sqrt(R2_yz - hip_l*hip_l)))*180/M_PI + offsets[1];
-    degrees[2] = acos((foot_to_shoulder_sq - l2*l2 - l1*l1) / (-2 * l1 * l2))*180/M_PI - 35 + offsets[2];
+    degrees[0] = (acos(hip_dir*hip_l / sqrt(R2_yz)) + atan(y_mm / fabs(z_mm)))*180/M_PI;
+    degrees[1] = (temp_theta - atan(x_mm / sqrt(R2_yz - hip_l*hip_l)))*180/M_PI;
+    degrees[2] = acos((foot_to_shoulder_sq - l2*l2 - l1*l1) / (-2 * l1 * l2))*180/M_PI - 35;
 
     if (degrees[0] > 180 || degrees[0] < 0 ||
         degrees[1] > 180 || degrees[1] < 0 ||
@@ -111,9 +111,9 @@ void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *th
 
     printf("%lf %lf %lf\n", degrees[0], degrees[1], degrees[2]);
 
-    *theta1 = degrees[0];
-    *theta2 = degrees[1];
-    *theta3 = degrees[2];
+    *theta1 = degrees[0] + offsets[0];
+    *theta2 = degrees[1] + offsets[1];
+    *theta3 = degrees[2] + offsets[2];
 
     last_pos[0] = x_mm;
     last_pos[1] = y_mm;
