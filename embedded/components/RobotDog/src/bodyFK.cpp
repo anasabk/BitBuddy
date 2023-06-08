@@ -78,6 +78,16 @@ void vector_sum(
         buf[i] = a[i] + b[i];
 }
 
+template<size_t len>
+void vector_sub(
+    const double (&a)[len], 
+    const double (&b)[len], 
+    double (&buf)[len])
+{
+    for(int i = 0; i < len; i++)
+        buf[i] = a[i] - b[i];
+}
+
 /**
  * @brief
  * 
@@ -290,10 +300,10 @@ void Body::pose(
     double lb[3];
     double lf[3];
 
-    vector_sum<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
-    vector_sum<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
-    vector_sum<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
-    vector_sum<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
+    vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
+    vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
+    vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
+    vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
 
     printf("rb : %lf, %lf, %lf\n", leg_buf[RIGHTBACK][0], leg_buf[RIGHTBACK][1], leg_buf[RIGHTBACK][2]);
     printf("rf : %lf, %lf, %lf\n", leg_buf[RIGHTFRONT][0], leg_buf[RIGHTFRONT][1], leg_buf[RIGHTFRONT][2]);
@@ -317,7 +327,7 @@ void Body::sit_down() {
     leg_buf[LEFTBACK][0]   = -50, leg_buf[LEFTBACK][1]   = -55, leg_buf[LEFTBACK][2]   = 0;
     leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  = -55, leg_buf[LEFTFRONT][2]  = 0;
     
-    pose(0, 0, 0, 0, 0, -70);
+    pose(0, 0, 0, 0, 0, 70);
 }
 
 void Body::stand_up() {
