@@ -73,6 +73,8 @@ public:
 
     void sit_down();
 
+    void step_forward();
+
 
 private:
     Leg *legs[4];
