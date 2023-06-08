@@ -317,7 +317,7 @@ void Body::pose(
 
     // legs[RIGHTBACK]->move(rb);
     // legs[RIGHTFRONT]->move(rf);
-    // legs[LEFTBACK]->move(lb);
+    legs[LEFTBACK]->move(lb);
     legs[LEFTFRONT]->move(lf);
 }
 
