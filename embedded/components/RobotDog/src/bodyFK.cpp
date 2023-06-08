@@ -315,8 +315,8 @@ void Body::pose(
     printf("lb : %lf, %lf, %lf\n", lb[0], lb[1], lb[2]);
     printf("lf : %lf, %lf, %lf\n", lf[0], lf[1], lf[2]);
 
-    // legs[RIGHTBACK]->move(rb);
-    // legs[RIGHTFRONT]->move(rf);
+    legs[RIGHTBACK]->move(rb);
+    legs[RIGHTFRONT]->move(rf);
     legs[LEFTBACK]->move(lb);
     legs[LEFTFRONT]->move(lf);
 }
