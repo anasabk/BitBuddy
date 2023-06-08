@@ -106,7 +106,7 @@ void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *th
         degrees[2] = 180 - degrees[2];
     }
 
-    if(!is_front)
+    if(is_front)
         degrees[0] = 180 - degrees[0];
 
     *theta1 = degrees[0] + offsets[0];
