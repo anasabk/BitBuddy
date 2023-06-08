@@ -345,27 +345,46 @@ void Body::step_forward() {
     double lb[3];
     double lf[3];
 
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+
     pose(0, 0, 0, 0, -20, 170);
     leg_buf[LEFTFRONT][0] = 110, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 0;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
-    usleep(50000);
+    timeNow.tv_nsec += 500000000;
+    while (timeNow.tv_nsec >= 1000000000L) {
+        timeNow.tv_nsec -= 1000000000L;
+        timeNow.tv_sec++;}
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     leg_buf[LEFTBACK][0] += 20;
     leg_buf[RIGHTBACK][0] += 20;
     leg_buf[RIGHTFRONT][0] += 20;
     leg_buf[LEFTFRONT][0] += 20;
     pose(0, 0, 0, 0, 0, 170);
-    usleep(50000);
+    timeNow.tv_nsec += 500000000;
+    while (timeNow.tv_nsec >= 1000000000L) {
+        timeNow.tv_nsec -= 1000000000L;
+        timeNow.tv_sec++;}
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 
     pose(0, 0, 0, 0, 20, 170);
     leg_buf[RIGHTBACK][0]  =  10, leg_buf[RIGHTBACK][1]  =  55, leg_buf[RIGHTBACK][2]  = 0;
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK]->move(rb);
-    usleep(50000);
+    timeNow.tv_nsec += 500000000;
+    while (timeNow.tv_nsec >= 1000000000L) {
+        timeNow.tv_nsec -= 1000000000L;
+        timeNow.tv_sec++;}
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     leg_buf[LEFTBACK][0] += 20;
     leg_buf[RIGHTBACK][0] += 20;
     leg_buf[RIGHTFRONT][0] += 20;
     leg_buf[LEFTFRONT][0] += 20;
     pose(0, 0, 0, 0, 0, 170);
-    usleep(50000);
+    timeNow.tv_nsec += 500000000;
+    while (timeNow.tv_nsec >= 1000000000L) {
+        timeNow.tv_nsec -= 1000000000L;
+        timeNow.tv_sec++;}
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 }
