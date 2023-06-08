@@ -32,9 +32,18 @@ RobotDog::~RobotDog()
     pthread_join(hcsr04_thread_id, NULL);
 }
 
+void* read_thread(void *param) {
+    while(true) {
+        printf("%f dregrees\n", acos(*((float*)param))*180/M_PI);
+        sleep(1);
+    }
+}
+
 void RobotDog::run() {
+    pthread_t temp;
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
+    pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff.x_accel));
     
     servos[0].set_degree(86);
     servos[1].set_degree(128);
@@ -64,6 +73,7 @@ void RobotDog::run() {
     sleep(2);
     main_body.pose(0, 0, M_PI/6, 0, 0, 170);
     sleep(2);
+    
 
     // Initialize and start the servo_thread
     // servo_params* params = new servo_params;
