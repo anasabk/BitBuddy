@@ -87,10 +87,10 @@ void RobotDog::run() {
     sleep(2);
     main_body.pose(0, M_PI/6, 0, 0, 0, 170);
     sleep(2);
-    main_body.pose(0, 0, 0, 0, 0, 170);
-    sleep(2);
-    main_body.pose(M_PI/6, 0, 0, 0, 0, 170);
-    sleep(2);
+    // main_body.pose(0, 0, 0, 0, 0, 170);
+    // sleep(2);
+    // main_body.pose(M_PI/6, 0, 0, 0, 0, 170);
+    // sleep(2);
     
 
     // Initialize and start the servo_thread
