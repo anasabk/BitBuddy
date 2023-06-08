@@ -78,21 +78,38 @@ Leg::~Leg() {
 }
 
 void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *theta2, int *theta3) {
-    double R2_yz = pow(y_mm, 2) + pow(z_mm, 2);
     double foot_to_shoulder_sq = pow(x_mm, 2) + pow(y_mm, 2) + pow(z_mm, 2) - pow(hip_l, 2);
+    
+    if (foot_to_shoulder_sq < (l1*l1 + l2*l2 - 2*l1*l2*cos(35/180*M_PI)) || 
+        foot_to_shoulder_sq > pow(l1+l2, 2)) {
+        printf("Length of %lfmm from foot to shoulder is not possible, aborting ...\n", foot_to_shoulder_sq);
+        return;
+    }
+    
+    double R2_yz = pow(y_mm, 2) + pow(z_mm, 2);
     double temp_theta = acos((l2*l2 - l1*l1 - foot_to_shoulder_sq) / (-2 * l1 * sqrt(foot_to_shoulder_sq)));
+    double hip_dir = is_right ? 1 : -1;
 
     double degrees[3];
-    degrees[0] = (acos(hip_l / sqrt(R2_yz)) + atan(y_mm / z_mm))*180/M_PI + offsets[0];
+    degrees[0] = (acos(hip_dir*hip_l / sqrt(R2_yz)) + atan(y_mm / fabs(z_mm)))*180/M_PI + offsets[0];
     degrees[1] = (temp_theta - atan(x_mm / sqrt(R2_yz - hip_l*hip_l)))*180/M_PI + offsets[1];
     degrees[2] = acos((foot_to_shoulder_sq - l2*l2 - l1*l1) / (-2 * l1 * l2))*180/M_PI - 35 + offsets[2];
 
-    if(is_right) {
+    if (degrees[0] > 180 || degrees[0] < 0 ||
+        degrees[1] > 180 || degrees[1] < 0 ||
+        degrees[2] > 180 || degrees[2] < 0) {
+        printf("Out of reach, aborting ...\n");
+    } else {
+        printf("%lf %lf %lf\n", degrees[0], degrees[1], degrees[2]);
+    }
+
+    if(!is_right) {
         degrees[1] = 180 - degrees[1];
+    } else {
         degrees[2] = 180 - degrees[2];
     }
 
-    if(is_right != is_front)
+    if(!is_front)
         degrees[0] = 180 - degrees[0];
 
     *theta1 = degrees[0];
@@ -163,7 +180,6 @@ void* Leg::servo_thread(void* param) {
     sigaction(SIGCONT, &cont_act, NULL);
 
     int sig;
-    // while(pthread_cond_wait(gate, mut)){
     while(sigwait(&set, &sig) == 0 && sig != SIGTERM) {
         printf("Moving Servo %d %d degrees\n", servo->getChannel(), *buffer);
         servo->sweep(*buffer, 500);
