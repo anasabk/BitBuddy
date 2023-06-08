@@ -369,6 +369,10 @@ void Body::step_forward() {
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 
     pose(0, 0, 0, 0, 20, 170);
+    timeNow.tv_nsec += 1000000000;
+    while (timeNow.tv_nsec >= 1000000000L) {
+        timeNow.tv_nsec -= 1000000000L;
+        timeNow.tv_sec++;}
     leg_buf[RIGHTBACK][0]  =  10, leg_buf[RIGHTBACK][1]  =  55, leg_buf[RIGHTBACK][2]  = 0;
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK]->move(rb);
