@@ -34,7 +34,7 @@ RobotDog::~RobotDog()
 
 void* read_thread(void *param) {
     while(true) {
-        printf("%f dregrees\n", asin(-*((float*)param))*180/M_PI);
+        printf("%f dregrees\n", asin(*((float*)param)-0.05)*180/M_PI);
         sleep(1);
     }
 }
