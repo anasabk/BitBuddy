@@ -99,17 +99,17 @@ void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *th
         degrees[1] > 180 || degrees[1] < 0 ||
         degrees[2] > 180 || degrees[2] < 0) {
         printf("Out of reach, aborting ...\n");
-    } else {
-        printf("%lf %lf %lf\n", degrees[0], degrees[1], degrees[2]);
     }
 
-    if(!is_right) {
+    if(is_right) {
         degrees[1] = 180 - degrees[1];
         degrees[2] = 180 - degrees[2];
     }
 
     if(!is_front)
         degrees[0] = 180 - degrees[0];
+
+    printf("%lf %lf %lf\n", degrees[0], degrees[1], degrees[2]);
 
     *theta1 = degrees[0];
     *theta2 = degrees[1];
