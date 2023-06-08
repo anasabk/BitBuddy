@@ -48,3 +48,4 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -g")
+# SET(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++ --version")
