@@ -352,7 +352,7 @@ void Body::step_forward() {
     leg_buf[LEFTFRONT][0] = 110, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 0;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
-    timeNow.tv_nsec += 500000000;
+    timeNow.tv_nsec += 1000000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
