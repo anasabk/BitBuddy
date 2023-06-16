@@ -23,7 +23,7 @@ int main() {
     std::string userInput;
 
     // Create socket
-    clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    clientSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if (clientSocket < 0) {
         std::cerr << "Error: Failed to create client socket." << std::endl;
         return 1;
@@ -35,15 +35,9 @@ int main() {
     serverAddr.sin_addr.s_addr = inet_addr("192.168.43.138");
     //serverAddr.sin_addr.s_addr = inet_addr("raspberrypi");
 
-    // connect to server
-    if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
-        std::cerr << "Error: Could not connect to server." << std::endl;
-        return 1;
-    }
+    socklen_t serverAddrSize = sizeof(serverAddr);
 
-    std::cout << "Connected to server." << std::endl;
-
-    // Receive message and send to server
+    // Send message and receive response from server
     while (true) {
         std::cout << "Press a key (W, A, S, D, Q) or press 'q' to exit: ";
         int ch = getch();
@@ -54,16 +48,13 @@ int main() {
             userInput = ch;
 
             // Send message to server
-            write(clientSocket, userInput.c_str(), userInput.size());
+            sendto(clientSocket, userInput.c_str(), userInput.size(), 0, (struct sockaddr*)&serverAddr, serverAddrSize);
 
             // Get Response
             memset(message, 0, sizeof(message));
-            int bytesRead = read(clientSocket, message, sizeof(message));
+            int bytesRead = recvfrom(clientSocket, message, sizeof(message), 0, NULL, NULL);
             if (bytesRead < 0) {
                 std::cerr << "Error: Could not read Response." << std::endl;
-                break;
-            } else if (bytesRead == 0) {
-                std::cout << "The server connection has been closed." << std::endl;
                 break;
             }
 
@@ -73,7 +64,7 @@ int main() {
         }
     }
 
-    // Soket closed
+    // Socket closed
     close(clientSocket);
 
     return 0;
