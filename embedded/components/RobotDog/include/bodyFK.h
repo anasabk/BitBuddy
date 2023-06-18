@@ -75,6 +75,8 @@ public:
 
     void step_forward();
 
+    void recenter();
+
 
 private:
     Leg *legs[4];
