@@ -33,6 +33,7 @@ RobotDog::~RobotDog()
     pthread_join(mpu_thread_id, NULL);
     pthread_join(hcsr04_thread_id, NULL);
     main_body.sit_down();
+    sleep(2);
 }
 
 bool running = true;
