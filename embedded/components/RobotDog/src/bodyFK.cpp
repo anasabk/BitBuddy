@@ -487,7 +487,7 @@ void Body::recenter() {
     legs[RIGHTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
 
-    leg_buf[RIGHTFRONT][0] = -50, leg_buf[RIGHTFRONT][1] = -55;
+    leg_buf[RIGHTFRONT][0] = 15, leg_buf[RIGHTFRONT][1] = -55;
     vector_sub<3>(leg_buf[RIGHTFRONT], temp_pose[RIGHTFRONT], temp_leg);
     legs[RIGHTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
@@ -503,7 +503,7 @@ void Body::recenter() {
     legs[LEFTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
 
-    leg_buf[LEFTFRONT][0] = -50, leg_buf[LEFTFRONT][1] = 55;
+    leg_buf[LEFTFRONT][0] = 15, leg_buf[LEFTFRONT][1] = 55;
     vector_sub<3>(leg_buf[LEFTFRONT], temp_pose[LEFTFRONT], temp_leg);
     legs[LEFTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
