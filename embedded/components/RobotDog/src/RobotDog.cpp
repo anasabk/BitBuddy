@@ -34,8 +34,10 @@ RobotDog::~RobotDog()
     pthread_join(hcsr04_thread_id, NULL);
 }
 
+bool running = true;
+
 void* read_thread(void *param) {
-    while(true) {
+    while(running) {
         printf("%f dregrees\n", asin(*((float*)param)-0.05)*180/M_PI);
         sleep(1);
     }
@@ -60,7 +62,7 @@ void RobotDog::run() {
     // sleep(2);
     // main_body.step_forward();
     
-    pthread_kill(temp, SIGKILL);
+    running = false;
     // Initialize and start the servo_thread
     // servo_params* params = new servo_params;
     // pthread_t servo_thread_id[12];
