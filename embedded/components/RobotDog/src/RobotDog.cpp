@@ -84,18 +84,18 @@ void RobotDog::run() {
     main_body.step_forward();
     sleep(10);
     
-    uint8_t dest_servo = 0;
-	int dest_degree = 0;
-    while(running_flag) {
-		scanf("%d %d", &dest_servo, &dest_degree);
-		for(int i = 0; i < 12; i++){
-			printf("%d %d %d\n", i, servos[i].getChannel());
-			if(servos[i].getChannel() == dest_servo) {
-				servos[i].set_degree(dest_degree);
-				break;
-			}
-		}
-    }
+    // uint8_t dest_servo = 0;
+	// int dest_degree = 0;
+    // while(running_flag) {
+	// 	scanf("%d %d", &dest_servo, &dest_degree);
+	// 	for(int i = 0; i < 12; i++){
+	// 		printf("%d %d %d\n", i, servos[i].getChannel());
+	// 		if(servos[i].getChannel() == dest_servo) {
+	// 			servos[i].set_degree(dest_degree);
+	// 			break;
+	// 		}
+	// 	}
+    // }
 
     running_flag = false;
 
