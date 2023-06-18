@@ -316,7 +316,7 @@ void Body::step_forward() {
 
     // Leen to the right back
     pose(0, 0, 0, -20, -25, 140);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -326,7 +326,7 @@ void Body::step_forward() {
     leg_buf[LEFTFRONT][0] = 15, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -334,7 +334,7 @@ void Body::step_forward() {
     leg_buf[LEFTFRONT][0] = 45, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -342,7 +342,7 @@ void Body::step_forward() {
     leg_buf[LEFTFRONT][0] = 45, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 0;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -350,11 +350,11 @@ void Body::step_forward() {
     
     // Go forward
     leg_buf[LEFTBACK][0] -= 20;
-    leg_buf[RIGHTBACK][0] -= 25;
-    leg_buf[RIGHTFRONT][0] -= 25;
+    leg_buf[RIGHTBACK][0] -= 20;
+    leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
     pose(0, 0, 0, 0, 0, 140);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -363,7 +363,7 @@ void Body::step_forward() {
     
     // Leen left front
     pose(0, 0, 0, 20, 25, 140);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -373,7 +373,7 @@ void Body::step_forward() {
     leg_buf[RIGHTBACK][0] = -70, leg_buf[RIGHTBACK][1] = -55, leg_buf[RIGHTBACK][2] = 50;
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK]->move(rb);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -381,7 +381,7 @@ void Body::step_forward() {
     leg_buf[RIGHTBACK][0] = 10, leg_buf[RIGHTBACK][1] = -55, leg_buf[RIGHTBACK][2] = 50;
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK]->move(rb);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -389,7 +389,7 @@ void Body::step_forward() {
     leg_buf[RIGHTBACK][0] = 10, leg_buf[RIGHTBACK][1] = -55, leg_buf[RIGHTBACK][2] = 0;
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK]->move(rb);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -397,11 +397,11 @@ void Body::step_forward() {
     
     // Go forward
     leg_buf[LEFTBACK][0] -= 20;
-    leg_buf[RIGHTBACK][0] -= 25;
-    leg_buf[RIGHTFRONT][0] -= 25;
+    leg_buf[RIGHTBACK][0] -= 20;
+    leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
     pose(0, 0, 0, 0, 0, 140);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -410,7 +410,7 @@ void Body::step_forward() {
 
     // Leen left back
     pose(0, 0, 0, -20, 25, 140);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -419,7 +419,7 @@ void Body::step_forward() {
     leg_buf[RIGHTFRONT][0] = -25, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 50;
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT]->move(rf);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -427,7 +427,7 @@ void Body::step_forward() {
     leg_buf[RIGHTFRONT][0] = 55, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 50;
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT]->move(rf);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -435,18 +435,18 @@ void Body::step_forward() {
     leg_buf[RIGHTFRONT][0] = 55, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 0;
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT]->move(rf);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     
     leg_buf[LEFTBACK][0] -= 20;
-    leg_buf[RIGHTBACK][0] -= 25;
-    leg_buf[RIGHTFRONT][0] -= 25;
+    leg_buf[RIGHTBACK][0] -= 20;
+    leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
     pose(0, 0, 0, 0, 0, 140);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -455,7 +455,7 @@ void Body::step_forward() {
     
     // Leen right front
     pose(0, 0, 0, 50, -25, 140);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -464,7 +464,7 @@ void Body::step_forward() {
     leg_buf[LEFTBACK][0] = -10, leg_buf[LEFTBACK][1] = 55, leg_buf[LEFTBACK][2] = 50;
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     legs[LEFTBACK]->move(lb);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -472,7 +472,7 @@ void Body::step_forward() {
     leg_buf[LEFTBACK][0] = -30, leg_buf[LEFTBACK][1] = 55, leg_buf[LEFTBACK][2] = 50;
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     legs[LEFTBACK]->move(lb);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
@@ -480,18 +480,18 @@ void Body::step_forward() {
     leg_buf[LEFTBACK][0] = -30, leg_buf[LEFTBACK][1] = 55, leg_buf[LEFTBACK][2] = 0;
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     legs[LEFTBACK]->move(lb);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     
     leg_buf[LEFTBACK][0] -= 20;
-    leg_buf[RIGHTBACK][0] -= 25;
-    leg_buf[RIGHTFRONT][0] -= 25;
+    leg_buf[RIGHTBACK][0] -= 20;
+    leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
     pose(0, 0, 0, 0, 0, 140);
-    timeNow.tv_nsec += 400000000;
+    timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
