@@ -112,12 +112,12 @@ void Leg::get_degree_offset(const double (&offset)[3], int (&thetas)[3]) {
 }
 
 void Leg::move(double x_mm, double y_mm, double z_mm) {
-    // pthread_mutex_lock(&buf_mut);
+    pthread_mutex_lock(&buf_mut);
     get_degree(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     printf("degrees: %d %d %d\n", theta_buf[0], theta_buf[1], theta_buf[2]);
     pthread_kill(servo_thread_id, SIGCONT);
+    pthread_mutex_unlock(&buf_mut);
     // pthread_cond_broadcast(&buf_gate);
-    // pthread_mutex_unlock(&buf_mut);
 }
 
 void Leg::move(const double (&dest)[3]) {
