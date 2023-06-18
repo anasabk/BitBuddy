@@ -1,4 +1,6 @@
 #include "RobotDog.h"
+#include <pthread.h>
+#include <signal.h>
 
 
 RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
@@ -58,7 +60,7 @@ void RobotDog::run() {
     // sleep(2);
     // main_body.step_forward();
     
-
+    pthread_kill(temp, SIGKILL);
     // Initialize and start the servo_thread
     // servo_params* params = new servo_params;
     // pthread_t servo_thread_id[12];
