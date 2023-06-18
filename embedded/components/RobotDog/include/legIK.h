@@ -38,8 +38,8 @@ public:
 private:
     CalServo *servos[3];
     pthread_t servo_thread_id[3];
-    pthread_cond_t buf_gate;
-    pthread_mutex_t buf_mut;
+    pthread_cond_t buf_gate[3];
+    pthread_mutex_t buf_mut[3];
     int theta_buf[3];
     int offsets[3];
     double last_pos[3];
