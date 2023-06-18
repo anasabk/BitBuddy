@@ -45,31 +45,18 @@ void RobotDog::run() {
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
     pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff.x_accel));
     
-    servos[0].set_degree(86);
-    servos[1].set_degree(128);
-    servos[2].set_degree(4);
-    servos[3].set_degree(80);
-    servos[4].set_degree(61);
-    servos[5].set_degree(176);
-    servos[6].set_degree(90);
-    servos[7].set_degree(119);
-    servos[8].set_degree(176);
-    servos[9].set_degree(82);
-    servos[10].set_degree(69);
-    servos[11].set_degree(12);
-
     sleep(2);
     main_body.sit_down();
     sleep(2);
     main_body.stand_up();
-    sleep(2);
-    main_body.pose(M_PI/2, 0, 0, 0, 0, 170);
+    // sleep(2);
+    // main_body.pose(M_PI/2, 0, 0, 0, 0, 170);
     sleep(2);
     main_body.pose(0, M_PI/2, 0, 0, 0, 170);
-    sleep(2);
-    main_body.pose(0, 0, M_PI/2, 0, 0, 170);
-    sleep(2);
-    main_body.step_forward();
+    // sleep(2);
+    // main_body.pose(0, 0, M_PI/2, 0, 0, 170);
+    // sleep(2);
+    // main_body.step_forward();
     
 
     // Initialize and start the servo_thread
