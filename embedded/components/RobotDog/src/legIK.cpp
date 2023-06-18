@@ -51,6 +51,7 @@ Leg::Leg(
 Leg::~Leg() {
     printf("destroying leg\n");
     running = false;
+    sleep(1);
     pthread_mutex_lock(&buf_mut);
     pthread_cond_broadcast(&buf_gate);
     pthread_mutex_unlock(&buf_mut);
