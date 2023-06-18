@@ -512,5 +512,5 @@ void Body::recenter() {
     // legs[RIGHTBACK]->move(temp_leg);
     // wait_real(&timeNow, 250);
 
-    pose(0, 0, 0, 0, 0, 140);
+    // pose(0, 0, 0, 0, 0, 140);
 }
