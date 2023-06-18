@@ -37,28 +37,32 @@ Leg::Leg(
 
     this->running = true;
 
-    buf_gate = PTHREAD_COND_INITIALIZER;
-    buf_mut = PTHREAD_MUTEX_INITIALIZER;
+    buf_gate[0] = PTHREAD_COND_INITIALIZER;
+    buf_gate[1] = PTHREAD_COND_INITIALIZER;
+    buf_gate[2] = PTHREAD_COND_INITIALIZER;
+    buf_mut[0] = PTHREAD_MUTEX_INITIALIZER;
+    buf_mut[1] = PTHREAD_MUTEX_INITIALIZER;
+    buf_mut[2] = PTHREAD_MUTEX_INITIALIZER;
 
     pthread_create(
         servo_thread_id, 
         NULL, 
         servo_thread, 
-        new struct servo_param(theta_buf, servos[0], &buf_gate, &buf_mut, &running)
+        new struct servo_param(theta_buf, servos[0], buf_gate, buf_mut, &running)
     );
 
     pthread_create(
         &servo_thread_id[1], 
         NULL, 
         servo_thread, 
-        new struct servo_param(&theta_buf[1], servos[1], &buf_gate, &buf_mut, &running)
+        new struct servo_param(&theta_buf[1], servos[1], &buf_gate[1], &buf_mut[1], &running)
     );
 
     pthread_create(
         &servo_thread_id[2], 
         NULL, 
         servo_thread, 
-        new struct servo_param(&theta_buf[2], servos[2], &buf_gate, &buf_mut, &running)
+        new struct servo_param(&theta_buf[2], servos[2], &buf_gate[2], &buf_mut[2], &running)
     );
 }
 
@@ -130,13 +134,17 @@ void Leg::get_degree_offset(const double (&offset)[3], int (&thetas)[3]) {
 }
 
 void Leg::move(double x_mm, double y_mm, double z_mm) {
-    pthread_mutex_lock(&buf_mut);
+    pthread_mutex_lock(&buf_mut[0]);
+    pthread_mutex_lock(&buf_mut[1]);
+    pthread_mutex_lock(&buf_mut[2]);
     get_degree(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     printf("degrees: %d %d %d\n", theta_buf[0], theta_buf[1], theta_buf[2]);
     pthread_kill(servo_thread_id[0], SIGCONT);
     pthread_kill(servo_thread_id[1], SIGCONT);
     pthread_kill(servo_thread_id[2], SIGCONT);
-    pthread_mutex_unlock(&buf_mut);
+    pthread_mutex_unlock(&buf_mut[0]);
+    pthread_mutex_unlock(&buf_mut[1]);
+    pthread_mutex_unlock(&buf_mut[2]);
 }
 
 void Leg::move(const double (&dest)[3]) {
@@ -144,12 +152,17 @@ void Leg::move(const double (&dest)[3]) {
 }
 
 void Leg::move_offset(double x_mm, double y_mm, double z_mm) {
-    pthread_mutex_lock(&buf_mut);
+    pthread_mutex_lock(&buf_mut[0]);
+    pthread_mutex_lock(&buf_mut[1]);
+    pthread_mutex_lock(&buf_mut[2]);
     get_degree_offset(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     printf("degrees: %d %d %d\n", theta_buf[0], theta_buf[1], theta_buf[2]);
-    // pthread_kill(servo_thread_id, SIGCONT);
-    pthread_cond_broadcast(&buf_gate);
-    pthread_mutex_unlock(&buf_mut);
+    pthread_kill(servo_thread_id[0], SIGCONT);
+    pthread_kill(servo_thread_id[1], SIGCONT);
+    pthread_kill(servo_thread_id[2], SIGCONT);
+    pthread_mutex_unlock(&buf_mut[0]);
+    pthread_mutex_unlock(&buf_mut[1]);
+    pthread_mutex_unlock(&buf_mut[2]);
 }
 
 void Leg::move_offset(const double (&offset)[3]) {
