@@ -440,7 +440,11 @@ void Body::step_forward() {
 
 
 void Body::recenter() {
+    double temp_pose[4][3];
     double temp_leg[3];
+    double Tm[4][4];
+
+    get_pose(0, 0, 0, 0, 0, 140, Tm, temp_pose[RIGHTBACK], temp_pose[RIGHTFRONT], temp_pose[LEFTBACK], temp_pose[LEFTFRONT]);
 
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
@@ -461,16 +465,20 @@ void Body::recenter() {
     // }
 
 
+
     leg_buf[LEFTBACK][2] = 30;
-    legs[LEFTBACK]->move(leg_buf[LEFTBACK]);
+    vector_sub<3>(leg_buf[LEFTBACK], temp_pose[LEFTBACK], temp_leg);
+    legs[LEFTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[LEFTBACK][0] = -50, leg_buf[LEFTBACK][1] = 55;
-    legs[LEFTBACK]->move(leg_buf[LEFTBACK]);
+    vector_sub<3>(leg_buf[LEFTBACK], temp_pose[LEFTBACK], temp_leg);
+    legs[LEFTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[LEFTBACK][2] = 0;
-    legs[LEFTBACK]->move(leg_buf[LEFTBACK]);
+    vector_sub<3>(leg_buf[LEFTBACK], temp_pose[LEFTBACK], temp_leg);
+    legs[LEFTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
 
