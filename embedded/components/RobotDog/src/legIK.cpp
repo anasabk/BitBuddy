@@ -117,7 +117,6 @@ void Leg::move(double x_mm, double y_mm, double z_mm) {
     printf("degrees: %d %d %d\n", theta_buf[0], theta_buf[1], theta_buf[2]);
     pthread_kill(servo_thread_id, SIGCONT);
     pthread_mutex_unlock(&buf_mut);
-    // pthread_cond_broadcast(&buf_gate);
 }
 
 void Leg::move(const double (&dest)[3]) {
