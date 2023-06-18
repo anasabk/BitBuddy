@@ -448,18 +448,17 @@ void Body::recenter() {
     // Position leg
     for(int i = 0; i < 4; i++) {
         leg_buf[i][2] = 50;
-        vector_sub<3>(leg_buf[i], pose_buf[i], temp_leg);
         legs[i]->move(temp_leg);
         wait_real(&timeNow, 250);
 
         leg_buf[i][0] = -50, leg_buf[i][1] = 55;
-        vector_sub<3>(leg_buf[i], pose_buf[i], temp_leg);
         legs[i]->move(temp_leg);
         wait_real(&timeNow, 250);
 
         leg_buf[i][2] = 0;
-        vector_sub<3>(leg_buf[i], pose_buf[i], temp_leg);
         legs[i]->move(temp_leg);
         wait_real(&timeNow, 250);
     }
+
+    pose(0, 0, 0, 0, 0, 140);
 }
