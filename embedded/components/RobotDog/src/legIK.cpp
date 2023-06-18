@@ -51,10 +51,7 @@ Leg::Leg(
 Leg::~Leg() {
     printf("destroying leg\n");
     running = false;
-    sleep(1);
-    pthread_mutex_lock(&buf_mut);
-    pthread_cond_broadcast(&buf_gate);
-    pthread_mutex_unlock(&buf_mut);
+    pthread_kill(servo_thread_id, SIGTERM);
     pthread_join(servo_thread_id, NULL);
 }
 
@@ -152,32 +149,22 @@ void* Leg::servo_thread(void* param) {
     pthread_mutex_t *mut = ((struct servo_param*)param)->buf_mut;
     bool *running = ((struct servo_param*)param)->running;
 
-    // sigset_t set;
-    // sigemptyset(&set);
-    // sigaddset(&set, SIGCONT);
-    // sigaddset(&set, SIGTERM);
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGCONT);
+    sigaddset(&set, SIGTERM);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
 
-    // struct sigaction cont_act;
-    // cont_act.sa_handler = handler;
-    // sigaction(SIGCONT, &cont_act, NULL);
-
-    // int sig;
-    // while(sigwait(&set, &sig) == 0 && sig != SIGTERM) {
-    //     printf("Moving Servo %d %d degrees\n", servo->getChannel(), *buffer);
-    //     // servo->sweep(*buffer, 200);
-    //     servo->set_degree(*buffer);
-    // }
-
-    while(running) {
+    int sig;
+    while(sigwait(&set, &sig) == 0 && sig != SIGTERM) {
         pthread_mutex_lock(mut);
-        pthread_cond_wait(gate, mut);
-        pthread_mutex_unlock(mut);
 
-        servos[0]->set_degree(buffer[0]);
-        servos[1]->set_degree(buffer[1]);
-        servos[2]->set_degree(buffer[2]);
+        servos[0]->sweep(buffer[0], 300);
+        servos[1]->sweep(buffer[1], 300);
+        servos[2]->sweep(buffer[2], 300);
 
         printf("Moving Servos %d, %d, %d degrees\n", buffer[0], buffer[1], buffer[2]);
+        pthread_mutex_unlock(mut);
     }
 
     printf("Exitting servo thread\n");
