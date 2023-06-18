@@ -32,6 +32,7 @@ RobotDog::~RobotDog()
     sleep(1);
     pthread_join(mpu_thread_id, NULL);
     pthread_join(hcsr04_thread_id, NULL);
+    main_body.sit_down();
 }
 
 bool running = true;
@@ -70,6 +71,7 @@ void RobotDog::run() {
     // main_body.pose(M_PI/4, 0, 0, 0, 0, 170);
     sleep(2);
     main_body.pose(0, M_PI/6, 0, 0, 0, 170);
+    main_body.pose(0, -M_PI/6, 0, 0, 0, 170);
     // sleep(2);
     // main_body.pose(0, 0, M_PI/4, 0, 0, 170);
     // sleep(2);
