@@ -314,7 +314,7 @@ void Body::step_forward() {
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
-    pose(0, 0, 0, 0, -20, 170);
+    pose(0, 0, 0, 0, -30, 170);
     timeNow.tv_nsec += 400000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
@@ -350,7 +350,7 @@ void Body::step_forward() {
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 
     
-    pose(0, 0, 0, 0, 20, 170);
+    pose(0, 0, 0, 0, 30, 170);
     timeNow.tv_nsec += 400000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
@@ -386,7 +386,7 @@ void Body::step_forward() {
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 
 
-    pose(0, 0, 0, 0, 20, 170);
+    pose(0, 0, 0, 0, 30, 170);
     timeNow.tv_nsec += 400000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
@@ -422,7 +422,7 @@ void Body::step_forward() {
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 
     
-    pose(0, 0, 0, 0, -20, 170);
+    pose(0, 0, 0, 0, -30, 170);
     timeNow.tv_nsec += 400000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
