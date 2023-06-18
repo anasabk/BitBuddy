@@ -82,6 +82,12 @@ void RobotDog::run() {
     main_body.step_forward();
     sleep(2);
     main_body.step_forward();
+    sleep(2);
+    main_body.step_forward();
+    sleep(2);
+    main_body.step_forward();
+    sleep(2);
+    main_body.step_forward();
     sleep(10);
     
     // uint8_t dest_servo = 0;
