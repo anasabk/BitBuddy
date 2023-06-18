@@ -289,18 +289,18 @@ void Body::pose(
 
 void Body::sit_down() {
     leg_buf[RIGHTBACK][0]  = -50, leg_buf[RIGHTBACK][1]  = -55, leg_buf[RIGHTBACK][2]  = 0;
-    leg_buf[RIGHTFRONT][0] =  30, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 0;
+    leg_buf[RIGHTFRONT][0] =  15, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 0;
     leg_buf[LEFTBACK][0]   = -50, leg_buf[LEFTBACK][1]   =  55, leg_buf[LEFTBACK][2]   = 0;
-    leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  =  55, leg_buf[LEFTFRONT][2]  = 0;
+    leg_buf[LEFTFRONT][0]  =  15, leg_buf[LEFTFRONT][1]  =  55, leg_buf[LEFTFRONT][2]  = 0;
     
     pose(0, 0, 0, 0, 0, 70);
 }
 
 void Body::stand_up() {
     leg_buf[RIGHTBACK][0]  = -50, leg_buf[RIGHTBACK][1]  = -55, leg_buf[RIGHTBACK][2]  = 0;
-    leg_buf[RIGHTFRONT][0] =  30, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 0;
+    leg_buf[RIGHTFRONT][0] =  15, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 0;
     leg_buf[LEFTBACK][0]   = -50, leg_buf[LEFTBACK][1]   =  55, leg_buf[LEFTBACK][2]   = 0;
-    leg_buf[LEFTFRONT][0]  =  30, leg_buf[LEFTFRONT][1]  =  55, leg_buf[LEFTFRONT][2]  = 0;
+    leg_buf[LEFTFRONT][0]  =  15, leg_buf[LEFTFRONT][1]  =  55, leg_buf[LEFTFRONT][2]  = 0;
     
     pose(0, 0, 0, 0, 0, 170);
 }
@@ -323,7 +323,7 @@ void Body::step_forward() {
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 
     // Position the leg
-    leg_buf[LEFTFRONT][0] = 30, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
+    leg_buf[LEFTFRONT][0] = 15, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
     timeNow.tv_nsec += 400000000;
@@ -331,7 +331,7 @@ void Body::step_forward() {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
-    leg_buf[LEFTFRONT][0] = 100, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
+    leg_buf[LEFTFRONT][0] = 95, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
     timeNow.tv_nsec += 400000000;
@@ -339,7 +339,7 @@ void Body::step_forward() {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
-    leg_buf[LEFTFRONT][0] = 100, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 0;
+    leg_buf[LEFTFRONT][0] = 95, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 0;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
     timeNow.tv_nsec += 400000000;
@@ -416,7 +416,7 @@ void Body::step_forward() {
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 
-    leg_buf[RIGHTFRONT][0] = -10, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 50;
+    leg_buf[RIGHTFRONT][0] = -25, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 50;
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT]->move(rf);
     timeNow.tv_nsec += 400000000;
@@ -424,7 +424,7 @@ void Body::step_forward() {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
-    leg_buf[RIGHTFRONT][0] = 70, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 50;
+    leg_buf[RIGHTFRONT][0] = 55, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 50;
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT]->move(rf);
     timeNow.tv_nsec += 400000000;
@@ -432,7 +432,7 @@ void Body::step_forward() {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
-    leg_buf[RIGHTFRONT][0] = 70, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 0;
+    leg_buf[RIGHTFRONT][0] = 55, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 0;
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT]->move(rf);
     timeNow.tv_nsec += 400000000;
@@ -461,7 +461,7 @@ void Body::step_forward() {
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
 
-    leg_buf[LEFTBACK][0] = -100, leg_buf[LEFTBACK][1] = 55, leg_buf[LEFTBACK][2] = 50;
+    leg_buf[LEFTBACK][0] = -10, leg_buf[LEFTBACK][1] = 55, leg_buf[LEFTBACK][2] = 50;
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     legs[LEFTBACK]->move(lb);
     timeNow.tv_nsec += 400000000;
