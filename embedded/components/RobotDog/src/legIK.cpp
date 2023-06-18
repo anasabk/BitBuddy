@@ -168,8 +168,8 @@ void* Leg::servo_thread(void* param) {
     }
 
     printf("Exitting servo thread\n");
-    servos[0]->set_degree(0);
-    servos[1]->set_degree(0);
-    servos[2]->set_degree(0);
+    servos[0]->set_PWM(0);
+    servos[1]->set_PWM(0);
+    servos[2]->set_PWM(0);
     pthread_exit(NULL);
 }
