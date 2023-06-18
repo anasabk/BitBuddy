@@ -331,7 +331,7 @@ void Body::step_forward() {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
-    leg_buf[LEFTFRONT][0] = 95, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
+    leg_buf[LEFTFRONT][0] = 45, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
     timeNow.tv_nsec += 400000000;
@@ -339,7 +339,7 @@ void Body::step_forward() {
         timeNow.tv_nsec -= 1000000000L;
         timeNow.tv_sec++;}
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
-    leg_buf[LEFTFRONT][0] = 95, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 0;
+    leg_buf[LEFTFRONT][0] = 45, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 0;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
     timeNow.tv_nsec += 400000000;
