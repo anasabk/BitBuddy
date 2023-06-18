@@ -446,19 +446,71 @@ void Body::recenter() {
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
     // Position leg
-    for(int i = 0; i < 4; i++) {
-        leg_buf[i][2] = 50;
-        legs[i]->move(temp_leg);
-        wait_real(&timeNow, 250);
+    // // for(int i = 0; i < 4; i++) {
+    //     leg_buf[i][2] = 50;
+    //     legs[i]->move(temp_leg);
+    //     wait_real(&timeNow, 250);
 
-        leg_buf[i][0] = -50, leg_buf[i][1] = 55;
-        legs[i]->move(temp_leg);
-        wait_real(&timeNow, 250);
+    //     leg_buf[i][0] = -50, leg_buf[i][1] = 55;
+    //     legs[i]->move(temp_leg);
+    //     wait_real(&timeNow, 250);
 
-        leg_buf[i][2] = 0;
-        legs[i]->move(temp_leg);
-        wait_real(&timeNow, 250);
-    }
+    //     leg_buf[i][2] = 0;
+    //     legs[i]->move(temp_leg);
+    //     wait_real(&timeNow, 250);
+    // }
+
+
+    leg_buf[LEFTBACK][2] = 50;
+    legs[LEFTBACK]->move(temp_leg);
+    wait_real(&timeNow, 250);
+
+    leg_buf[LEFTBACK][0] = -50, leg_buf[LEFTBACK][1] = 55;
+    legs[LEFTBACK]->move(temp_leg);
+    wait_real(&timeNow, 250);
+
+    leg_buf[LEFTBACK][2] = 0;
+    legs[LEFTBACK]->move(temp_leg);
+    wait_real(&timeNow, 250);
+
+
+    // leg_buf[RIGHTFRONT][2] = 50;
+    // legs[RIGHTFRONT]->move(temp_leg);
+    // wait_real(&timeNow, 250);
+
+    // leg_buf[RIGHTFRONT][0] = -50, leg_buf[RIGHTFRONT][1] = -55;
+    // legs[RIGHTFRONT]->move(temp_leg);
+    // wait_real(&timeNow, 250);
+
+    // leg_buf[RIGHTFRONT][2] = 0;
+    // legs[RIGHTFRONT]->move(temp_leg);
+    // wait_real(&timeNow, 250);
+
+
+    // leg_buf[LEFTFRONT][2] = 50;
+    // legs[LEFTFRONT]->move(temp_leg);
+    // wait_real(&timeNow, 250);
+
+    // leg_buf[LEFTFRONT][0] = -50, leg_buf[LEFTFRONT][1] = 55;
+    // legs[LEFTFRONT]->move(temp_leg);
+    // wait_real(&timeNow, 250);
+
+    // leg_buf[LEFTFRONT][2] = 0;
+    // legs[LEFTFRONT]->move(temp_leg);
+    // wait_real(&timeNow, 250);
+
+
+    // leg_buf[RIGHTBACK][2] = 50;
+    // legs[RIGHTBACK]->move(temp_leg);
+    // wait_real(&timeNow, 250);
+
+    // leg_buf[RIGHTBACK][0] = -50, leg_buf[RIGHTBACK][1] = -55;
+    // legs[RIGHTBACK]->move(temp_leg);
+    // wait_real(&timeNow, 250);
+
+    // leg_buf[RIGHTBACK][2] = 0;
+    // legs[RIGHTBACK]->move(temp_leg);
+    // wait_real(&timeNow, 250);
 
     pose(0, 0, 0, 0, 0, 140);
 }
