@@ -41,18 +41,36 @@ Leg::Leg(
     buf_mut = PTHREAD_MUTEX_INITIALIZER;
 
     pthread_create(
-        &servo_thread_id, 
+        servo_thread_id, 
         NULL, 
         servo_thread, 
-        new struct servo_param(theta_buf, servos, &buf_gate, &buf_mut, &running)
+        new struct servo_param(theta_buf, servos[0], &buf_gate, &buf_mut, &running)
+    );
+
+    pthread_create(
+        &servo_thread_id[1], 
+        NULL, 
+        servo_thread, 
+        new struct servo_param(&theta_buf[1], servos[1], &buf_gate, &buf_mut, &running)
+    );
+
+    pthread_create(
+        &servo_thread_id[2], 
+        NULL, 
+        servo_thread, 
+        new struct servo_param(&theta_buf[2], servos[2], &buf_gate, &buf_mut, &running)
     );
 }
 
 Leg::~Leg() {
     printf("destroying leg\n");
     running = false;
-    pthread_kill(servo_thread_id, SIGTERM);
-    pthread_join(servo_thread_id, NULL);
+    pthread_kill(servo_thread_id[0], SIGTERM);
+    pthread_join(servo_thread_id[0], NULL);
+    pthread_kill(servo_thread_id[1], SIGTERM);
+    pthread_join(servo_thread_id[1], NULL);
+    pthread_kill(servo_thread_id[2], SIGTERM);
+    pthread_join(servo_thread_id[2], NULL);
 }
 
 void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *theta2, int *theta3) {
@@ -115,7 +133,9 @@ void Leg::move(double x_mm, double y_mm, double z_mm) {
     pthread_mutex_lock(&buf_mut);
     get_degree(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     printf("degrees: %d %d %d\n", theta_buf[0], theta_buf[1], theta_buf[2]);
-    pthread_kill(servo_thread_id, SIGCONT);
+    pthread_kill(servo_thread_id[0], SIGCONT);
+    pthread_kill(servo_thread_id[1], SIGCONT);
+    pthread_kill(servo_thread_id[2], SIGCONT);
     pthread_mutex_unlock(&buf_mut);
 }
 
@@ -143,7 +163,7 @@ void handler(int sig) {
 void* Leg::servo_thread(void* param) {
     printf("Entered servo thread\n");
     const int *buffer = ((struct servo_param*)param)->theta_buf;
-    CalServo **servos = ((struct servo_param*)param)->servos;
+    CalServo *servo = ((struct servo_param*)param)->servos;
     pthread_cond_t *gate = ((struct servo_param*)param)->buf_gate;
     pthread_mutex_t *mut = ((struct servo_param*)param)->buf_mut;
     bool *running = ((struct servo_param*)param)->running;
@@ -158,17 +178,13 @@ void* Leg::servo_thread(void* param) {
     while(sigwait(&set, &sig) == 0 && sig != SIGTERM) {
         pthread_mutex_lock(mut);
 
-        servos[0]->sweep(buffer[0], 300);
-        servos[1]->sweep(buffer[1], 300);
-        servos[2]->sweep(buffer[2], 300);
+        servo->sweep(*buffer, 300);
 
-        printf("Moving Servos %d, %d, %d degrees\n", buffer[0], buffer[1], buffer[2]);
+        printf("Moving Servo %d %d degrees\n", servo->getChannel(), buffer[0]);
         pthread_mutex_unlock(mut);
     }
 
     printf("Exitting servo thread\n");
-    servos[0]->set_PWM(0);
-    servos[1]->set_PWM(0);
-    servos[2]->set_PWM(0);
+    servo->set_PWM(0);
     pthread_exit(NULL);
 }

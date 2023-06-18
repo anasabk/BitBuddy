@@ -37,7 +37,7 @@ public:
 
 private:
     CalServo *servos[3];
-    pthread_t servo_thread_id;
+    pthread_t servo_thread_id[3];
     pthread_cond_t buf_gate;
     pthread_mutex_t buf_mut;
     int theta_buf[3];
@@ -60,14 +60,14 @@ private:
 
     struct servo_param {
         const int *theta_buf;
-        CalServo **servos;
+        CalServo *servos;
         pthread_cond_t *buf_gate;
         pthread_mutex_t *buf_mut;
         bool *running;
 
         servo_param(
             const int* theta_buf,
-            CalServo **servos,
+            CalServo *servos,
             pthread_cond_t *buf_gate,
             pthread_mutex_t *buf_mut,
             bool *running) 
