@@ -315,7 +315,7 @@ void Body::step_forward() {
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
     // Leen to the right back
-    pose(0, 0, 0, -10, -25, 140);
+    pose(0, 0, 0, -10, -20, 140);
     timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
@@ -362,7 +362,7 @@ void Body::step_forward() {
 
     
     // Leen left front
-    pose(0, 0, 0, 10, 25, 140);
+    pose(0, 0, 0, 10, 20, 140);
     timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
@@ -409,7 +409,7 @@ void Body::step_forward() {
 
 
     // Leen left back
-    pose(0, 0, 0, -10, 25, 140);
+    pose(0, 0, 0, -10, 20, 140);
     timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
@@ -454,7 +454,7 @@ void Body::step_forward() {
 
     
     // Leen right front
-    pose(0, 0, 0, 10, -25, 140);
+    pose(0, 0, 0, 10, -20, 140);
     timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
