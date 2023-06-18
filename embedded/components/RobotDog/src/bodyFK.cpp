@@ -461,7 +461,7 @@ void Body::recenter() {
     // }
 
 
-    leg_buf[LEFTBACK][2] = 50;
+    leg_buf[LEFTBACK][2] = 30;
     legs[LEFTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
