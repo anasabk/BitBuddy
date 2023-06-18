@@ -242,40 +242,6 @@ void Body::get_pose_offset(
     );  
 }
 
-// void Body::pose_offset(
-//     double roll, 
-//     double yaw, 
-//     double pitch, 
-//     double x_mm, 
-//     double y_mm, 
-//     double z_mm) 
-// {
-//     double Tm[4][4];
-//     double rb[3];
-//     double rf[3];
-//     double lb[3];
-//     double lf[3];
-
-//     get_pose_offset(roll, yaw, pitch, x_mm, y_mm, z_mm, Tm, rb, rf, lb, lf);
-
-//     legs[RIGHTBACK]->move_offset(rb);
-//     legs[RIGHTFRONT]->move_offset(rf);
-//     legs[LEFTBACK]->move_offset(lb);
-//     legs[LEFTFRONT]->move_offset(lf);
-
-//     last_pitch  += pitch;
-//     last_roll   += roll;
-//     last_yaw    += yaw;
-//     last_x_mm   += x_mm;
-//     last_y_mm   += y_mm;
-//     last_z_mm   += z_mm;
-
-//     offset_buf[RIGHTBACK][0]  = rb[0]; offset_buf[RIGHTBACK][1]  = rb[1]; offset_buf[RIGHTBACK][2]  = rb[2];
-//     offset_buf[RIGHTFRONT][0] = rf[0]; offset_buf[RIGHTFRONT][1] = rf[1]; offset_buf[RIGHTFRONT][2] = rf[2];
-//     offset_buf[LEFTBACK][0]   = lb[0]; offset_buf[LEFTBACK][1]   = lb[1]; offset_buf[LEFTBACK][2]   = lb[2];
-//     offset_buf[LEFTFRONT][0]  = lf[0]; offset_buf[LEFTFRONT][1]  = lf[1]; offset_buf[LEFTFRONT][2]  = lf[2];
-// }
-
 void Body::pose(
     double roll, 
     double yaw, 
