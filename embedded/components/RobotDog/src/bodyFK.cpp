@@ -454,7 +454,7 @@ void Body::step_forward() {
 
     
     // Leen right front
-    pose(0, 0, 0, 50, -25, 140);
+    pose(0, 0, 0, 20, -25, 140);
     timeNow.tv_nsec += 300000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;
