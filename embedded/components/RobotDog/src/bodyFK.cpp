@@ -306,7 +306,7 @@ void Body::stand_up() {
 }
 
 void wait_real(struct timespec *timeNow, long ms) {
-    timeNow->tv_nsec += ms * 1000;
+    timeNow->tv_nsec += ms * 1000000;
     while (timeNow->tv_nsec >= 1000000000L) {
         timeNow->tv_nsec -= 1000000000L;
         timeNow->tv_sec++;}
