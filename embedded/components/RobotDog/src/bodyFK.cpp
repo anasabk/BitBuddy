@@ -268,8 +268,8 @@ void Body::pose(
 
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
-    vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
-    vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
+    vector_sum<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
+    vector_sum<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
 
     printf("leg buffer:\n");
     printf("rb : %lf, %lf, %lf\n", leg_buf[RIGHTBACK][0], leg_buf[RIGHTBACK][1], leg_buf[RIGHTBACK][2]);
