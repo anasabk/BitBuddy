@@ -154,7 +154,7 @@ void Body::get_pose(
         {0, 0, 0, x_mm},
         {0, 0, 0, y_mm},
         {0, 0, 0, z_mm},
-        {0, 0, 0,  0}
+        {0, 0, 0,    0}
     };
     matrix_sum<4, 4>(T, Rxyz, Tm);
 
