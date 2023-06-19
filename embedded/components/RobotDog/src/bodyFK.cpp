@@ -160,10 +160,10 @@ void Body::get_pose(
 
 
     double temp[4][4] = {
-        {1, 0, 0,  -len_mm/2},
-        {0, 1, 0,-width_mm/2},
-        {0, 0, 1,          0},
-        {0, 0, 0,          1}
+        { cos(M_PI/2), 0, sin(M_PI/2),  -len_mm/2},
+        {-sin(M_PI/2), 1, cos(M_PI/2),-width_mm/2},
+        {           0, 0,           1,          0},
+        {           0, 0,           0,          1}
     };
     double Trb[4][4];
     matrix_mult<4, 4>(Tm, temp, Trb);
