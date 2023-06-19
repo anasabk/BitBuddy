@@ -322,7 +322,7 @@ void wait_real(struct timespec *timeNow, long ms) {
 }
 
 void Body::step_forward() {
-    double side_walk = -10;
+    double side_walk = -20;
     double rb[3];
     double rf[3];
     double lb[3];
