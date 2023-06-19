@@ -352,8 +352,8 @@ void Body::step_forward() {
     
     // Go forward
     leg_buf[LEFTBACK][0] -= 20;
-    leg_buf[RIGHTBACK][0] -= 21;
-    leg_buf[RIGHTFRONT][0] -= 21;
+    leg_buf[RIGHTBACK][0] -= 20;
+    leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
     pose(0, 0, 0, -10, -20, 140);
     wait_real(&timeNow, 250);
@@ -381,8 +381,8 @@ void Body::step_forward() {
     
     // Go forward
     leg_buf[LEFTBACK][0] -= 20;
-    leg_buf[RIGHTBACK][0] -= 21;
-    leg_buf[RIGHTFRONT][0] -= 21;
+    leg_buf[RIGHTBACK][0] -= 20;
+    leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
     pose(0, 0, 0, 15, 20, 140);
     wait_real(&timeNow, 250);
@@ -410,8 +410,8 @@ void Body::step_forward() {
 
     // move forward
     leg_buf[LEFTBACK][0] -= 20;
-    leg_buf[RIGHTBACK][0] -= 21;
-    leg_buf[RIGHTFRONT][0] -= 21;
+    leg_buf[RIGHTBACK][0] -= 20;
+    leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
     pose(0, 0, 0, -15, 20, 140);
     wait_real(&timeNow, 250);
@@ -439,8 +439,8 @@ void Body::step_forward() {
 
     // move forward
     leg_buf[LEFTBACK][0] -= 20;
-    leg_buf[RIGHTBACK][0] -= 21;
-    leg_buf[RIGHTFRONT][0] -= 21;
+    leg_buf[RIGHTBACK][0] -= 20;
+    leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
     pose(0, 0, 0, 0, 0, 140);
     wait_real(&timeNow, 250);
