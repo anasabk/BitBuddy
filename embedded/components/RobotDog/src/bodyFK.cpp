@@ -151,8 +151,8 @@ void Body::get_pose(
     matrix_mult<4, 4>(Rxy, Rz, Rxyz);
 
     double T[][4] = {
-        {0, 0, 0, -x_mm},
-        {0, 0, 0, -y_mm},
+        {0, 0, 0, x_mm},
+        {0, 0, 0, y_mm},
         {0, 0, 0, z_mm},
         {0, 0, 0,  0}
     };
