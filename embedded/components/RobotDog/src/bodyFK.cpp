@@ -185,11 +185,11 @@ void Body::get_pose(
 
 
     rb[0] = Trb[0][3] + 92.5;
-    rb[1] = Trb[1][3] + 38.75;
+    rb[1] = -(Trb[1][3] + 38.75);
     rb[2] = Trb[2][3];
 
     rf[0] = Trf[0][3] - 92.5;
-    rf[1] = Trf[1][3] + 38.75;
+    rf[1] = -(Trf[1][3] + 38.75);
     rf[2] = Trf[2][3];
 
     lb[0] = Tlb[0][3] + 92.5;
@@ -266,8 +266,8 @@ void Body::pose(
     double lb[3];
     double lf[3];
 
-    vector_sum<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
-    vector_sum<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
+    vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
+    vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
 
