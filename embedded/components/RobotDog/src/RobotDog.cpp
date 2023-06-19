@@ -89,7 +89,7 @@ void RobotDog::run() {
     sleep(1);
     main_body.pose(0, 0, -M_PI/6, 0, 0, 170);
     sleep(1);
-    main_body.recenter();
+    // main_body.recenter();
     sleep(10);
     
     // uint8_t dest_servo = 0;
