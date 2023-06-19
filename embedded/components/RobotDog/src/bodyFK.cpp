@@ -322,6 +322,7 @@ void wait_real(struct timespec *timeNow, long ms) {
 }
 
 void Body::step_forward() {
+    double side_walk = -10;
     double rb[3];
     double rf[3];
     double lb[3];
@@ -340,7 +341,7 @@ void Body::step_forward() {
     legs[LEFTFRONT]->move(lf);
     wait_real(&timeNow, 250);
 
-    leg_buf[LEFTFRONT][0] = 45, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
+    leg_buf[LEFTFRONT][0] = 45, leg_buf[LEFTFRONT][1] = 55 + side_walk, leg_buf[LEFTFRONT][2] = 50;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT]->move(lf);
     wait_real(&timeNow, 250);
@@ -351,10 +352,14 @@ void Body::step_forward() {
     wait_real(&timeNow, 250);
     
     // Go forward
-    leg_buf[LEFTBACK][0] -= 20;
-    leg_buf[RIGHTBACK][0] -= 20;
+    leg_buf[LEFTBACK][0]   -= 20;
+    leg_buf[RIGHTBACK][0]  -= 20;
     leg_buf[RIGHTFRONT][0] -= 20;
-    leg_buf[LEFTFRONT][0] -= 20;
+    leg_buf[LEFTFRONT][0]  -= 20;
+    leg_buf[LEFTBACK][1]   -= side_walk;
+    leg_buf[RIGHTBACK][1]  += side_walk;
+    leg_buf[RIGHTFRONT][1] += side_walk;
+    leg_buf[LEFTFRONT][1]  -= side_walk;
     pose(0, 0, 0, -10, -20, 140);
     wait_real(&timeNow, 250);
 
@@ -384,6 +389,10 @@ void Body::step_forward() {
     leg_buf[RIGHTBACK][0] -= 20;
     leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
+    leg_buf[LEFTBACK][1]   -= side_walk;
+    leg_buf[RIGHTBACK][1]  += side_walk;
+    leg_buf[RIGHTFRONT][1] += side_walk;
+    leg_buf[LEFTFRONT][1]  -= side_walk;
     pose(0, 0, 0, 15, 20, 140);
     wait_real(&timeNow, 250);
 
@@ -413,6 +422,10 @@ void Body::step_forward() {
     leg_buf[RIGHTBACK][0] -= 20;
     leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
+    leg_buf[LEFTBACK][1]   -= side_walk;
+    leg_buf[RIGHTBACK][1]  += side_walk;
+    leg_buf[RIGHTFRONT][1] += side_walk;
+    leg_buf[LEFTFRONT][1]  -= side_walk;
     pose(0, 0, 0, -15, 20, 140);
     wait_real(&timeNow, 250);
 
@@ -442,6 +455,10 @@ void Body::step_forward() {
     leg_buf[RIGHTBACK][0] -= 20;
     leg_buf[RIGHTFRONT][0] -= 20;
     leg_buf[LEFTFRONT][0] -= 20;
+    leg_buf[LEFTBACK][1]   -= side_walk;
+    leg_buf[RIGHTBACK][1]  += side_walk;
+    leg_buf[RIGHTFRONT][1] += side_walk;
+    leg_buf[LEFTFRONT][1]  -= side_walk;
     pose(0, 0, 0, 0, 0, 140);
     wait_real(&timeNow, 250);
 }
@@ -456,23 +473,6 @@ void Body::recenter() {
 
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
-
-    // Position leg
-    // // for(int i = 0; i < 4; i++) {
-    //     leg_buf[i][2] = 50;
-    //     legs[i]->move(temp_leg);
-    //     wait_real(&timeNow, 250);
-
-    //     leg_buf[i][0] = -50, leg_buf[i][1] = 55;
-    //     legs[i]->move(temp_leg);
-    //     wait_real(&timeNow, 250);
-
-    //     leg_buf[i][2] = 0;
-    //     legs[i]->move(temp_leg);
-    //     wait_real(&timeNow, 250);
-    // }
-
-
 
     leg_buf[LEFTBACK][2] = 50;
     vector_sub<3>(leg_buf[LEFTBACK], temp_pose[LEFTBACK], temp_leg);
