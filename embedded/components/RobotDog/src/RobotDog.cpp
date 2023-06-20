@@ -20,8 +20,11 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
     running_flag = true;
 }
 
+bool running = true;
+
 RobotDog::~RobotDog()
 {
+    running = false;
     running_flag = false;
     sleep(1);
     pthread_join(mpu_thread_id, NULL);
@@ -30,12 +33,18 @@ RobotDog::~RobotDog()
     sleep(2);
 }
 
-bool running = true;
-
 void* read_thread(void *param) {
     MPU6050::MPU6050_data_t *buf = (MPU6050::MPU6050_data_t*)param;
     while(running) {
-        printf("x:%f, y:%f, z:%f\n", asin(*((float*)param)-0.05)*180/M_PI);
+        printf(
+            "accel x:%f, y:%f, z:%f / rot roll:%f, pitch:%f, yaw:%f", 
+            buf->x_accel, 
+            buf->y_accel, 
+            buf->z_accel,
+            buf->x_rot, 
+            buf->y_rot, 
+            buf->z_rot
+        );
         sleep(1);
     }
 }
@@ -43,7 +52,6 @@ void* read_thread(void *param) {
 void RobotDog::run() {
     pthread_t temp;
     mpu6050.calibrate();
-    sleep(6);
 
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
@@ -100,7 +108,7 @@ void RobotDog::run() {
     // main_body.recenter();
     // sleep(2);
     // main_body.recover();
-    sleep(10);
+    // sleep(10);
     
     // uint8_t dest_servo = 0;
 	// int dest_degree = 0;
@@ -115,7 +123,7 @@ void RobotDog::run() {
 	// 	}
     // }
 
-    running_flag = false;
+    // running_flag = false;
 
     return;
 }
