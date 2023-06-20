@@ -322,6 +322,7 @@ void wait_real(struct timespec *timeNow, long ms) {
 }
 
 void Body::step_forward(double side_walk, double speed) {
+    double offset;
     double rb[3];
     double rf[3];
     double lb[3];
@@ -351,10 +352,10 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
     
     // Go forward
-    leg_buf[LEFTBACK][0]   -= speed;
-    leg_buf[RIGHTBACK][0]  -= speed;
-    leg_buf[RIGHTFRONT][0] -= speed;
-    leg_buf[LEFTFRONT][0]  -= speed;
+    leg_buf[LEFTBACK][0]   -= speed + offset;
+    leg_buf[RIGHTBACK][0]  -= speed - offset;
+    leg_buf[RIGHTFRONT][0] -= speed - offset;
+    leg_buf[LEFTFRONT][0]  -= speed + offset;
     leg_buf[LEFTBACK][1]   += side_walk;
     leg_buf[RIGHTBACK][1]  += side_walk;
     leg_buf[RIGHTFRONT][1] -= side_walk;
@@ -384,10 +385,10 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
     
     // Go forward
-    leg_buf[LEFTBACK][0]   -= speed;
-    leg_buf[RIGHTBACK][0]  -= speed;
-    leg_buf[RIGHTFRONT][0] -= speed;
-    leg_buf[LEFTFRONT][0]  -= speed;
+    leg_buf[LEFTBACK][0]   -= speed + offset;
+    leg_buf[RIGHTBACK][0]  -= speed - offset;
+    leg_buf[RIGHTFRONT][0] -= speed - offset;
+    leg_buf[LEFTFRONT][0]  -= speed + offset;
     leg_buf[LEFTBACK][1]   += side_walk;
     leg_buf[RIGHTBACK][1]  += side_walk;
     leg_buf[RIGHTFRONT][1] -= side_walk;
@@ -417,10 +418,10 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
 
     // move forward
-    leg_buf[LEFTBACK][0]   -= speed;
-    leg_buf[RIGHTBACK][0]  -= speed;
-    leg_buf[RIGHTFRONT][0] -= speed;
-    leg_buf[LEFTFRONT][0]  -= speed;
+    leg_buf[LEFTBACK][0]   -= speed + offset;
+    leg_buf[RIGHTBACK][0]  -= speed - offset;
+    leg_buf[RIGHTFRONT][0] -= speed - offset;
+    leg_buf[LEFTFRONT][0]  -= speed + offset;
     leg_buf[LEFTBACK][1]   += side_walk;
     leg_buf[RIGHTBACK][1]  += side_walk;
     leg_buf[RIGHTFRONT][1] -= side_walk;
@@ -450,10 +451,10 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
 
     // move forward
-    leg_buf[LEFTBACK][0]   -= speed;
-    leg_buf[RIGHTBACK][0]  -= speed;
-    leg_buf[RIGHTFRONT][0] -= speed;
-    leg_buf[LEFTFRONT][0]  -= speed;
+    leg_buf[LEFTBACK][0]   -= speed + offset;
+    leg_buf[RIGHTBACK][0]  -= speed - offset;
+    leg_buf[RIGHTFRONT][0] -= speed - offset;
+    leg_buf[LEFTFRONT][0]  -= speed + offset;
     leg_buf[LEFTBACK][1]   += side_walk;
     leg_buf[RIGHTBACK][1]  += side_walk;
     leg_buf[RIGHTFRONT][1] -= side_walk;
