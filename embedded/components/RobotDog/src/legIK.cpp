@@ -137,7 +137,7 @@ void Leg::get_degree_offset(const double (&offset)[3], int (&thetas)[3]) {
     get_degree_offset(offset[0], offset[1], offset[2], &thetas[0], &thetas[1], &thetas[2]);
 }
 
-void Leg::move(double x_mm, double y_mm, double z_mm, int speed_ms = 200) {
+void Leg::move(double x_mm, double y_mm, double z_mm, int speed_ms) {
     pthread_mutex_lock(&buf_mut[0]);
     pthread_mutex_lock(&buf_mut[1]);
     pthread_mutex_lock(&buf_mut[2]);
@@ -158,11 +158,11 @@ void Leg::move(double x_mm, double y_mm, double z_mm, int speed_ms = 200) {
     pthread_mutex_unlock(&buf_mut[2]);
 }
 
-void Leg::move(const double (&dest)[3], int speed_ms = 200) {
+void Leg::move(const double (&dest)[3], int speed_ms) {
     move(dest[0], dest[1], dest[2]);
 }
 
-void Leg::move_offset(double x_mm, double y_mm, double z_mm, int speed_ms = 200) {
+void Leg::move_offset(double x_mm, double y_mm, double z_mm, int speed_ms) {
     pthread_mutex_lock(&buf_mut[0]);
     pthread_mutex_lock(&buf_mut[1]);
     pthread_mutex_lock(&buf_mut[2]);
@@ -183,11 +183,11 @@ void Leg::move_offset(double x_mm, double y_mm, double z_mm, int speed_ms = 200)
     pthread_mutex_unlock(&buf_mut[2]);
 }
 
-void Leg::move_offset(const double (&offset)[3], int speed_ms = 200) {
+void Leg::move_offset(const double (&offset)[3], int speed_ms) {
     move_offset(offset[0], offset[1], offset[2], speed_ms);
 }
 
-void Leg::move_d(double theta1, double theta2, double theta3, int speed_ms = 200) {
+void Leg::move_d(double theta1, double theta2, double theta3, int speed_ms) {
     pthread_mutex_lock(&buf_mut[0]);
     pthread_mutex_lock(&buf_mut[1]);
     pthread_mutex_lock(&buf_mut[2]);
