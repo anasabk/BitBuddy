@@ -169,6 +169,26 @@ void Leg::move_offset(const double (&offset)[3]) {
     move_offset(offset[0], offset[1], offset[2]);
 }
 
+void Leg::move_d(double theta1, double theta2, double theta3) {
+    pthread_mutex_lock(&buf_mut[0]);
+    pthread_mutex_lock(&buf_mut[1]);
+    pthread_mutex_lock(&buf_mut[2]);
+    
+    theta_buf[0] = theta1;
+    theta_buf[1] = theta2;
+    theta_buf[2] = theta3;
+    
+    printf("degrees: %d %d %d\n", theta_buf[0], theta_buf[1], theta_buf[2]);
+    
+    pthread_kill(servo_thread_id[0], SIGCONT);
+    pthread_kill(servo_thread_id[1], SIGCONT);
+    pthread_kill(servo_thread_id[2], SIGCONT);
+    
+    pthread_mutex_unlock(&buf_mut[0]);
+    pthread_mutex_unlock(&buf_mut[1]);
+    pthread_mutex_unlock(&buf_mut[2]);
+}
+
 void handler(int sig) {
 
 }

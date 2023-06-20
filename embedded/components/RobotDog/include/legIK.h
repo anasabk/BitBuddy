@@ -32,6 +32,8 @@ public:
     void move(const double (&dest)[3]);
     void move(double x_mm, double y_mm, double z_mm);
 
+    void move_d(double x_mm, double y_mm, double z_mm);
+
     void move_offset(const double (&offset)[3]);
     void move_offset(double x_mm, double y_mm, double z_mm);
 

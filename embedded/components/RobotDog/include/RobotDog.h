@@ -30,7 +30,6 @@ public:
 
     void run();
 
-    void move_forward (int dist_mm);
 
 private:
     PCA9685 pca;
@@ -43,27 +42,12 @@ private:
     HC_SR04 hc_sr04[2];
 
     CalServo servos[12];
-    Leg legs[4];
     Body main_body;
 
     MPU6050::MPU6050_data_t mpu_buff;
     double front_dist[2];
 
     bool running_flag;
-
-    // typedef struct servo_params {
-    //     void* args;
-    //     int servo_id;
-    // } servo_params;
-
-    // {Back left, Back right, Front right, Front left} {x, y, z}
-    // double leg_move_buffer[4][3];
-    // int movement_speed;
-
-    // degree
-    // double servo_buffer[12];
-    // int dur_buffer[12]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
@@ -87,7 +71,6 @@ private:
 
     static void* mpu6050_thread(void* args);
     static void* HCSR04_thread(void*);
-    static void* servo_thread(void*);
 };
 
 

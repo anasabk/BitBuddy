@@ -12,13 +12,7 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
 		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
     },
-    legs{
-        Leg(&servos[0],-4, &servos[1],  7, &servos[2], 1, 55, 110, 130, false, false),
-        Leg(&servos[3],-10, &servos[4], -3, &servos[5], -7, 55, 110, 130,  true, false),
-        Leg(&servos[6], 0, &servos[7], -2, &servos[8], -3, 55, 110, 130,  true, true),
-        Leg(&servos[9],-8, &servos[10], 6, &servos[11],5, 55, 110, 130, false, true),
-	},
-    main_body(&legs[Body::LEFTFRONT], &legs[Body::RIGHTFRONT], &legs[Body::LEFTBACK], &legs[Body::RIGHTBACK], 185, 77.5)
+    main_body(servos, 185, 77.5)
 {
 	for(int i = 0; i < 12; i++)
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
@@ -115,69 +109,6 @@ void RobotDog::run() {
     // }
 
     running_flag = false;
-
-    // Initialize and start the servo_thread
-    // servo_params* params = new servo_params;
-    // pthread_t servo_thread_id[12];
-    // for (int i = 0; i < 12; ++i) {
-    //     // Allocate memory
-    //     params->args = this;
-    //     params->servo_id = i;
-
-    //     // Create the thread
-    //     pthread_create(&servo_thread_id[i], NULL, &RobotDog::servo_thread, params);
-    // }
-
-
-    // // Real-time scheduling
-    // struct sched_param param;
-    // param.sched_priority = 99; // Set priority to maximum
-    // if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
-    //     std::cerr << "sched_setscheduler error!" << std::endl;
-    //     return;
-    // }
-
-    // std::ofstream outputFile("sensorData.txt");
-
-    // // Get current time
-    // struct timespec timeNow;
-    // clock_gettime(CLOCK_MONOTONIC, &timeNow);
-
-    // while (true) {
-    //     std::time_t systemTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-    //     outputFile << "Time: " << std::ctime(&systemTime);
-    //     outputFile << "AccelX: " << mpu_buff.x_accel << ", AccelY: " << mpu_buff.y_accel << ", AccelZ: " << mpu_buff.z_accel << std::endl;
-    //     outputFile << "GyroX: " << mpu_buff.x_rot << ", GyroY: " << mpu_buff.y_rot << ", GyroZ: " << mpu_buff.z_rot << std::endl;
-
-    //     // Add 10ms to current time
-    //     timeNow.tv_nsec += 10000000L; // 10 ms in nanoseconds
-    //     // Handle overflow
-    //     while (timeNow.tv_nsec >= 1000000000L) {
-    //         timeNow.tv_nsec -= 1000000000L;
-    //         timeNow.tv_sec++;
-    //     }
-
-    //     // Sleep until the next 10ms point
-    //     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
-
-    //     // Check if 5 seconds have passed since the start
-    //     if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - std::chrono::system_clock::from_time_t(systemTime)).count() >= 5) {
-    //         break;
-    //     }
-    // }
-
-    // outputFile.close();
-
-    // for (int i = 0; i < 12; ++i) {
-    //     // Terminate the thread
-    //     pthread_cancel(servo_thread_id[i]);
-    //     pthread_join(servo_thread_id[i], NULL);
-
-    //     // Free the memory for the struct
-    //     delete params;
-    // }
-
 
     return;
 }

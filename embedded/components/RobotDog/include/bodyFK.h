@@ -13,10 +13,7 @@ public:
     };
 
     Body(
-        Leg* left_front, 
-        Leg* right_front, 
-        Leg* left_back, 
-        Leg* right_back, 
+        CalServo (&servos)[12],
         double len_mm, 
         double width_mm
     );
@@ -77,9 +74,12 @@ public:
 
     void recenter();
 
+    void recover();
+
 
 private:
-    Leg *legs[4];
+    CalServo *servos[12];
+    Leg legs[4];
     double len_mm;
     double width_mm;
 
