@@ -37,7 +37,7 @@ void* read_thread(void *param) {
     MPU6050::MPU6050_data_t *buf = (MPU6050::MPU6050_data_t*)param;
     while(running) {
         printf(
-            "accel x:%f, y:%f, z:%f / rot roll:%f, pitch:%f, yaw:%f", 
+            "accel x:%f, y:%f, z:%f / rot roll:%f, pitch:%f, yaw:%f\n", 
             buf->x_accel, 
             buf->y_accel, 
             buf->z_accel,
