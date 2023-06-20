@@ -33,14 +33,18 @@ RobotDog::~RobotDog()
 bool running = true;
 
 void* read_thread(void *param) {
+    MPU6050::MPU6050_data_t *buf = (MPU6050::MPU6050_data_t*)param;
     while(running) {
-        printf("%f dregrees\n", asin(*((float*)param)-0.05)*180/M_PI);
+        printf("x:%f, y:%f, z:%f\n", asin(*((float*)param)-0.05)*180/M_PI);
         sleep(1);
     }
 }
 
 void RobotDog::run() {
     pthread_t temp;
+    mpu6050.calibrate();
+    sleep(6);
+
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
     pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff.x_accel));
@@ -94,8 +98,8 @@ void RobotDog::run() {
     // main_body.pose(M_PI/3, 0, 0, 0, 0, 140);
     // sleep(1);
     // main_body.recenter();
-    sleep(2);
-    main_body.recover();
+    // sleep(2);
+    // main_body.recover();
     sleep(10);
     
     // uint8_t dest_servo = 0;
