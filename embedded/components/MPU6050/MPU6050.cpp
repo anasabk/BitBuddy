@@ -8,16 +8,6 @@ MPU6050::MPU6050(int8_t bus, int8_t addr, bool run_update_thread)
     write_bits(MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, MPU6050_ACCEL_FS);
     write_bits(MPU6050_RA_ACCEL_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, MPU6050_GYRO_FS);
     write_bits(MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, MPU6050_DLPF_BW_5);
-
-	// i2cWriteByteData(f_dev, 0x00, 0b10000001);
-	// i2cWriteByteData(f_dev, 0x01, 0b00000001);
-	// i2cWriteByteData(f_dev, 0x02, 0b10000001);
-	// i2cWriteByteData(f_dev, 0x06, 0b00000000); 
-	// i2cWriteByteData(f_dev, 0x07, 0b00000000);
-	// i2cWriteByteData(f_dev, 0x08, 0b00000000);
-	// i2cWriteByteData(f_dev, 0x09, 0b00000000);
-	// i2cWriteByteData(f_dev, 0x0A, 0b00000000);
-	// i2cWriteByteData(f_dev, 0x0B, 0b00000000);
 }
 
 void MPU6050::read_data(MPU6050_data_t *buffer) {
@@ -77,20 +67,20 @@ void MPU6050::calibrate() {
         
 		read_data(&readings);
 
-        // printf("raw accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf / cal accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf\n", 
-        //         readings.x_accel,
-        //         readings.y_accel,
-        //         readings.z_accel,
-        //         readings.x_rot,
-        //         readings.y_rot,
-        //         readings.z_rot,
-        //         readings.x_accel - temp_offset.x_accel, 
-        //         readings.y_accel - temp_offset.y_accel, 
-        //         readings.z_accel - temp_offset.z_accel,
-        //         readings.x_rot - temp_offset.x_rot, 
-        //         readings.y_rot - temp_offset.y_rot, 
-        //         readings.z_rot - temp_offset.z_rot
-        // );
+        printf("raw accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf /n cal accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf\n", 
+                readings.x_accel,
+                readings.y_accel,
+                readings.z_accel,
+                readings.x_rot,
+                readings.y_rot,
+                readings.z_rot,
+                readings.x_accel - temp_offset.x_accel, 
+                readings.y_accel - temp_offset.y_accel, 
+                readings.z_accel - temp_offset.z_accel,
+                readings.x_rot - temp_offset.x_rot, 
+                readings.y_rot - temp_offset.y_rot, 
+                readings.z_rot - temp_offset.z_rot
+        );
 
         if (readings.x_rot - temp_offset.x_rot <  0.1 && 
             readings.x_rot - temp_offset.x_rot > -0.1 &&
