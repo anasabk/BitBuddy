@@ -561,26 +561,26 @@ void Body::recover() {
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     sit_down();
-    wait_real(&time, 3000);
+    wait_real(&time, 999);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     legs[LEFTBACK].move_d(90, 180, 0);
     legs[RIGHTBACK].move_d(90, 0, 180);
     legs[RIGHTFRONT].move_d(90, 0, 180);
     legs[LEFTFRONT].move_d(90, 180, 0);
-    wait_real(&time, 3000);
+    wait_real(&time, 999);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     legs[LEFTBACK].move_d(30, 180, 0);
     legs[LEFTFRONT].move_d(150, 180, 0);
-    wait_real(&time, 3000);
+    wait_real(&time, 999);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     legs[LEFTBACK].move_d(150, 180, 0);
     legs[LEFTFRONT].move_d(30, 180, 0);
-    wait_real(&time, 3000);
+    wait_real(&time, 999);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     sit_down();
-    wait_real(&time, 3000);
+    wait_real(&time, 999);
 }
