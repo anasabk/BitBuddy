@@ -465,75 +465,93 @@ void Body::step_forward(double side_walk, double speed) {
 
 
 void Body::recenter() {
-    double temp_pose[4][3];
     double temp_leg[3];
     double Tm[4][4];
-
-    get_pose(0, 0, 0, 0, 0, 140, Tm, temp_pose[RIGHTBACK], temp_pose[RIGHTFRONT], temp_pose[LEFTBACK], temp_pose[LEFTFRONT]);
 
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
+
+    // Leen right front
+    pose(0, 0, 0, 15, -30, 140);
+    wait_real(&timeNow, 250);
+
+    // Recenter leg
     leg_buf[LEFTBACK][2] = 50;
-    vector_sub<3>(leg_buf[LEFTBACK], temp_pose[LEFTBACK], temp_leg);
+    vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], temp_leg);
     legs[LEFTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[LEFTBACK][0] = -50, leg_buf[LEFTBACK][1] = 55;
-    vector_sub<3>(leg_buf[LEFTBACK], temp_pose[LEFTBACK], temp_leg);
+    vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], temp_leg);
     legs[LEFTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[LEFTBACK][2] = 0;
-    vector_sub<3>(leg_buf[LEFTBACK], temp_pose[LEFTBACK], temp_leg);
+    vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], temp_leg);
     legs[LEFTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
 
+    // Leen left back
+    pose(0, 0, 0, -15, 20, 140);
+    wait_real(&timeNow, 250);
+
+    // Recenter leg
     leg_buf[RIGHTFRONT][2] = 50;
-    vector_sub<3>(leg_buf[RIGHTFRONT], temp_pose[RIGHTFRONT], temp_leg);
+    vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], temp_leg);
     legs[RIGHTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[RIGHTFRONT][0] = 15, leg_buf[RIGHTFRONT][1] = -55;
-    vector_sub<3>(leg_buf[RIGHTFRONT], temp_pose[RIGHTFRONT], temp_leg);
+    vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], temp_leg);
     legs[RIGHTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[RIGHTFRONT][2] = 0;
-    vector_sub<3>(leg_buf[RIGHTFRONT], temp_pose[RIGHTFRONT], temp_leg);
+    vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], temp_leg);
     legs[RIGHTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
 
 
+    // Leen to the right back
+    pose(0, 0, 0, -15, -30, 140);
+    wait_real(&timeNow, 250);
+
+    // Recenter leg
     leg_buf[LEFTFRONT][2] = 50;
-    vector_sub<3>(leg_buf[LEFTFRONT], temp_pose[LEFTFRONT], temp_leg);
+    vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], temp_leg);
     legs[LEFTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[LEFTFRONT][0] = 15, leg_buf[LEFTFRONT][1] = 55;
-    vector_sub<3>(leg_buf[LEFTFRONT], temp_pose[LEFTFRONT], temp_leg);
+    vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], temp_leg);
     legs[LEFTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[LEFTFRONT][2] = 0;
-    vector_sub<3>(leg_buf[LEFTFRONT], temp_pose[LEFTFRONT], temp_leg);
+    vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], temp_leg);
     legs[LEFTFRONT]->move(temp_leg);
     wait_real(&timeNow, 250);
 
 
+    // Leen left front
+    pose(0, 0, 0, 15, 20, 140);
+    wait_real(&timeNow, 250);
+
+    // Recenter leg
     leg_buf[RIGHTBACK][2] = 50;
-    vector_sub<3>(leg_buf[RIGHTBACK], temp_pose[RIGHTBACK], temp_leg);
+    vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], temp_leg);
     legs[RIGHTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[RIGHTBACK][0] = -50, leg_buf[RIGHTBACK][1] = -55;
-    vector_sub<3>(leg_buf[RIGHTBACK], temp_pose[RIGHTBACK], temp_leg);
+    vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], temp_leg);
     legs[RIGHTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
     leg_buf[RIGHTBACK][2] = 0;
-    vector_sub<3>(leg_buf[RIGHTBACK], temp_pose[RIGHTBACK], temp_leg);
+    vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], temp_leg);
     legs[RIGHTBACK]->move(temp_leg);
     wait_real(&timeNow, 250);
 
