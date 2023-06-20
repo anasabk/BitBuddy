@@ -191,7 +191,7 @@ void* Leg::servo_thread(void* param) {
     while(sigwait(&set, &sig) == 0 && sig != SIGTERM) {
         pthread_mutex_lock(mut);
 
-        servo->sweep(*buffer, 250);
+        servo->sweep(*buffer, 200);
 
         printf("Moving Servo %d %d degrees\n", servo->getChannel(), buffer[0]);
         pthread_mutex_unlock(mut);
