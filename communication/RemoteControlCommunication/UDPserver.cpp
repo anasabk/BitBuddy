@@ -4,15 +4,17 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <cstdint>
+#include <time.h>
 
 struct Message {
     char type;
     uint32_t id;
-    char payload[512];
+    float x, y; 
 };
 
-// Mesajın toplam boyutunu aşmaması için payload'u belirli bir boyutta sınırlıyoruz.
+// Make sure the message size does not exceed the limit for UDP packets.
 static_assert(sizeof(Message) <= 512, "Message size is too large for UDP packet");
+
 
 int main() {
     int serverSocket;
@@ -39,6 +41,11 @@ int main() {
 
     std::cout << "The server is started. Waiting for client messages..." << std::endl;
 
+    // Set up a delay of 100 ms (10 times per second)
+    struct timespec delay;
+    delay.tv_sec = 0;
+    delay.tv_nsec = 100 * 1000000L; // 100 ms
+
     // Receive message from client
     while (true) {
         Message message;
@@ -56,6 +63,9 @@ int main() {
         response.id = message.id; // Echo back the same message ID
         strcpy(response.payload, "Message received.");
         sendto(serverSocket, &response, sizeof(response), 0, (struct sockaddr*)&clientAddr, clientAddrSize);
+
+        // Sleep for the delay period
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, nullptr);
     }
 
     // Close socket

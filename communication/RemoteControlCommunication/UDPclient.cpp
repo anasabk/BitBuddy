@@ -5,25 +5,28 @@
 #include <unistd.h>
 #include <termios.h>
 #include <cstdint>
+#include <time.h>
+#include <sstream>
 
 struct Message {
     char type;
     uint32_t id;
-    char payload[512];
+    float x, y; 
 };
 
-// Mesajın toplam boyutunu aşmaması için payload'u belirli bir boyutta sınırlıyoruz.
+// Making sure the total size of the message does not exceed the limit of the UDP packet.
 static_assert(sizeof(Message) <= 512, "Message size is too large for UDP packet");
 
-int getch() {
-    struct termios oldSettings, newSettings;
-    tcgetattr(0, &oldSettings);
-    newSettings = oldSettings;
-    newSettings.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(0, TCSANOW, &newSettings);
-    int ch = getchar();
-    tcsetattr(0, TCSANOW, &oldSettings);
-    return ch;
+// This function converts the input string into two float values.
+void convertData(const std::string& data, float& x, float& y) {
+    std::stringstream ss(data);
+    std::string item;
+
+    std::getline(ss, item, '|');
+    x = std::stof(item);
+
+    std::getline(ss, item, '\n');
+    y = std::stof(item);
 }
 
 int main() {
@@ -45,39 +48,46 @@ int main() {
 
     uint32_t messageId = 0;
 
+    // Set up a delay of 100 ms (10 times per second)
+    struct timespec delay;
+    delay.tv_sec = 0;
+    delay.tv_nsec = 100 * 1000000L; // 100 ms
+
     // Send message and receive response from server
     while (true) {
-        std::cout << "Press a key (W, A, S, D, Q) or press 'q' to exit: ";
-        int ch = getch();
+        // Fetch or generate data string.
+        std::string data = "1.213 | 2.654"; //replace
 
-        if (ch == 'q') {
+        // Convert the string data into float numbers.
+        float x, y;
+        convertData(data, x, y);
+
+        // Create message
+        Message message;
+        message.type = 'M'; // Message type
+        message.id = messageId++;
+        message.x = x;
+        message.y = y;
+
+        // Send message
+        ssize_t bytesSent = sendto(clientSocket, &message, sizeof(message), 0, (struct sockaddr*)&serverAddr, serverAddrSize);
+        if (bytesSent < 0) {
+            std::cerr << "Error: Could not send message." << std::endl;
             break;
-        } else if (ch == 'w' || ch == 'a' || ch == 's' || ch == 'd') {
-            // Create message
-            Message message;
-            message.type = ch;
-            message.id = messageId++;
-            strcpy(message.payload, "Test Payload");
-
-            // Send message
-            ssize_t bytesSent = sendto(clientSocket, &message, sizeof(message), 0, (struct sockaddr*)&serverAddr, serverAddrSize);
-            if (bytesSent < 0) {
-                std::cerr << "Error: Could not send message." << std::endl;
-                break;
-            }
-
-            // Receive response
-            Message response;
-            ssize_t bytesRead = recvfrom(clientSocket, &response, sizeof(response), 0, NULL, NULL);
-            if (bytesRead < 0) {
-                std::cerr << "Error: Could not read message." << std::endl;
-                break;
-            }
-
-            std::cout << "Response from server: " << response.payload << std::endl;
-        } else {
-            std::cout << "Wrong input. Only 'q', 'w', 'a', 's', 'd' are allowed!" << std::endl;
         }
+
+        // Receive response
+        Message response;
+        ssize_t bytesRead = recvfrom(clientSocket, &response, sizeof(response), 0, NULL, NULL);
+        if (bytesSent < 0) {
+            std::cerr << "Error: Could not read message." << std::endl;
+            break;
+        }
+
+        std::cout << "Response from server: x=" << response.x << ", y=" << response.y << std::endl;
+
+        // Sleep for the delay period
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, nullptr);
     }
 
     // Socket closed
