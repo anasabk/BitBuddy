@@ -331,7 +331,7 @@ void Body::step_forward(double side_walk, double speed) {
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
     // Leen to the right back
-    pose(0, 0, 0, -15, -25, 140);
+    pose(0, 0, 0, -15, -30, 140);
     wait_real(&timeNow, 250);
 
     // Position the leg
@@ -359,7 +359,7 @@ void Body::step_forward(double side_walk, double speed) {
     leg_buf[RIGHTBACK][1]  += side_walk;
     leg_buf[RIGHTFRONT][1] -= side_walk;
     leg_buf[LEFTFRONT][1]  -= side_walk;
-    pose(0, 0, 0, -15, -25, 140);
+    pose(0, 0, 0, -15, -30, 140);
     wait_real(&timeNow, 250);
 
     
@@ -430,7 +430,7 @@ void Body::step_forward(double side_walk, double speed) {
 
     
     // Leen right front
-    pose(0, 0, 0, 15, -25, 140);
+    pose(0, 0, 0, 15, -30, 140);
     wait_real(&timeNow, 250);
 
     // Position leg
