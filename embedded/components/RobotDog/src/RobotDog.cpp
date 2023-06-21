@@ -55,7 +55,7 @@ void RobotDog::run() {
 
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
-    pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff.x_accel));
+    pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff));
     
     servos[0].set_degree(86);
     servos[1].set_degree(128);
