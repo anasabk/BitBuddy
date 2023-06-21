@@ -37,6 +37,9 @@ public:
     void move_offset(const double (&offset)[3], int speed_ms = 200);
     void move_offset(double x_mm, double y_mm, double z_mm, int speed_ms = 200);
 
+    bool is_right();
+    bool is_front();
+
 private:
     CalServo *servos[3];
     pthread_t servo_thread_id[3];
@@ -53,13 +56,13 @@ private:
      * @note Right == true
      * @note Left == false
      */
-    bool is_right;
+    bool is_right_flag;
 
     /**
      * @note Right == true
      * @note Left == false
      */
-    bool is_front;
+    bool is_front_flag;
 
     struct servo_param {
         const int *theta_buf;

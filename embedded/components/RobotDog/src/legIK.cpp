@@ -13,8 +13,8 @@ Leg::Leg(
     double hip_l, 
     double l1, 
     double l2, 
-    bool is_right,
-    bool is_front)
+    bool is_right_flag,
+    bool is_front_flag)
 {
     servos[0] = hip;
     servos[1] = shoulder;
@@ -36,8 +36,8 @@ Leg::Leg(
     this->l1 = l1;
     this->l2 = l2;
 
-    this->is_right = is_right;
-    this->is_front = is_front;
+    this->is_right_flag = is_right_flag;
+    this->is_front_flag = is_front_flag;
 
     this->running = true;
 
@@ -92,7 +92,7 @@ void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *th
     
     double R2_yz = pow(y_mm, 2) + pow(z_mm, 2);
     double temp_theta = acos((l2*l2 - l1*l1 - foot_to_shoulder_sq) / (-2 * l1 * sqrt(foot_to_shoulder_sq)));
-    double hip_dir = is_right ? -1 : 1;
+    double hip_dir = is_right_flag ? -1 : 1;
 
     double degrees[3];
     degrees[0] = (acos(hip_dir*hip_l / sqrt(R2_yz)) + atan(y_mm / fabs(z_mm)))*180/M_PI;
@@ -105,12 +105,12 @@ void Leg::get_degree(double x_mm, double y_mm, double z_mm, int *theta1, int *th
         printf("Out of reach, aborting ...\n");
     }
 
-    if(is_right) {
+    if(is_right_flag) {
         degrees[1] = 180 - degrees[1];
         degrees[2] = 180 - degrees[2];
     }
 
-    if(is_front)
+    if(is_front_flag)
         degrees[0] = 180 - degrees[0];
 
     *theta1 = degrees[0] + offsets[0];
@@ -244,4 +244,12 @@ void* Leg::servo_thread(void* param) {
     servo->set_PWM(0);
     delete(param);
     pthread_exit(NULL);
+}
+
+bool Leg::is_right() {
+    return is_right_flag;
+}
+
+bool Leg::is_front() {
+    return is_front_flag;
 }
