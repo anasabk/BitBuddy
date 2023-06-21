@@ -87,13 +87,13 @@ void RobotDog::run() {
     // sleep(5);
     // main_body.pose(0, 0, M_PI/4, 0, 0, 170);
     // sleep(2);
-    // main_body.step_forward(0, 40);
-    // main_body.step_forward(0, 40);
-    // main_body.step_forward(0, 40);
-    // main_body.step_forward(0, 40);
-    // main_body.step_forward(0, 40);
-    // main_body.step_forward(0, 40);
-    // sleep(2);
+    main_body.step_forward(M_PI/24, 40);
+    main_body.step_forward(M_PI/24, 40);
+    main_body.step_forward(M_PI/24, 40);
+    main_body.step_forward(M_PI/24, 40);
+    main_body.step_forward(M_PI/24, 40);
+    main_body.step_forward(M_PI/24, 40);
+    sleep(2);
     // main_body.step_forward(M_PI/24, 0);
     // main_body.step_forward(M_PI/24, 0);
     // main_body.step_forward(M_PI/24, 0);
@@ -114,8 +114,8 @@ void RobotDog::run() {
     // sleep(1);
     // main_body.recenter();
     // sleep(2);
-    main_body.recover();
-    sleep(10);
+    // main_body.recover();
+    // sleep(10);
     
     // uint8_t dest_servo = 0;
 	// int dest_degree = 0;
