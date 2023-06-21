@@ -1,87 +1,50 @@
-/*
-Bu kod, görüntüyü okur, sıkıştırır ve hem UDP üzerinden yayınlar, 
-hem de paylaşılan belleğe yazar. Bu paylaşılan bellek, diğer programlar tarafından okunabilir. 
-Mutex, paylaşılan belleğin eşzamanlı olarak güncellenmesini ve okunmasını önler, 
-böylece race condition oluşmaz.
-
-Bununla birlikte, 
-paylaşılan belleğe erişen diğer programlar aynı mutex'i kullanmalı 
-ve aynı paylaşılan bellek alanını okumalıdır.
-*/
-
-
-#include <opencv4/opencv2/opencv.hpp>
-#include <iostream>
-#include <vector>
-#include <cstring>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+#include <opencv2/opencv.hpp>
 #include <arpa/inet.h>
-#include <boost/interprocess/sync/scoped_lock.hpp>
-#include <boost/interprocess/sync/named_mutex.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
-#include <boost/interprocess/mapped_region.hpp>
+#include <thread>
 
-#define PORT 8080
-#define SHM_NAME "ImageSHM"
-#define MUTEX_NAME "ImageMutex"
+#define DESKTOP_IP "127.0.0.1"
+#define DESKTOP_PORT 8081
+#define TARGET_FPS 30.0
 
-int main() {
+int raspCam() {
     cv::VideoCapture cap(0);
 
     if (!cap.isOpened()) {
-        std::cerr << "Camera not opened" << std::endl;
+        std::cerr << "[RaspCam] Camera not opened." << std::endl;
         return -1;
     }
 
     cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
 
-    boost::interprocess::shared_memory_object shm(boost::interprocess::create_only, SHM_NAME, boost::interprocess::read_write);
-    boost::interprocess::named_mutex mutex(boost::interprocess::create_only, MUTEX_NAME);
-
-    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) {
-        std::cerr << "Socket could not be created" << std::endl;
+    int sockFd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockFd == -1) {
+        perror("[RaspCam] socket");
         return -1;
     }
 
-    struct sockaddr_in serv_addr, cli_addr;
-    std::memset(&serv_addr, 0, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(PORT);
-
-    if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-        std::cerr << "Socket not bound" << std::endl;
-        return -1;
-    }
-
-    socklen_t clilen = sizeof(cli_addr);
-    std::memset(&cli_addr, 0, sizeof(cli_addr));
+    struct sockaddr_in desktopAddress{};
+    desktopAddress.sin_family = AF_INET;
+    desktopAddress.sin_addr.s_addr = inet_addr(DESKTOP_IP);
+    desktopAddress.sin_port = htons(DESKTOP_PORT);
 
     while (true) {
+        auto start = std::chrono::steady_clock::now();
+
         cv::Mat frame;
         cap.read(frame);
-        
-        std::vector<uchar> buf;
-        cv::imencode(".jpg", frame, buf);
 
-        // Resize shared memory and write image data
-        {
-            boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock(mutex);
-            shm.truncate(buf.size());
-            boost::interprocess::mapped_region region(shm, boost::interprocess::read_write);
-            std::memcpy(region.get_address(), buf.data(), buf.size());
-        }
+        std::vector<uchar> buffer;
+        cv::imencode(".jpg", frame, buffer, {cv::IMWRITE_JPEG_QUALITY, 50});
 
-        cli_addr.sin_family = AF_INET;
-        cli_addr.sin_port = htons(PORT);
-        cli_addr.sin_addr.s_addr = inet_addr("http://192.168.1.103:8080"); // put the client's IP address here
+        std::cout << buffer.size() << std::endl;
 
-        sendto(sockfd, reinterpret_cast<char*>(buf.data()), buf.size(), 0, (struct sockaddr*)&cli_addr, clilen);
+        if (sendto(sockFd, buffer.data(), buffer.size(), 0, (struct sockaddr *)&desktopAddress, sizeof(desktopAddress)) == -1)
+            perror("[RaspCam] sendto");
+
+        auto end = std::chrono::steady_clock::now();
+
+        std::this_thread::sleep_for(std::chrono::nanoseconds((long)(1 / TARGET_FPS * 1e9)) - (end - start));
     }
 
     return 0;
