@@ -36,13 +36,12 @@ RobotDog::~RobotDog()
 void* read_thread(void *param) {
     MPU6050::MPU6050_data_t *buf = (MPU6050::MPU6050_data_t*)param;
     while(running) {
-        printf(
-            "accel x:%f, y:%f, z:%f / rot roll:%f, pitch:%f, yaw:%f\n", 
-            buf->x_accel, 
-            buf->y_accel, 
+        printf("accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf \n", 
+            buf->x_accel,
+            buf->y_accel,
             buf->z_accel,
-            buf->x_rot, 
-            buf->y_rot, 
+            buf->x_rot,
+            buf->y_rot,
             buf->z_rot
         );
         sleep(1);
