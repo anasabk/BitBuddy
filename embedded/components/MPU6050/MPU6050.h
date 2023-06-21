@@ -112,13 +112,13 @@ extern "C" {
 class MPU6050 : private I2Cdev {
 public:
 	typedef struct {
-		float x_rot;
 		float x_accel;
-		float y_rot;
 		float y_accel;
-		float z_rot;
 		float z_accel;
 		float tempr;
+		float x_rot;
+		float y_rot;
+		float z_rot;
 	} MPU6050_data_t;
 
 
