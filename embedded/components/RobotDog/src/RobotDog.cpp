@@ -20,7 +20,7 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
     running_flag = true;
 
     MPU6050::MPU6050_data_t offsets = {
-        0.0306, 0.0120, 1.0-0.0211, 0, 0.7868, -0.8433, -0.7314
+        0.0306, 0.0120, 0.0211, 0, 0.7868, -0.8433, -0.7314
     };
     mpu6050.set_offsets(&offsets);
 }
