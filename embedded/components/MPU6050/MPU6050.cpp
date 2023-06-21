@@ -22,16 +22,6 @@ void MPU6050::read_data(MPU6050_data_t *buffer) {
     buffer->x_rot  = ((int16_t) ((data[8]  << 8) | data[9])) / MPU6050_GYRO_SENS - cal_offsets.x_rot;
     buffer->y_rot  = ((int16_t) ((data[10] << 8) | data[11]))/ MPU6050_GYRO_SENS - cal_offsets.y_rot;
     buffer->z_rot  = ((int16_t) ((data[12] << 8) | data[13]))/ MPU6050_GYRO_SENS - cal_offsets.z_rot;
-
-
-    printf("raw accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf \n", 
-        buffer->x_accel,
-        buffer->y_accel,
-        buffer->z_accel,
-        buffer->x_rot,
-        buffer->y_rot,
-        buffer->z_rot
-    );
 }
 
 void MPU6050::calibrate() {
