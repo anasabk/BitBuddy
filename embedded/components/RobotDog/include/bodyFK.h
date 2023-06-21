@@ -70,7 +70,7 @@ public:
 
     void sit_down();
 
-    void step_forward(double side_walk, double speed);
+    void move_forward(double rot_rad, double dist, int step_num = 4);
 
     void recenter();
 
