@@ -356,8 +356,8 @@ void Body::move_forward(double rot_rad, double dist, int step_num) {
         legs[i].move(temp_vector);
         wait_real(&timeNow, 250);
 
-        leg_buf[i][0] = 15 + dist/step_num * 2 - turn_buf[i][0];
-        leg_buf[i][1] = 55 - turn_buf[i][1];
+        leg_buf[i][0] = (legs[i].is_front() ? 15 :-50) + dist/step_num * 2 - turn_buf[i][0];
+        leg_buf[i][1] = (legs[i].is_right() ?-55 : 55) - turn_buf[i][1];
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_vector);
         legs[i].move(temp_vector);
         wait_real(&timeNow, 250);
