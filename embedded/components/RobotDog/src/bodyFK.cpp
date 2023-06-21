@@ -320,7 +320,7 @@ void wait_real(struct timespec *timeNow, long ms) {
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, timeNow, nullptr);
 }
 
-void Body::step_forward(double side_walk, double speed) {
+void Body::step_forward(double rot_rad, double speed) {
     const double r_leen_off = -30;
     const double l_leen_off = 20;
     const double f_leen_off = 15;
@@ -330,6 +330,10 @@ void Body::step_forward(double side_walk, double speed) {
     double rf[3];
     double lb[3];
     double lf[3];
+
+    double turn_buf[4][3];
+    double temp[4][4];
+    get_pose(0, -rot_rad, 0, 0, 0, 140, temp, turn_buf[RIGHTBACK], turn_buf[RIGHTFRONT], turn_buf[LEFTBACK], turn_buf[LEFTFRONT]);
 
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
@@ -344,7 +348,8 @@ void Body::step_forward(double side_walk, double speed) {
     legs[LEFTFRONT].move(lf);
     wait_real(&timeNow, 250);
 
-    leg_buf[LEFTFRONT][0] = 15 + speed*2, leg_buf[LEFTFRONT][1] = 55 + side_walk;
+    leg_buf[LEFTFRONT][0] = 15 + speed*2 - turn_buf[LEFTFRONT][0];
+    leg_buf[LEFTFRONT][1] = 55 - turn_buf[LEFTFRONT][1];
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT].move(lf);
     wait_real(&timeNow, 250);
@@ -355,14 +360,14 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
     
     // Go forward
-    leg_buf[LEFTBACK][0]   -= speed + offset;
-    leg_buf[RIGHTBACK][0]  -= speed - offset;
-    leg_buf[RIGHTFRONT][0] -= speed - offset;
-    leg_buf[LEFTFRONT][0]  -= speed + offset;
-    leg_buf[LEFTBACK][1]   += side_walk;
-    leg_buf[RIGHTBACK][1]  += side_walk;
-    leg_buf[RIGHTFRONT][1] -= side_walk;
-    leg_buf[LEFTFRONT][1]  -= side_walk;
+    leg_buf[LEFTBACK][0]   -= speed + offset + turn_buf[LEFTBACK][0];
+    leg_buf[RIGHTBACK][0]  -= speed - offset + turn_buf[RIGHTBACK][0];
+    leg_buf[RIGHTFRONT][0] -= speed - offset + turn_buf[RIGHTFRONT][0];
+    leg_buf[LEFTFRONT][0]  -= speed + offset + turn_buf[LEFTFRONT][0];
+    leg_buf[LEFTBACK][1]   +=  turn_buf[LEFTBACK][1];
+    leg_buf[RIGHTBACK][1]  +=  turn_buf[RIGHTBACK][1];
+    leg_buf[RIGHTFRONT][1] +=  turn_buf[RIGHTFRONT][1];
+    leg_buf[LEFTFRONT][1]  +=  turn_buf[LEFTFRONT][1];
     pose(0, 0, 0, -15, -30, 140);
     wait_real(&timeNow, 250);
 
@@ -377,7 +382,8 @@ void Body::step_forward(double side_walk, double speed) {
     legs[RIGHTBACK].move(rb);
     wait_real(&timeNow, 250);
 
-    leg_buf[RIGHTBACK][0] = -50 + speed*2, leg_buf[RIGHTBACK][1] = -55 - side_walk;
+    leg_buf[RIGHTBACK][0] = -50 + speed*2 - turn_buf[RIGHTBACK][0];
+    leg_buf[RIGHTBACK][1] = -55 - turn_buf[RIGHTBACK][1];
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK].move(rb);
     wait_real(&timeNow, 250);
@@ -388,14 +394,14 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
     
     // Go forward
-    leg_buf[LEFTBACK][0]   -= speed + offset;
-    leg_buf[RIGHTBACK][0]  -= speed - offset;
-    leg_buf[RIGHTFRONT][0] -= speed - offset;
-    leg_buf[LEFTFRONT][0]  -= speed + offset;
-    leg_buf[LEFTBACK][1]   += side_walk;
-    leg_buf[RIGHTBACK][1]  += side_walk;
-    leg_buf[RIGHTFRONT][1] -= side_walk;
-    leg_buf[LEFTFRONT][1]  -= side_walk;
+    leg_buf[LEFTBACK][0]   -= speed + offset + turn_buf[LEFTBACK][0];
+    leg_buf[RIGHTBACK][0]  -= speed - offset + turn_buf[RIGHTBACK][0];
+    leg_buf[RIGHTFRONT][0] -= speed - offset + turn_buf[RIGHTFRONT][0];
+    leg_buf[LEFTFRONT][0]  -= speed + offset + turn_buf[LEFTFRONT][0];
+    leg_buf[LEFTBACK][1]   +=  turn_buf[LEFTBACK][1];
+    leg_buf[RIGHTBACK][1]  +=  turn_buf[RIGHTBACK][1];
+    leg_buf[RIGHTFRONT][1] +=  turn_buf[RIGHTFRONT][1];
+    leg_buf[LEFTFRONT][1]  +=  turn_buf[LEFTFRONT][1];
     pose(0, 0, 0, 15, 20, 140);
     wait_real(&timeNow, 250);
 
@@ -410,7 +416,8 @@ void Body::step_forward(double side_walk, double speed) {
     legs[RIGHTFRONT].move(rf);
     wait_real(&timeNow, 250);
 
-    leg_buf[RIGHTFRONT][0] = 15 + speed*2, leg_buf[RIGHTFRONT][1] = -55 + side_walk;
+    leg_buf[RIGHTFRONT][0] = 15 + speed*2 - turn_buf[RIGHTFRONT][0];
+    leg_buf[RIGHTFRONT][1] = -55 - turn_buf[RIGHTFRONT][1];
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT].move(rf);
     wait_real(&timeNow, 250);
@@ -421,14 +428,14 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
 
     // move forward
-    leg_buf[LEFTBACK][0]   -= speed + offset;
-    leg_buf[RIGHTBACK][0]  -= speed - offset;
-    leg_buf[RIGHTFRONT][0] -= speed - offset;
-    leg_buf[LEFTFRONT][0]  -= speed + offset;
-    leg_buf[LEFTBACK][1]   += side_walk;
-    leg_buf[RIGHTBACK][1]  += side_walk;
-    leg_buf[RIGHTFRONT][1] -= side_walk;
-    leg_buf[LEFTFRONT][1]  -= side_walk;
+    leg_buf[LEFTBACK][0]   -= speed + offset + turn_buf[LEFTBACK][0];
+    leg_buf[RIGHTBACK][0]  -= speed - offset + turn_buf[RIGHTBACK][0];
+    leg_buf[RIGHTFRONT][0] -= speed - offset + turn_buf[RIGHTFRONT][0];
+    leg_buf[LEFTFRONT][0]  -= speed + offset + turn_buf[LEFTFRONT][0];
+    leg_buf[LEFTBACK][1]   +=  turn_buf[LEFTBACK][1];
+    leg_buf[RIGHTBACK][1]  +=  turn_buf[RIGHTBACK][1];
+    leg_buf[RIGHTFRONT][1] +=  turn_buf[RIGHTFRONT][1];
+    leg_buf[LEFTFRONT][1]  +=  turn_buf[LEFTFRONT][1];
     pose(0, 0, 0, -15, 20, 140);
     wait_real(&timeNow, 250);
 
@@ -443,7 +450,8 @@ void Body::step_forward(double side_walk, double speed) {
     legs[LEFTBACK].move(lb);
     wait_real(&timeNow, 250);
 
-    leg_buf[LEFTBACK][0] = -50 + speed*2, leg_buf[LEFTBACK][1] = 55 - side_walk;
+    leg_buf[LEFTBACK][0] = -50 + speed*2 - turn_buf[LEFTBACK][0];
+    leg_buf[LEFTBACK][1] = 55 - turn_buf[LEFTBACK][1];
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     legs[LEFTBACK].move(lb);
     wait_real(&timeNow, 250);
@@ -454,14 +462,14 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
 
     // move forward
-    leg_buf[LEFTBACK][0]   -= speed + offset;
-    leg_buf[RIGHTBACK][0]  -= speed - offset;
-    leg_buf[RIGHTFRONT][0] -= speed - offset;
-    leg_buf[LEFTFRONT][0]  -= speed + offset;
-    leg_buf[LEFTBACK][1]   += side_walk;
-    leg_buf[RIGHTBACK][1]  += side_walk;
-    leg_buf[RIGHTFRONT][1] -= side_walk;
-    leg_buf[LEFTFRONT][1]  -= side_walk;
+    leg_buf[LEFTBACK][0]   -= speed + offset + turn_buf[LEFTBACK][0];
+    leg_buf[RIGHTBACK][0]  -= speed - offset + turn_buf[RIGHTBACK][0];
+    leg_buf[RIGHTFRONT][0] -= speed - offset + turn_buf[RIGHTFRONT][0];
+    leg_buf[LEFTFRONT][0]  -= speed + offset + turn_buf[LEFTFRONT][0];
+    leg_buf[LEFTBACK][1]   +=  turn_buf[LEFTBACK][1];
+    leg_buf[RIGHTBACK][1]  +=  turn_buf[RIGHTBACK][1];
+    leg_buf[RIGHTFRONT][1] +=  turn_buf[RIGHTFRONT][1];
+    leg_buf[LEFTFRONT][1]  +=  turn_buf[LEFTFRONT][1];
     pose(0, 0, 0, 0, 0, 140);
     wait_real(&timeNow, 250);
 }
