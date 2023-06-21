@@ -373,7 +373,7 @@ void Body::step_forward(double side_walk, double speed) {
     legs[RIGHTBACK].move(rb);
     wait_real(&timeNow, 250);
 
-    leg_buf[RIGHTBACK][0] = -50 + speed*3, leg_buf[RIGHTBACK][1] = -55 - side_walk;
+    leg_buf[RIGHTBACK][0] = -50 + speed*2, leg_buf[RIGHTBACK][1] = -55 - side_walk;
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK].move(rb);
     wait_real(&timeNow, 250);
@@ -439,7 +439,7 @@ void Body::step_forward(double side_walk, double speed) {
     legs[LEFTBACK].move(lb);
     wait_real(&timeNow, 250);
 
-    leg_buf[LEFTBACK][0] = -50 + speed, leg_buf[LEFTBACK][1] = 55 - side_walk;
+    leg_buf[LEFTBACK][0] = -50 + speed*2, leg_buf[LEFTBACK][1] = 55 - side_walk;
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     legs[LEFTBACK].move(lb);
     wait_real(&timeNow, 250);
