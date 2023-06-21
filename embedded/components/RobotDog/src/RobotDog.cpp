@@ -111,8 +111,8 @@ void RobotDog::run() {
     // sleep(1);
     // main_body.pose(M_PI/3, 0, 0, 0, 0, 140);
     // sleep(1);
-    // main_body.recenter();
-    // sleep(2);
+    main_body.recenter();
+    sleep(2);
     // main_body.recover();
     // sleep(10);
     
