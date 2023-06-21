@@ -1,13 +1,16 @@
 #include "MPU6050.h"
 
 
-MPU6050::MPU6050(int8_t bus, int8_t addr, bool run_update_thread) 
+MPU6050::MPU6050(int8_t bus, int8_t addr, MPU6050_data_t *offset = NULL) 
 	: I2Cdev(bus, addr)
 {
     write_byte(MPU6050_PWR_MGMT_1, 0);
     write_bits(MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, MPU6050_ACCEL_FS);
     write_bits(MPU6050_RA_ACCEL_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, MPU6050_GYRO_FS);
     write_bits(MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, MPU6050_DLPF_BW_5);
+
+    if(offset != NULL)
+        this->cal_offsets = *offset;
 }
 
 void MPU6050::read_data(MPU6050_data_t *buffer) {
@@ -67,7 +70,7 @@ void MPU6050::calibrate() {
         
 		read_data(&readings);
 
-        printf("raw accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf \noffsets: x=%.4lf y=%.4lf z=%.4lf \ncal accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf\n", 
+        printf("raw accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf \noffsetsaccel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf \ncal accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf\n", 
                 readings.x_accel,
                 readings.y_accel,
                 readings.z_accel,

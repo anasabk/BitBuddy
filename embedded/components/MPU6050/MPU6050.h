@@ -122,7 +122,7 @@ public:
 	} MPU6050_data_t;
 
 
-	MPU6050(int8_t bus, int8_t addr, bool run_update_thread = true);
+	MPU6050(int8_t bus, int8_t addr, MPU6050_data_t *offset = NULL);
 	void read_data(MPU6050_data_t *buffer);
 	void calibrate();
 
