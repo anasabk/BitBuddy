@@ -71,8 +71,6 @@ private:
 
     static void* mpu6050_thread(void* args);
     static void* HCSR04_thread(void*);
-    static void* joystick_rec_thread(void *param);
-    static void* switch_rec_thread(void *param);
 };
 
 
