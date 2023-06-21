@@ -337,7 +337,9 @@ void Body::move_forward(double rot_rad, double dist, int step_num) {
     int steps_gone = 0;
     double temp_vector[3];
     for(int i = 3; steps_gone < step_num; i -= 2) {
-        if(i < 0) i += 3;
+        // if(i == -1) i = 2;
+        // else if(i == -2) i = 3;
+        if(i < 0) i = -i + 1;
 
         // Leen to the right back
         pose(
