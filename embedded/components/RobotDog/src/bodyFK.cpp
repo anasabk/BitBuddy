@@ -321,6 +321,10 @@ void wait_real(struct timespec *timeNow, long ms) {
 }
 
 void Body::step_forward(double side_walk, double speed) {
+    const double r_leen_off = -30;
+    const double l_leen_off = 20;
+    const double f_leen_off = 15;
+    const double b_leen_off = -15;
     double offset = 2;
     double rb[3];
     double rf[3];
