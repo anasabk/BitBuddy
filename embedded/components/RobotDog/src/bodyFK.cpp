@@ -394,10 +394,10 @@ void Body::step_forward(double rot_rad, double speed) {
     wait_real(&timeNow, 250);
     
     // Go forward
-    leg_buf[LEFTBACK][0]   -= speed + offset + turn_buf[LEFTBACK][0];
-    leg_buf[RIGHTBACK][0]  -= speed - offset + turn_buf[RIGHTBACK][0];
-    leg_buf[RIGHTFRONT][0] -= speed - offset + turn_buf[RIGHTFRONT][0];
-    leg_buf[LEFTFRONT][0]  -= speed + offset + turn_buf[LEFTFRONT][0];
+    leg_buf[LEFTBACK][0]   -= speed + offset - turn_buf[LEFTBACK][0];
+    leg_buf[RIGHTBACK][0]  -= speed - offset - turn_buf[RIGHTBACK][0];
+    leg_buf[RIGHTFRONT][0] -= speed - offset - turn_buf[RIGHTFRONT][0];
+    leg_buf[LEFTFRONT][0]  -= speed + offset - turn_buf[LEFTFRONT][0];
     leg_buf[LEFTBACK][1]   +=  turn_buf[LEFTBACK][1];
     leg_buf[RIGHTBACK][1]  +=  turn_buf[RIGHTBACK][1];
     leg_buf[RIGHTFRONT][1] +=  turn_buf[RIGHTFRONT][1];
