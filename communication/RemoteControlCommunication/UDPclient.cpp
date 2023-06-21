@@ -3,7 +3,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <termios.h>
 #include <cstdint>
 #include <time.h>
 #include <sstream>
@@ -30,21 +29,21 @@ void convertData(const std::string& data, float& x, float& y) {
 }
 
 int main() {
-    int clientSocket;
-    struct sockaddr_in serverAddr;
-    socklen_t serverAddrSize = sizeof(serverAddr);
+    int serverSocket;
+    struct sockaddr_in clientAddr;
+    socklen_t clientAddrSize = sizeof(clientAddr);
 
     // Create socket
-    clientSocket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (clientSocket < 0) {
-        std::cerr << "Error: Failed to create client socket." << std::endl;
+    serverSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (serverSocket < 0) {
+        std::cerr << "Error: Failed to create server socket." << std::endl;
         return 1;
     }
 
     // Set server address
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(12345);
-    serverAddr.sin_addr.s_addr = inet_addr("192.168.43.138");
+    clientAddr.sin_family = AF_INET;
+    clientAddr.sin_port = htons(12345);
+    clientAddr.sin_addr.s_addr = INADDR_ANY;
 
     uint32_t messageId = 0;
 
@@ -70,7 +69,7 @@ int main() {
         message.y = y;
 
         // Send message
-        ssize_t bytesSent = sendto(clientSocket, &message, sizeof(message), 0, (struct sockaddr*)&serverAddr, serverAddrSize);
+        ssize_t bytesSent = sendto(serverSocket, &message, sizeof(message), 0, (struct sockaddr*)&clientAddr, clientAddrSize);
         if (bytesSent < 0) {
             std::cerr << "Error: Could not send message." << std::endl;
             break;
@@ -78,7 +77,7 @@ int main() {
 
         // Receive response
         Message response;
-        ssize_t bytesRead = recvfrom(clientSocket, &response, sizeof(response), 0, NULL, NULL);
+        ssize_t bytesRead = recvfrom(serverSocket, &response, sizeof(response), 0, NULL, NULL);
         if (bytesSent < 0) {
             std::cerr << "Error: Could not read message." << std::endl;
             break;
@@ -91,7 +90,7 @@ int main() {
     }
 
     // Socket closed
-    close(clientSocket);
+    close(serverSocket);
 
     return 0;
 }
