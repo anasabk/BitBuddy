@@ -335,17 +335,17 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
 
     // Position the leg
-    leg_buf[LEFTFRONT][0] = 15, leg_buf[LEFTFRONT][1] = 55, leg_buf[LEFTFRONT][2] = 50;
+    leg_buf[LEFTFRONT][2] = 50;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT].move(lf);
     wait_real(&timeNow, 250);
 
-    leg_buf[LEFTFRONT][0] = 15 + speed*2, leg_buf[LEFTFRONT][1] = 55 + side_walk, leg_buf[LEFTFRONT][2] = 50;
+    leg_buf[LEFTFRONT][0] = 15 + speed*2, leg_buf[LEFTFRONT][1] = 55 + side_walk;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT].move(lf);
     wait_real(&timeNow, 250);
 
-    leg_buf[LEFTFRONT][0] = 15 + speed*2, leg_buf[LEFTFRONT][1] = 55 + side_walk, leg_buf[LEFTFRONT][2] = 0;
+    leg_buf[LEFTFRONT][2] = 0;
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
     legs[LEFTFRONT].move(lf);
     wait_real(&timeNow, 250);
@@ -368,17 +368,17 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
 
     // Position the leg
-    leg_buf[RIGHTBACK][0] = -50 - speed, leg_buf[RIGHTBACK][1] = -55, leg_buf[RIGHTBACK][2] = 50;
+    leg_buf[RIGHTBACK][2] = 50;
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK].move(rb);
     wait_real(&timeNow, 250);
 
-    leg_buf[RIGHTBACK][0] = -50 + speed*3, leg_buf[RIGHTBACK][1] = -55 - side_walk, leg_buf[RIGHTBACK][2] = 50;
+    leg_buf[RIGHTBACK][0] = -50 + speed*3, leg_buf[RIGHTBACK][1] = -55 - side_walk;
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK].move(rb);
     wait_real(&timeNow, 250);
 
-    leg_buf[RIGHTBACK][0] = -50 + speed*3, leg_buf[RIGHTBACK][1] = -55 - side_walk, leg_buf[RIGHTBACK][2] = 0;
+    leg_buf[RIGHTBACK][2] = 0;
     vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
     legs[RIGHTBACK].move(rb);
     wait_real(&timeNow, 250);
@@ -401,17 +401,17 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
 
     // Position leg
-    leg_buf[RIGHTFRONT][0] = 15 - speed*2, leg_buf[RIGHTFRONT][1] = -55, leg_buf[RIGHTFRONT][2] = 50;
+    leg_buf[RIGHTFRONT][2] = 50;
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT].move(rf);
     wait_real(&timeNow, 250);
 
-    leg_buf[RIGHTFRONT][0] = 15 + speed*2, leg_buf[RIGHTFRONT][1] = -55 + side_walk, leg_buf[RIGHTFRONT][2] = 50;
+    leg_buf[RIGHTFRONT][0] = 15 + speed*2, leg_buf[RIGHTFRONT][1] = -55 + side_walk;
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT].move(rf);
     wait_real(&timeNow, 250);
 
-    leg_buf[RIGHTFRONT][0] = 15 + speed*2, leg_buf[RIGHTFRONT][1] = -55 + side_walk, leg_buf[RIGHTFRONT][2] = 0;
+    leg_buf[RIGHTFRONT][2] = 0;
     vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
     legs[RIGHTFRONT].move(rf);
     wait_real(&timeNow, 250);
@@ -434,17 +434,17 @@ void Body::step_forward(double side_walk, double speed) {
     wait_real(&timeNow, 250);
 
     // Position leg
-    leg_buf[LEFTBACK][0] = -50 - speed*3, leg_buf[LEFTBACK][1] = 55, leg_buf[LEFTBACK][2] = 50;
+    leg_buf[LEFTBACK][2] = 50;
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     legs[LEFTBACK].move(lb);
     wait_real(&timeNow, 250);
 
-    leg_buf[LEFTBACK][0] = -50 + speed, leg_buf[LEFTBACK][1] = 55 - side_walk, leg_buf[LEFTBACK][2] = 50;
+    leg_buf[LEFTBACK][0] = -50 + speed, leg_buf[LEFTBACK][1] = 55 - side_walk;
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     legs[LEFTBACK].move(lb);
     wait_real(&timeNow, 250);
 
-    leg_buf[LEFTBACK][0] = -50 + speed, leg_buf[LEFTBACK][1] = 55 - side_walk, leg_buf[LEFTBACK][2] = 0;
+    leg_buf[LEFTBACK][2] = 0;
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     legs[LEFTBACK].move(lb);
     wait_real(&timeNow, 250);
