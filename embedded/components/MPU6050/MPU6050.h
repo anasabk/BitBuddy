@@ -125,6 +125,7 @@ public:
 	MPU6050(int8_t bus, int8_t addr, MPU6050_data_t *offset = NULL);
 	void read_data(MPU6050_data_t *buffer);
 	void calibrate();
+	void set_offsets(MPU6050_data_t *offsets);
 
 
 private:

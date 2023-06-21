@@ -4,11 +4,7 @@
 
 
 RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
-    : pca(pca_bus, pca_addr, 50), lcd(lcd_bus, lcd_addr), hc_sr04{HC_SR04(27, 17), HC_SR04(5, 6)},
-    mpu6050(mpu_bus, mpu_addr, &(MPU6050::MPU6050_data_t){
-            0.0306, 0.0120, -0.0211, 0.7868, -0.8433, -0.7314
-        }
-    ),
+    : pca(pca_bus, pca_addr, 50), lcd(lcd_bus, lcd_addr), hc_sr04{HC_SR04(27, 17), HC_SR04(5, 6)}, mpu6050(mpu_bus, mpu_addr),
     servos{ 
 		// Top, Mid, and Low motors for each leg
 		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
@@ -22,6 +18,11 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
     
     running_flag = true;
+
+    MPU6050::MPU6050_data_t offsets = {
+        0.0306, 0.0120, -0.0211, 0.7868, -0.8433, -0.7314
+    };
+    mpu6050.set_offsets(&offsets);
 }
 
 bool running = true;

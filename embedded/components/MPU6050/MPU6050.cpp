@@ -109,3 +109,8 @@ void MPU6050::calibrate() {
         }
     }
 }
+
+void MPU6050::set_offsets(MPU6050_data_t *offsets) {
+    if(offsets != NULL)
+        this->cal_offsets = *offsets;
+}
