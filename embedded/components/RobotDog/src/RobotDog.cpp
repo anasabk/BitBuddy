@@ -5,8 +5,9 @@
 
 RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
     : pca(pca_bus, pca_addr, 50), lcd(lcd_bus, lcd_addr), hc_sr04{HC_SR04(27, 17), HC_SR04(5, 6)},
-    mpu6050(mpu_bus, mpu_addr,
-        NULL
+    mpu6050(mpu_bus, mpu_addr, &(MPU6050::MPU6050_data_t){
+            0.0306, 0.0120, -0.0211, 0.7868, -0.8433, -0.7314
+        }
     ),
     servos{ 
 		// Top, Mid, and Low motors for each leg
@@ -53,7 +54,7 @@ void* read_thread(void *param) {
 
 void RobotDog::run() {
     pthread_t temp;
-    mpu6050.calibrate();
+    // mpu6050.calibrate();
 
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
