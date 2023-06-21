@@ -15,13 +15,13 @@ void MPU6050::read_data(MPU6050_data_t *buffer) {
 
     read_bytes(MPU6050_ACCEL_XOUT_H, 14, data);
 
-	buffer->x_accel = ((int16_t) ((data[0]  << 8) | data[1])) / MPU6050_ACCEL_SENS + cal_offsets.x_accel;
-    buffer->y_accel = ((int16_t) ((data[2]  << 8) | data[3])) / MPU6050_ACCEL_SENS + cal_offsets.y_accel;
-    buffer->z_accel = ((int16_t) ((data[4]  << 8) | data[5])) / MPU6050_ACCEL_SENS + cal_offsets.z_accel;
+	buffer->x_accel = ((int16_t) ((data[0]  << 8) | data[1])) / MPU6050_ACCEL_SENS - cal_offsets.x_accel;
+    buffer->y_accel = ((int16_t) ((data[2]  << 8) | data[3])) / MPU6050_ACCEL_SENS - cal_offsets.y_accel;
+    buffer->z_accel = ((int16_t) ((data[4]  << 8) | data[5])) / MPU6050_ACCEL_SENS - cal_offsets.z_accel;
     buffer->tempr  = ((int16_t) ((data[6]  << 8) | data[7])) / 340.0 + 36.53;
-    buffer->x_rot  = ((int16_t) ((data[8]  << 8) | data[9])) / MPU6050_GYRO_SENS + cal_offsets.x_rot;
-    buffer->y_rot  = ((int16_t) ((data[10] << 8) | data[11]))/ MPU6050_GYRO_SENS + cal_offsets.y_rot;
-    buffer->z_rot  = ((int16_t) ((data[12] << 8) | data[13]))/ MPU6050_GYRO_SENS + cal_offsets.z_rot;
+    buffer->x_rot  = ((int16_t) ((data[8]  << 8) | data[9])) / MPU6050_GYRO_SENS - cal_offsets.x_rot;
+    buffer->y_rot  = ((int16_t) ((data[10] << 8) | data[11]))/ MPU6050_GYRO_SENS - cal_offsets.y_rot;
+    buffer->z_rot  = ((int16_t) ((data[12] << 8) | data[13]))/ MPU6050_GYRO_SENS - cal_offsets.z_rot;
 
 
     printf("raw accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf \n", 
