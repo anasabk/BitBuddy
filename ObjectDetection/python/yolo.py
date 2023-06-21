@@ -4,7 +4,7 @@ import sys
 import numpy as np
 
 def build_model(is_cuda):
-    net = cv2.dnn.readNet("../config_files/best.onnx")
+    net = cv2.dnn.readNet("../config_files/bestv2.onnx")
     if is_cuda:
         print("Attempty to use CUDA")
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -18,9 +18,9 @@ def build_model(is_cuda):
 
 INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
-SCORE_THRESHOLD = 0.2
-NMS_THRESHOLD = 0.45
-CONFIDENCE_THRESHOLD = 0.25
+SCORE_THRESHOLD = 0.30
+NMS_THRESHOLD = 0.70
+CONFIDENCE_THRESHOLD = 0.50
 
 def detect(image, net):
     blob = cv2.dnn.blobFromImage(image, 1/255.0, (INPUT_WIDTH, INPUT_HEIGHT), swapRB=True, crop=False)
@@ -55,12 +55,12 @@ def wrap_detection(input_image, output_data):
     for r in range(rows):
         row = output_data[r]
         confidence = row[4]
-        if confidence >= 0.4:
+        if confidence >= CONFIDENCE_THRESHOLD:
 
             classes_scores = row[5:]
             _, _, _, max_indx = cv2.minMaxLoc(classes_scores)
             class_id = max_indx[1]
-            if (classes_scores[class_id] > .25):
+            if (classes_scores[class_id] > SCORE_THRESHOLD):
 
                 confidences.append(confidence)
 
@@ -74,7 +74,7 @@ def wrap_detection(input_image, output_data):
                 box = np.array([left, top, width, height])
                 boxes.append(box)
 
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.25, 0.45) 
+    indexes = cv2.dnn.NMSBoxes(boxes, confidences, CONFIDENCE_THRESHOLD, NMS_THRESHOLD) 
 
     result_class_ids = []
     result_confidences = []
@@ -114,9 +114,12 @@ while True:
     if frame is None:
         print("End of stream")
         break
+    
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     inputImage = format_yolov5(frame)
     outs = detect(inputImage, net)
+
 
     class_ids, confidences, boxes = wrap_detection(inputImage, outs[0])
 
@@ -138,6 +141,8 @@ while True:
     if fps > 0:
         fps_label = "FPS: %.2f" % fps
         cv2.putText(frame, fps_label, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        
+    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
     cv2.imshow("output", frame)
 
