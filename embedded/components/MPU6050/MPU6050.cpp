@@ -1,7 +1,7 @@
 #include "MPU6050.h"
 
 
-MPU6050::MPU6050(int8_t bus, int8_t addr, MPU6050_data_t *offset = NULL) 
+MPU6050::MPU6050(int8_t bus, int8_t addr, MPU6050_data_t *offset) 
 	: I2Cdev(bus, addr)
 {
     write_byte(MPU6050_PWR_MGMT_1, 0);
