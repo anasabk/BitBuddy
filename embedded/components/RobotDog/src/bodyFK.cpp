@@ -329,7 +329,7 @@ void Body::move_forward(double rot_rad, double dist, int step_num) {
 
     double turn_buf[4][3];
     double temp[4][4];
-    get_pose(0, -rot_rad/step_num, 0, 0, 0, 140, temp, turn_buf[RIGHTBACK], turn_buf[RIGHTFRONT], turn_buf[LEFTBACK], turn_buf[LEFTFRONT]);
+    get_pose(0, -rot_rad/(double)step_num, 0, 0, 0, 140, temp, turn_buf[RIGHTBACK], turn_buf[RIGHTFRONT], turn_buf[LEFTBACK], turn_buf[LEFTFRONT]);
 
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
