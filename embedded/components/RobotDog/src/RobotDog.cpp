@@ -87,7 +87,7 @@ void RobotDog::run() {
     // sleep(5);
     // main_body.pose(0, 0, M_PI/4, 0, 0, 170);
     // sleep(2);
-    main_body.move_forward(0, 160);
+    main_body.move_forward(M_PI/6, 160);
     sleep(2);
     // main_body.move_forward(M_PI/24, 0);
     // main_body.move_forward(M_PI/24, 0);
