@@ -321,6 +321,8 @@ void wait_real(struct timespec *timeNow, long ms) {
 }
 
 void Body::move_forward(double rot_rad, double dist, int step_num) {
+    if(dist/step_num > 40.0) dist = step_num*40.0;
+
     const double l_leen_off =  20.0;
     const double r_leen_off = -30.0;
     const double f_leen_off =  15.0;
@@ -337,8 +339,6 @@ void Body::move_forward(double rot_rad, double dist, int step_num) {
     int steps_gone = 0;
     double temp_vector[3];
     for(int i = 3; steps_gone < step_num; i -= 2) {
-        // if(i == -1) i = 2;
-        // else if(i == -2) i = 3;
         if(i < 0) i = -i + 1;
 
         // Leen to the right back
@@ -390,141 +390,6 @@ void Body::move_forward(double rot_rad, double dist, int step_num) {
 
         steps_gone++;
     }
-
-    // // Leen to the right back
-    // pose(0, 0, 0, -15, -30, 140);
-    // wait_real(&timeNow, 250);
-
-    // // Position the leg
-    // leg_buf[LEFTFRONT][2] = 50;
-    // vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
-    // legs[LEFTFRONT].move(lf);
-    // wait_real(&timeNow, 250);
-
-    // leg_buf[LEFTFRONT][0] = 15 + step_len*2 - turn_buf[LEFTFRONT][0];
-    // leg_buf[LEFTFRONT][1] = 55 - turn_buf[LEFTFRONT][1];
-    // vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
-    // legs[LEFTFRONT].move(lf);
-    // wait_real(&timeNow, 250);
-
-    // leg_buf[LEFTFRONT][2] = 0;
-    // vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
-    // legs[LEFTFRONT].move(lf);
-    // wait_real(&timeNow, 250);
-    
-    // // Go forward
-    // leg_buf[LEFTBACK][0]   -= step_len + drift_offset - turn_buf[LEFTBACK][0];
-    // leg_buf[RIGHTBACK][0]  -= step_len - drift_offset - turn_buf[RIGHTBACK][0];
-    // leg_buf[RIGHTFRONT][0] -= step_len - drift_offset - turn_buf[RIGHTFRONT][0];
-    // leg_buf[LEFTFRONT][0]  -= step_len + drift_offset - turn_buf[LEFTFRONT][0];
-    // leg_buf[LEFTBACK][1]   +=  turn_buf[LEFTBACK][1];
-    // leg_buf[RIGHTBACK][1]  +=  turn_buf[RIGHTBACK][1];
-    // leg_buf[RIGHTFRONT][1] +=  turn_buf[RIGHTFRONT][1];
-    // leg_buf[LEFTFRONT][1]  +=  turn_buf[LEFTFRONT][1];
-    // pose(0, 0, 0, -15, -30, 140);
-    // wait_real(&timeNow, 250);
-
-    
-    // // Leen left front
-    // pose(0, 0, 0, 15, 20, 140);
-    // wait_real(&timeNow, 250);
-
-    // // Position the leg
-    // leg_buf[RIGHTBACK][2] = 50;
-    // vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
-    // legs[RIGHTBACK].move(rb);
-    // wait_real(&timeNow, 250);
-
-    // leg_buf[RIGHTBACK][0] = -50 + step_len*2 - turn_buf[RIGHTBACK][0];
-    // leg_buf[RIGHTBACK][1] = -55 - turn_buf[RIGHTBACK][1];
-    // vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
-    // legs[RIGHTBACK].move(rb);
-    // wait_real(&timeNow, 250);
-
-    // leg_buf[RIGHTBACK][2] = 0;
-    // vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
-    // legs[RIGHTBACK].move(rb);
-    // wait_real(&timeNow, 250);
-    
-    // // Go forward
-    // leg_buf[LEFTBACK][0]   -= step_len + drift_offset - turn_buf[LEFTBACK][0];
-    // leg_buf[RIGHTBACK][0]  -= step_len - drift_offset - turn_buf[RIGHTBACK][0];
-    // leg_buf[RIGHTFRONT][0] -= step_len - drift_offset - turn_buf[RIGHTFRONT][0];
-    // leg_buf[LEFTFRONT][0]  -= step_len + drift_offset - turn_buf[LEFTFRONT][0];
-    // leg_buf[LEFTBACK][1]   +=  turn_buf[LEFTBACK][1];
-    // leg_buf[RIGHTBACK][1]  +=  turn_buf[RIGHTBACK][1];
-    // leg_buf[RIGHTFRONT][1] +=  turn_buf[RIGHTFRONT][1];
-    // leg_buf[LEFTFRONT][1]  +=  turn_buf[LEFTFRONT][1];
-    // pose(0, 0, 0, 15, 20, 140);
-    // wait_real(&timeNow, 250);
-
-
-    // // Leen left back
-    // pose(0, 0, 0, -15, 20, 140);
-    // wait_real(&timeNow, 250);
-
-    // // Position leg
-    // leg_buf[RIGHTFRONT][2] = 50;
-    // vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
-    // legs[RIGHTFRONT].move(rf);
-    // wait_real(&timeNow, 250);
-
-    // leg_buf[RIGHTFRONT][0] = 15 + step_len*2 - turn_buf[RIGHTFRONT][0];
-    // leg_buf[RIGHTFRONT][1] = -55 - turn_buf[RIGHTFRONT][1];
-    // vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
-    // legs[RIGHTFRONT].move(rf);
-    // wait_real(&timeNow, 250);
-
-    // leg_buf[RIGHTFRONT][2] = 0;
-    // vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
-    // legs[RIGHTFRONT].move(rf);
-    // wait_real(&timeNow, 250);
-
-    // // move forward
-    // leg_buf[LEFTBACK][0]   -= step_len + drift_offset - turn_buf[LEFTBACK][0];
-    // leg_buf[RIGHTBACK][0]  -= step_len - drift_offset - turn_buf[RIGHTBACK][0];
-    // leg_buf[RIGHTFRONT][0] -= step_len - drift_offset - turn_buf[RIGHTFRONT][0];
-    // leg_buf[LEFTFRONT][0]  -= step_len + drift_offset - turn_buf[LEFTFRONT][0];
-    // leg_buf[LEFTBACK][1]   +=  turn_buf[LEFTBACK][1];
-    // leg_buf[RIGHTBACK][1]  +=  turn_buf[RIGHTBACK][1];
-    // leg_buf[RIGHTFRONT][1] +=  turn_buf[RIGHTFRONT][1];
-    // leg_buf[LEFTFRONT][1]  +=  turn_buf[LEFTFRONT][1];
-    // pose(0, 0, 0, -15, 20, 140);
-    // wait_real(&timeNow, 250);
-
-    
-    // // Leen right front
-    // pose(0, 0, 0, 15, -30, 140);
-    // wait_real(&timeNow, 250);
-
-    // // Position leg
-    // leg_buf[LEFTBACK][2] = 50;
-    // vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
-    // legs[LEFTBACK].move(lb);
-    // wait_real(&timeNow, 250);
-
-    // leg_buf[LEFTBACK][0] = -50 + step_len*2 - turn_buf[LEFTBACK][0];
-    // leg_buf[LEFTBACK][1] = 55 - turn_buf[LEFTBACK][1];
-    // vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
-    // legs[LEFTBACK].move(lb);
-    // wait_real(&timeNow, 250);
-
-    // leg_buf[LEFTBACK][2] = 0;
-    // vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
-    // legs[LEFTBACK].move(lb);
-    // wait_real(&timeNow, 250);
-
-    // // move forward
-    // leg_buf[LEFTBACK][0]   -= step_len + drift_offset - turn_buf[LEFTBACK][0];
-    // leg_buf[RIGHTBACK][0]  -= step_len - drift_offset - turn_buf[RIGHTBACK][0];
-    // leg_buf[RIGHTFRONT][0] -= step_len - drift_offset - turn_buf[RIGHTFRONT][0];
-    // leg_buf[LEFTFRONT][0]  -= step_len + drift_offset - turn_buf[LEFTFRONT][0];
-    // leg_buf[LEFTBACK][1]   +=  turn_buf[LEFTBACK][1];
-    // leg_buf[RIGHTBACK][1]  +=  turn_buf[RIGHTBACK][1];
-    // leg_buf[RIGHTFRONT][1] +=  turn_buf[RIGHTFRONT][1];
-    // leg_buf[LEFTFRONT][1]  +=  turn_buf[LEFTFRONT][1];
-    // pose(0, 0, 0, 0, 0, 140);
-    // wait_real(&timeNow, 250);
 }
 
 void Body::recenter() {
