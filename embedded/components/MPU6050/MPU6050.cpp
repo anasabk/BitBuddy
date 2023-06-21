@@ -67,13 +67,19 @@ void MPU6050::calibrate() {
         
 		read_data(&readings);
 
-        printf("raw accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf /n cal accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf\n", 
+        printf("raw accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf \noffsets: x=%.4lf y=%.4lf z=%.4lf \ncal accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf\n", 
                 readings.x_accel,
                 readings.y_accel,
                 readings.z_accel,
                 readings.x_rot,
                 readings.y_rot,
                 readings.z_rot,
+                temp_offset.x_accel,
+                temp_offset.y_accel,
+                temp_offset.z_accel,
+                temp_offset.x_rot,
+                temp_offset.y_rot,
+                temp_offset.z_rot,
                 readings.x_accel - temp_offset.x_accel, 
                 readings.y_accel - temp_offset.y_accel, 
                 readings.z_accel - temp_offset.z_accel,
