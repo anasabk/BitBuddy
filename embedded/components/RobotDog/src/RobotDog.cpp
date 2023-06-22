@@ -123,7 +123,7 @@ void RobotDog::run() {
 
 	struct sigaction pipe_act;
 	pipe_act.sa_handler = sigpipe_handler;
-	sigaction(SIGINT, &pipe_act, nullptr);
+	sigaction(SIGPIPE, &pipe_act, nullptr);
 
     int fd = -1;
     CS_msg_s buffer = {"\0\0\0\0\0\0\0\0", false};
