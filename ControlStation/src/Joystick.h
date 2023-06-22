@@ -34,7 +34,7 @@ private:
     void moveWithPressedKeys();
     void moveStick(QPoint newPos);
 
-    void runServer();
+    void runClient();
 };
 
 #endif // JOYSTICK_H

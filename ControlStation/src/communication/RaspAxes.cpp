@@ -1,7 +1,9 @@
 #include <iostream>
 #include <arpa/inet.h>
+#include <thread>
 
-#define PORT 8080
+#define CLIENT_IP "127.0.0.1"
+#define CLIENT_PORT 8081
 
 struct Axes {
     float x, y;
@@ -16,12 +18,19 @@ int raspAxes() {
 
     struct sockaddr_in clientAddress{};
     clientAddress.sin_family = AF_INET;
-    clientAddress.sin_addr.s_addr = INADDR_ANY;
-    clientAddress.sin_port = htons(PORT);
+    clientAddress.sin_addr.s_addr = inet_addr(CLIENT_IP);
+    clientAddress.sin_port = htons(CLIENT_PORT);
 
-    if (bind(sockFd, (struct sockaddr *)&clientAddress, sizeof(clientAddress)) == -1) {
-        perror("[RaspAxes] bind");
-        return -1;
+    std::cout << "[RaspAxes] Sending address to client..." << std::endl;
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (sendto(sockFd, NULL, 0, 0, (struct sockaddr *)&clientAddress, sizeof(clientAddress)) == -1) {
+            perror("[RaspAxes] sendto");
+            return -1;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     while (true) {
@@ -32,8 +41,6 @@ int raspAxes() {
             perror("[RaspAxes] recvfrom");
             continue;
         }
-
-//        std::cout << "x: " << axes.x << ", y: " << axes.y << std::endl;
     }
 
     return 0;

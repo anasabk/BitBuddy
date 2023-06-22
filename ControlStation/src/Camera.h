@@ -10,12 +10,14 @@ class Camera : public QLabel
     Q_OBJECT
 
 public:
-    Camera(QWidget *parent = nullptr);
+    Camera(uint16_t port, bool convertToRGB, QWidget *parent = nullptr);
 
 signals:
     void aspectRatioChanged(float aspectRatio);
 
 private:
+    uint16_t port;
+    bool convertToRGB;
     float aspectRatio;
 
     void runClient();

@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    std::thread(raspCam).detach();
+//    std::thread(raspCam).detach();
     std::thread(raspAxes).detach();
-    std::thread(raspSwitch).detach();
+//    std::thread(raspSwitch).detach();
     std::thread(desktopCam).detach();
 
     pid = fork();
@@ -50,8 +50,9 @@ int main(int argc, char *argv[])
     if (atexit(atExit) != 0)
         std::cerr << "[Main] atexit failed." << std::endl;
 
-    if (signal(SIGTERM, signalHandler) == SIG_ERR)
-        perror("[Main] signal");
+    signal(SIGTERM, signalHandler);
+    signal(SIGABRT, signalHandler);
+    signal(SIGSEGV, signalHandler);
 
     new MainWindow();
 

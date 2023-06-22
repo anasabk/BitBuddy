@@ -27,7 +27,7 @@ Joystick::Joystick(int size, QWidget *parent) :
     setFocus();
     moveStick(QPoint(r, r));
 
-    std::thread(&Joystick::runServer, this).detach();
+    std::thread(&Joystick::runClient, this).detach();
 }
 
 void Joystick::mousePressEvent(QMouseEvent *event)
@@ -112,11 +112,10 @@ void Joystick::moveStick(QPoint newPos)
     axesMutex.unlock();
 }
 
-#define RASP_IP "127.0.0.1"
-#define RASP_PORT 8080
+#define PORT 8081
 #define SEND_RATE 10
 
-void Joystick::runServer()
+void Joystick::runClient()
 {
     int sockFd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockFd == -1) {
@@ -124,10 +123,28 @@ void Joystick::runServer()
         return;
     }
 
-    struct sockaddr_in raspAddress{};
-    raspAddress.sin_family = AF_INET;
-    raspAddress.sin_addr.s_addr = inet_addr(RASP_IP);
-    raspAddress.sin_port = htons(RASP_PORT);
+    struct sockaddr_in clientAddress{}, raspAddress{};
+    socklen_t raspAddressLen = sizeof(raspAddress);
+
+    clientAddress.sin_family = AF_INET;
+    clientAddress.sin_addr.s_addr = INADDR_ANY;
+    clientAddress.sin_port = htons(PORT);
+
+    if (bind(sockFd, (struct sockaddr *)&clientAddress, sizeof(clientAddress)) == -1)
+    {
+        perror("[Joystick] bind");
+        return;
+    }
+
+    std::cout << "[Joystick] Bound to port. Waiting to receive address from server." << std::endl;
+
+    if (recvfrom(sockFd, NULL, 0, 0, (struct sockaddr *)&raspAddress, &raspAddressLen) == -1)
+    {
+        perror("[Joystick] recvfrom");
+        return;
+    }
+
+    std::cout << "[Joystick] recevied address from server. Starting to send data." << std::endl;
 
     while (true)
     {

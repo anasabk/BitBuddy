@@ -3,7 +3,7 @@
 
 static std::vector<sockaddr_in> getClientAddresses()
 {
-    std::vector<uint16_t> ports = {8083};
+    std::vector<uint16_t> ports = {8083, 8084};
     std::vector<sockaddr_in> addresses;
 
     for (uint16_t port : ports)

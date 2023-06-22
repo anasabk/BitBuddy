@@ -7,7 +7,7 @@
 #define PORT 8081
 
 struct SwitchState {
-    char name[32];
+    char name[9];
     bool value;
 };
 

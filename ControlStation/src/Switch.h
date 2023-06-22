@@ -12,11 +12,11 @@ class Switch : public QGroupBox
 public:
     Switch(const char *name, const QString &text1, const QString &text2, QWidget *parent = nullptr);
 
-    static void connectToServer();
+    static void runServer();
 
 private:
     struct SwitchState {
-        char name[32];
+        char name[9];
         bool value;
     };
 
@@ -33,7 +33,7 @@ private:
     bool eventFilter(QObject *object, QEvent *event);
     void setState(bool state);
 
-    static int serverFd;
+    static int clientFd;
 };
 
 #endif // SWITCH_H

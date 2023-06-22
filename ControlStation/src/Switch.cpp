@@ -15,7 +15,7 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
     label1(new QLabel(text1, this)),
     label2(new QLabel(text2, this))
 {
-    std::strncpy(switchState.name, name, 32);
+    std::strncpy(switchState.name, name, 9);
 
     layout->setContentsMargins(0, 0, 0, 0);
 
@@ -54,7 +54,7 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
     setState(false);
 }
 
-int Switch::serverFd;
+int Switch::clientFd;
 
 bool Switch::eventFilter(QObject *object, QEvent *event)
 {
@@ -67,7 +67,8 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
         else if (event->type() == QEvent::MouseButtonRelease)
         {
             setState(!switchState.value);
-            write(serverFd, &switchState, sizeof(switchState));
+            if (write(clientFd, &switchState, sizeof(switchState)) == -1)
+                perror("[Switch] write");
         }
     }
 
@@ -81,28 +82,40 @@ void Switch::setState(bool value)
     switchState.value = value;
 }
 
-#define RASP_IP "127.0.0.1"
-#define RASP_PORT 8081
+#define PORT 8080
 
-void Switch::connectToServer()
+void Switch::runServer()
 {
-    struct sockaddr_in serverAddr;
+    struct sockaddr_in serverAddr{}, clientAddr{};
+    socklen_t clientAddrLen = sizeof(clientAddr);
 
     // Create socket
-    serverFd = socket(AF_INET, SOCK_STREAM, 0);
+    int serverFd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverFd == -1) {
-        perror("[MainWindow] socket");
+        perror("[Switch] socket");
         return;
     }
 
     // Set server address
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr(RASP_IP);
-    serverAddr.sin_port = htons(RASP_PORT);
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(PORT);
 
-    // connect to server
-    if (::connect(serverFd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
-        perror("[MainWindow] connect");
+    if (bind(serverFd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
+    {
+        perror("[Switch] bind");
+        return;
+    }
+
+    if (listen(serverFd, 1) == -1)
+    {
+        perror("[Switch] listen");
+        return;
+    }
+
+    if ((clientFd = accept(serverFd, (struct sockaddr *)&clientAddr, &clientAddrLen)) == -1)
+    {
+        perror("[Switch] accept");
         return;
     }
 }

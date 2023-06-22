@@ -5,8 +5,10 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-Camera::Camera(QWidget *parent) :
+Camera::Camera(uint16_t port, bool convertToRGB, QWidget *parent) :
     QLabel(parent),
+    port(port),
+    convertToRGB(convertToRGB),
     aspectRatio(0.0f)
 {
     setScaledContents(true);
@@ -15,7 +17,6 @@ Camera::Camera(QWidget *parent) :
 }
 
 #define MAX_BUFFER 65507
-#define PORT 8084
 
 void Camera::runClient()
 {
@@ -28,7 +29,7 @@ void Camera::runClient()
     struct sockaddr_in clientAddress{};
     clientAddress.sin_family = AF_INET;
     clientAddress.sin_addr.s_addr = INADDR_ANY;
-    clientAddress.sin_port = htons(PORT);
+    clientAddress.sin_port = htons(port);
 
     if (bind(sockFd, (struct sockaddr *)&clientAddress, sizeof(clientAddress)) == -1) {
         perror("[Camera] bind");
@@ -50,6 +51,9 @@ void Camera::runClient()
             std::cerr << "[Camera] Decoded frame is empty." << std::endl;
             continue;
         }
+
+        if (convertToRGB)
+            cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 
         setPixmap(QPixmap::fromImage(QImage(frame.data, frame.cols, frame.rows, QImage::Format_RGB888)));
 
