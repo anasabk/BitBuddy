@@ -126,7 +126,8 @@ void* RobotDog::control_thread(void* param) {
                 if(read_size < 0) {
                     perror("[RaspAxes] joystick read error");
                     break;
-                }
+                } else if(read_size == 0)
+                    continue;
 
                 printf("x:%f y:%f\n", buffer.x, buffer.y);
 
