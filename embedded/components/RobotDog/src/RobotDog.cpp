@@ -125,7 +125,7 @@ void* RobotDog::control_thread(void* param) {
             Axes buffer;
             bool js_connected = true;
             while (js_connected && is_running && !robot->mode_flag) {
-                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) < 0) {
+                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), O_NONBLOCK, NULL, NULL) < 0) {
                     perror("[RaspAxes] recvfrom");
                     js_connected = false;
                     break;
