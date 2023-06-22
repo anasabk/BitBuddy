@@ -6,7 +6,7 @@
 #define DESKTOP_PORT 8082
 #define TARGET_FPS 30.0
 
-int raspCam() {
+int main() {
     cv::VideoCapture cap(0);
 
     if (!cap.isOpened()) {
@@ -49,3 +49,5 @@ int raspCam() {
 
     return 0;
 }
+
+
