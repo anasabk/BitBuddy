@@ -270,23 +270,23 @@ void Body::pose(
     vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
     vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
 
-    printf("leg buffer:\n");
-    printf("rb : %lf, %lf, %lf\n", leg_buf[RIGHTBACK][0], leg_buf[RIGHTBACK][1], leg_buf[RIGHTBACK][2]);
-    printf("rf : %lf, %lf, %lf\n", leg_buf[RIGHTFRONT][0], leg_buf[RIGHTFRONT][1], leg_buf[RIGHTFRONT][2]);
-    printf("lb : %lf, %lf, %lf\n", leg_buf[LEFTBACK][0], leg_buf[LEFTBACK][1], leg_buf[LEFTBACK][2]);
-    printf("lf : %lf, %lf, %lf\n", leg_buf[LEFTFRONT][0], leg_buf[LEFTFRONT][1], leg_buf[LEFTFRONT][2]);
+    // printf("leg buffer:\n");
+    // printf("rb : %lf, %lf, %lf\n", leg_buf[RIGHTBACK][0], leg_buf[RIGHTBACK][1], leg_buf[RIGHTBACK][2]);
+    // printf("rf : %lf, %lf, %lf\n", leg_buf[RIGHTFRONT][0], leg_buf[RIGHTFRONT][1], leg_buf[RIGHTFRONT][2]);
+    // printf("lb : %lf, %lf, %lf\n", leg_buf[LEFTBACK][0], leg_buf[LEFTBACK][1], leg_buf[LEFTBACK][2]);
+    // printf("lf : %lf, %lf, %lf\n", leg_buf[LEFTFRONT][0], leg_buf[LEFTFRONT][1], leg_buf[LEFTFRONT][2]);
 
-    printf("pose buffer:\n");
-    printf("rb : %lf, %lf, %lf\n", pose_buf[RIGHTBACK][0], pose_buf[RIGHTBACK][1], pose_buf[RIGHTBACK][2]);
-    printf("rf : %lf, %lf, %lf\n", pose_buf[RIGHTFRONT][0], pose_buf[RIGHTFRONT][1], pose_buf[RIGHTFRONT][2]);
-    printf("lb : %lf, %lf, %lf\n", pose_buf[LEFTBACK][0], pose_buf[LEFTBACK][1], pose_buf[LEFTBACK][2]);
-    printf("lf : %lf, %lf, %lf\n", pose_buf[LEFTFRONT][0], pose_buf[LEFTFRONT][1], pose_buf[LEFTFRONT][2]);
+    // printf("pose buffer:\n");
+    // printf("rb : %lf, %lf, %lf\n", pose_buf[RIGHTBACK][0], pose_buf[RIGHTBACK][1], pose_buf[RIGHTBACK][2]);
+    // printf("rf : %lf, %lf, %lf\n", pose_buf[RIGHTFRONT][0], pose_buf[RIGHTFRONT][1], pose_buf[RIGHTFRONT][2]);
+    // printf("lb : %lf, %lf, %lf\n", pose_buf[LEFTBACK][0], pose_buf[LEFTBACK][1], pose_buf[LEFTBACK][2]);
+    // printf("lf : %lf, %lf, %lf\n", pose_buf[LEFTFRONT][0], pose_buf[LEFTFRONT][1], pose_buf[LEFTFRONT][2]);
 
-    printf("new values:\n");
-    printf("rb : %lf, %lf, %lf\n", rb[0], rb[1], rb[2]);
-    printf("rf : %lf, %lf, %lf\n", rf[0], rf[1], rf[2]);
-    printf("lb : %lf, %lf, %lf\n", lb[0], lb[1], lb[2]);
-    printf("lf : %lf, %lf, %lf\n", lf[0], lf[1], lf[2]);
+    // printf("new values:\n");
+    // printf("rb : %lf, %lf, %lf\n", rb[0], rb[1], rb[2]);
+    // printf("rf : %lf, %lf, %lf\n", rf[0], rf[1], rf[2]);
+    // printf("lb : %lf, %lf, %lf\n", lb[0], lb[1], lb[2]);
+    // printf("lf : %lf, %lf, %lf\n", lf[0], lf[1], lf[2]);
 
     legs[RIGHTBACK].move(rb);
     legs[RIGHTFRONT].move(rf);
