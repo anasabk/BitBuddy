@@ -21,24 +21,12 @@ int degree_list[12][20] = {
 	{0, 7, 15, 24, 34, 43, 51, 61, 70, 77, 86, 95, 103, 113, 121, 130, 138, 148, 155, 165}, 
 };
 
-bool flag = true;
-
-void int_handler(int sig) {
-	flag = false;
-}
-
 extern "C" int main() {
 	if (gpioInitialise() < 0) {
 		printf("Failure...");
 		exit(-1);
 	}
 
-	struct sigaction act;
-	act.sa_handler = int_handler;
-	sigaction(SIGINT, &act, nullptr);
-
 	RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
 	robot.run();
-
-	while(flag);
 }

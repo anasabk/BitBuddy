@@ -74,6 +74,11 @@ void sigpipe_handler(int sig) {
    is_connected = 0; 
 }
 
+void sigint_handler(int sig) {
+    is_running = 0;
+    is_connected = 0; 
+}
+
 enum RobotDog::symb RobotDog::get_symb(const char *str) {
     for(int i = 0; i < 10; i++)
         if(strcmp(str, symb_str[i]))
@@ -81,27 +86,6 @@ enum RobotDog::symb RobotDog::get_symb(const char *str) {
 
     return UNKNOWN;
 }
-
-void split_args(char* str, char** args, int argc, char delim) {
-    for(int i = 0; i < argc; i++)
-        args[i] = 0;
-    
-    int len = strlen(str);
-    int j = 0;
-    for(int i = 0; j < argc && i < len; i++) {
-        if(str[i] != delim) {
-            if(args[j] == NULL) {
-                args[j] = &str[i];
-            }
-        } else {
-            str[i] = 0;
-            j++;
-        }
-    }
-
-    return;
-}
-
 
 void RobotDog::run() {
     pthread_t temp;
@@ -132,6 +116,14 @@ void RobotDog::run() {
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8080);
     addr.sin_addr.s_addr = inet_addr("192.168.43.174");
+
+	struct sigaction act;
+	act.sa_handler = sigint_handler;
+	sigaction(SIGINT, &act, nullptr);
+
+	struct sigaction act;
+	act.sa_handler = sigpipe_handler;
+	sigaction(SIGINT, &act, nullptr);
 
     int fd = -1;
     CS_msg_s buffer = {"\0\0\0\0\0\0\0\0", false};
