@@ -9,12 +9,13 @@
 int raspCam();
 int raspAxes();
 int raspSwitch();
-int desktopCam();
 
 static pid_t pid;
+static DesktopCam *desktopCam;
 
 static void atExit()
 {
+    delete desktopCam;
     kill(pid, SIGKILL);
     wait(NULL);
 }
@@ -31,7 +32,7 @@ int main(int argc, char *argv[])
 //    std::thread(raspCam).detach();
 //    std::thread(raspAxes).detach();
 //    std::thread(raspSwitch).detach();
-    DesktopCam *desktopCam = new DesktopCam();
+    desktopCam = new DesktopCam();
 
     pid = fork();
 
@@ -57,9 +58,5 @@ int main(int argc, char *argv[])
 
     new MainWindow();
 
-    int ret = a.exec();
-
-    delete desktopCam;
-
-    return ret;
+    return a.exec();
 }
