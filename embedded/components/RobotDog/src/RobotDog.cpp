@@ -81,7 +81,7 @@ void sigint_handler(int sig) {
 
 enum RobotDog::symb RobotDog::get_symb(const char *str) {
     for(int i = 0; i < 10; i++)
-        if(strcmp(str, symb_str[i]))
+        if(strcmp(str, symb_str[i]) == 0)
             return (enum RobotDog::symb)i;
 
     return UNKNOWN;
