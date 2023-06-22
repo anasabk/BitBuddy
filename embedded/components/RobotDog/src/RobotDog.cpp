@@ -120,10 +120,12 @@ void* RobotDog::control_thread(void* param) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
+            printf("getting joystick commands\n");
+
             Axes buffer;
             bool js_connected = true;
             while (js_connected && is_running && !robot->mode_flag) {
-                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) <= 0) {
+                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) < 0) {
                     perror("[RaspAxes] recvfrom");
                     js_connected = false;
                     break;
