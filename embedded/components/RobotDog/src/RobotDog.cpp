@@ -117,13 +117,13 @@ void RobotDog::run() {
     addr.sin_port = htons(8080);
     addr.sin_addr.s_addr = inet_addr("192.168.43.174");
 
-	struct sigaction act;
-	act.sa_handler = sigint_handler;
-	sigaction(SIGINT, &act, nullptr);
+	struct sigaction int_act;
+	int_act.sa_handler = sigint_handler;
+	sigaction(SIGINT, &int_act, nullptr);
 
-	struct sigaction act;
-	act.sa_handler = sigpipe_handler;
-	sigaction(SIGINT, &act, nullptr);
+	struct sigaction pipe_act;
+	pipe_act.sa_handler = sigpipe_handler;
+	sigaction(SIGINT, &pipe_act, nullptr);
 
     int fd = -1;
     CS_msg_s buffer = {"\0\0\0\0\0\0\0\0", false};
