@@ -126,6 +126,8 @@ void* RobotDog::control_thread(void* param) {
                     continue;
                 }
 
+                printf("x:%f y:%f\n", buffer.x, buffer.y);
+
                 if(buffer.x > -0.00001 && buffer.x < 0.00001 && buffer.y > -0.00001 && buffer.y < 0.00001)
                     continue;
 
