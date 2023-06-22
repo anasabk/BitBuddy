@@ -99,6 +99,8 @@ void* RobotDog::control_thread(void* param) {
     while(is_running) {
         if(robot->mode_flag == true) {
             // Auto
+            sleep(3);
+
         } else {
             robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
             if(robot->js_server_fd < 0)  {
@@ -121,10 +123,10 @@ void* RobotDog::control_thread(void* param) {
             Axes buffer;
             bool js_connected = true;
             while (js_connected && is_running && !robot->mode_flag) {
-                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) == -1) {
+                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) <= 0) {
                     perror("[RaspAxes] recvfrom");
                     js_connected = false;
-                    continue;
+                    break;
                 }
 
                 printf("x:%f y:%f\n", buffer.x, buffer.y);
@@ -133,13 +135,6 @@ void* RobotDog::control_thread(void* param) {
                     continue;
 
                 robot->main_body.move_forward(buffer.x * -M_PI/4, buffer.y * 160);
-                
-                // for (int i = 0; i < 3; i++) {
-                //     if (sendto(robot->js_server_fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
-                //         perror("[RaspAxes] sendto");
-                //         break;
-                //     }
-                // }
             }
 
             close(robot->js_server_fd);
