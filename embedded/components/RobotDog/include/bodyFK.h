@@ -6,19 +6,16 @@
 class Body {
 public:
     enum LegSide {
+        LEFTBACK = 0,
         RIGHTBACK = 1,
         RIGHTFRONT = 2,
-        LEFTBACK = 0,
         LEFTFRONT = 3
     };
 
     Body(
-        Leg* left_front, 
-        Leg* right_front, 
-        Leg* left_back, 
-        Leg* right_back, 
-        int len_mm, 
-        int width_mm
+        CalServo (&servos)[12],
+        double len_mm, 
+        double width_mm
     );
     
     ~Body();
@@ -73,9 +70,16 @@ public:
 
     void sit_down();
 
+    void move_forward(double rot_rad, double dist, int step_num = 4);
+
+    void recenter();
+
+    void recover();
+
 
 private:
-    Leg *legs[4];
+    CalServo *servos[12];
+    Leg legs[4];
     double len_mm;
     double width_mm;
 
