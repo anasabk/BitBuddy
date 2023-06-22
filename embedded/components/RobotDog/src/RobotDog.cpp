@@ -131,7 +131,7 @@ void* RobotDog::control_thread(void* param) {
                 if(buffer.x > -0.00001 && buffer.x < 0.00001 && buffer.y > -0.00001 && buffer.y < 0.00001)
                     continue;
 
-                robot->main_body.move_forward(buffer.x * M_PI/4, buffer.y * 40);
+                robot->main_body.move_forward(buffer.x * M_PI/4, buffer.y * 160);
             }
         }
     }
