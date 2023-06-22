@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
-    cv::VideoCapture cap(0);
+    cv::VideoCapture cap("http://10.1.254.156:4747/video");
     // Check if camera opened successfully
     if (!cap.isOpened()) {
         std::cout << "Error opening video stream or file" << endl;
