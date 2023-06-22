@@ -108,6 +108,11 @@ void* RobotDog::control_thread(void* param) {
                 continue;
             }
 
+            struct timeval read_timeout;
+            read_timeout.tv_sec = 0;
+            read_timeout.tv_usec = 10;
+            setsockopt(robot->js_server_fd, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
+
             std::cout << "[RaspAxes] Sending address to client..." << std::endl;
 
             for (int i = 0; i < 10; i++)
@@ -126,7 +131,7 @@ void* RobotDog::control_thread(void* param) {
             bool js_connected = true;
             while (js_connected && is_running && !robot->mode_flag) {
                 printf("looping\n");
-                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), O_NONBLOCK, NULL, NULL) <= 0) {
+                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) <= 0) {
                     perror("[RaspAxes] recvfrom");
                     js_connected = false;
                     break;
