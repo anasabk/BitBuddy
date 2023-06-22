@@ -1,38 +1,32 @@
+#include "DesktopCam.h"
+
 #include <opencv2/opencv.hpp>
-#include <arpa/inet.h>
+#include <thread>
 
-static std::vector<sockaddr_in> getClientAddresses()
+DesktopCam::DesktopCam()
 {
-    std::vector<uint16_t> ports = {8083, 8084};
-    std::vector<sockaddr_in> addresses;
+    std::thread(&DesktopCam::runServer, this).detach();
+}
 
-    for (uint16_t port : ports)
-    {
-        sockaddr_in address{};
-
-        address.sin_family = AF_INET;
-        address.sin_addr.s_addr = inet_addr("127.0.0.1");
-        address.sin_port = htons(port);
-
-        addresses.push_back(address);
-    }
-
-    return addresses;
+DesktopCam::~DesktopCam()
+{
+    ::close(receiverSockFd);
+    ::close(senderSockFd);
 }
 
 #define PORT 8082
 #define MAX_BUFFER 65507
 
-int desktopCam()
+int DesktopCam::runServer()
 {
-    int receiverSockFd = socket(AF_INET, SOCK_DGRAM, 0);
+    receiverSockFd = socket(AF_INET, SOCK_DGRAM, 0);
     if (receiverSockFd == -1)
     {
         perror("[DesktopCam] receiver socket");
         return -1;
     }
 
-    int senderSockFd = socket(AF_INET, SOCK_DGRAM, 0);
+    senderSockFd = socket(AF_INET, SOCK_DGRAM, 0);
     if (senderSockFd == -1)
     {
         perror("[DesktopCam] sender socket");
@@ -68,4 +62,23 @@ int desktopCam()
     }
 
     return 0;
+}
+
+std::vector<sockaddr_in> DesktopCam::getClientAddresses()
+{
+    std::vector<uint16_t> ports = {8083, 8084};
+    std::vector<sockaddr_in> addresses;
+
+    for (uint16_t port : ports)
+    {
+        sockaddr_in address{};
+
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = inet_addr("127.0.0.1");
+        address.sin_port = htons(port);
+
+        addresses.push_back(address);
+    }
+
+    return addresses;
 }

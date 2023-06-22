@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "DesktopCam.h"
 
 #include <QApplication>
 #include <iostream>
@@ -30,7 +31,7 @@ int main(int argc, char *argv[])
 //    std::thread(raspCam).detach();
 //    std::thread(raspAxes).detach();
 //    std::thread(raspSwitch).detach();
-    std::thread(desktopCam).detach();
+    DesktopCam *desktopCam = new DesktopCam();
 
     pid = fork();
 
@@ -57,6 +58,8 @@ int main(int argc, char *argv[])
     new MainWindow();
 
     int ret = a.exec();
+
+    delete desktopCam;
 
     return ret;
 }
