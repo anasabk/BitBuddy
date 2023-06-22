@@ -121,8 +121,14 @@ void* RobotDog::control_thread(void* param) {
 
     while(is_running) {
         if(robot->mode_flag == true) {
-            // Auto
-            sleep(3);
+            while (robot->mode_flag) {
+                if(robot->mpu_buff.x_accel < 0) {
+                    sleep(1);
+                    robot->main_body.recover();
+                }
+                sleep(3);
+            }
+            
 
         } else {
             printf("getting joystick commands\n");
