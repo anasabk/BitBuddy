@@ -30,6 +30,11 @@ Joystick::Joystick(int size, QWidget *parent) :
     std::thread(&Joystick::runClient, this).detach();
 }
 
+Joystick::~Joystick()
+{
+    ::close(sockFd);
+}
+
 void Joystick::mousePressEvent(QMouseEvent *event)
 {
     isPressed = true;
@@ -113,7 +118,7 @@ void Joystick::moveStick(QPoint newPos)
 }
 
 #define PORT 8081
-#define SEND_RATE 10
+#define SEND_RATE 0.2
 
 void Joystick::runClient()
 {
@@ -154,6 +159,11 @@ void Joystick::runClient()
         if (sendto(sockFd, &axes, sizeof(axes), 0, (struct sockaddr *)&raspAddress, sizeof(raspAddress)) == -1)
             perror("[Joystick] sendto");
         axesMutex.unlock();
+
+        std::cout << "Sent joystick axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
+
+//        if (recvfrom(sockFd, NULL, 0, 0, NULL, NULL) == -1)
+//            perror("[Joystick] recvfrom 2");
 
         auto end = std::chrono::steady_clock::now();
 

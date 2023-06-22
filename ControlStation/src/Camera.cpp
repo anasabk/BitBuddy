@@ -13,6 +13,8 @@ Camera::Camera(uint16_t port, bool convertToRGB, QWidget *parent) :
 {
     setScaledContents(true);
 
+    setPixmap(QPixmap::fromImage(QImage(":/camera.png")));
+
     std::thread(&Camera::runClient, this).detach();
 }
 

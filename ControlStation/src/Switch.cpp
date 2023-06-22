@@ -4,7 +4,8 @@
 #include <QLabel>
 #include <QSpacerItem>
 #include <QEvent>
-#include <arpa/inet.h>
+#include <iostream>
+#include <thread>
 
 Switch::Switch(const char *name, const QString &text1, const QString &text2, QWidget *parent) :
     QGroupBox(parent),
@@ -16,6 +17,7 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
     label2(new QLabel(text2, this))
 {
     std::strncpy(switchState.name, name, 9);
+    switchState.value = false;
 
     layout->setContentsMargins(0, 0, 0, 0);
 
@@ -54,7 +56,16 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
     setState(false);
 }
 
-int Switch::clientFd;
+Switch::~Switch()
+{
+    ::close(serverFd);
+    ::close(clientFd);
+}
+
+sockaddr_in Switch::clientAddr;
+socklen_t Switch::clientAddrLen = sizeof(Switch::clientAddr);
+int Switch::serverFd = -1;
+int Switch::clientFd = -1;
 
 bool Switch::eventFilter(QObject *object, QEvent *event)
 {
@@ -66,9 +77,19 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
             setCursor(Qt::ArrowCursor);
         else if (event->type() == QEvent::MouseButtonRelease)
         {
-            setState(!switchState.value);
-            if (write(clientFd, &switchState, sizeof(switchState)) == -1)
-                perror("[Switch] write");
+            if (clientFd != -1)
+            {
+                SwitchState changedState = switchState;
+                changedState.value = !switchState.value;
+
+                if (write(clientFd, &changedState, sizeof(changedState)) == -1)
+                    perror("[Switch] write");
+                else
+                {
+                    setState(changedState.value);
+                    std::cout << "Sent changed switch state: " << switchState.name << " " << switchState.value << std::endl;
+                }
+            }
         }
     }
 
@@ -86,11 +107,10 @@ void Switch::setState(bool value)
 
 void Switch::runServer()
 {
-    struct sockaddr_in serverAddr{}, clientAddr{};
-    socklen_t clientAddrLen = sizeof(clientAddr);
+    struct sockaddr_in serverAddr{};
 
     // Create socket
-    int serverFd = socket(AF_INET, SOCK_STREAM, 0);
+    serverFd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverFd == -1) {
         perror("[Switch] socket");
         return;
@@ -113,9 +133,25 @@ void Switch::runServer()
         return;
     }
 
-    if ((clientFd = accept(serverFd, (struct sockaddr *)&clientAddr, &clientAddrLen)) == -1)
+    std::cout << "[Switch] Bound to port and listening..." << std::endl;
+
+    Switch::acceptClient();
+}
+
+void Switch::sigpipeHandler(int signum)
+{
+    std::thread(&Switch::acceptClient).detach();
+}
+
+void Switch::acceptClient()
+{
+    clientFd = -1;
+
+    if ((clientFd = accept(serverFd, (struct sockaddr *)&Switch::clientAddr, &Switch::clientAddrLen)) == -1)
     {
         perror("[Switch] accept");
         return;
     }
+
+    std::cout << "[Switch] Accepted connection." << std::endl;
 }

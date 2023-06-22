@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
 //    std::thread(raspCam).detach();
-    std::thread(raspAxes).detach();
+//    std::thread(raspAxes).detach();
 //    std::thread(raspSwitch).detach();
     std::thread(desktopCam).detach();
 

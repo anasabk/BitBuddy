@@ -7,6 +7,7 @@ class Joystick : public QWidget
 {
 public:
     Joystick(int size, QWidget *parent = nullptr);
+    ~Joystick();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -34,6 +35,7 @@ private:
     void moveWithPressedKeys();
     void moveStick(QPoint newPos);
 
+    int sockFd;
     void runClient();
 };
 

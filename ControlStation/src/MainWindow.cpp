@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 #include "Camera.h"
-#include "Map.h"
 #include "Joystick.h"
 #include "Switch.h"
 
@@ -10,6 +9,7 @@
 #include <QVBoxLayout>
 #include <QResizeEvent>
 #include <QPlainTextEdit>
+#include <signal.h>
 
 MainWindow::MainWindow() :
     QGroupBox(),
@@ -17,7 +17,6 @@ MainWindow::MainWindow() :
     HBox2(new QGroupBox(this)),
     cameraVBox(new QGroupBox(HBox1)),
     objDetVBox(new QGroupBox(HBox1)),
-    mapVBox(new QGroupBox(HBox1)),
     joystick(new Joystick(200, HBox2)),
     switchesVBox(new QGroupBox(this)),
 
@@ -26,15 +25,12 @@ MainWindow::MainWindow() :
     HBox2Layout(new QHBoxLayout(HBox2)),
     cameraVBoxLayout(new QVBoxLayout(cameraVBox)),
     objDetVBoxLayout(new QVBoxLayout(objDetVBox)),
-    mapVBoxLayout(new QVBoxLayout(mapVBox)),
     switchesVBoxLayout(new QVBoxLayout(switchesVBox)),
 
     cameraLabel(new QLabel("Camera", cameraVBox)),
     camera(new Camera(8083, true, cameraVBox)),
     objDetLabel(new QLabel("Object Detection", objDetVBox)),
-    objDet(new Camera(8085, false, objDetVBox)),
-    mapLabel(new QLabel("Map", mapVBox)),
-    map(new Map(mapVBox))
+    objDet(new Camera(8085, false, objDetVBox))
 {
     connect(objDet, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
 
@@ -45,7 +41,6 @@ MainWindow::MainWindow() :
 
     HBox1Layout->addWidget(cameraVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
     HBox1Layout->addWidget(objDetVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
-    HBox1Layout->addWidget(mapVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
 
     HBox2Layout->addWidget(joystick);
     HBox2Layout->addItem(new QSpacerItem(50, 0));
@@ -61,18 +56,14 @@ MainWindow::MainWindow() :
     objDetVBoxLayout->addWidget(objDet);
     objDet->setStyleSheet("border: 2px solid #e0e0e0");
 
-    mapVBoxLayout->addWidget(mapLabel);
-    mapLabel->setStyleSheet("color: #e0e0e0");
-    mapVBoxLayout->addWidget(map);
-    map->setStyleSheet("border: 2px solid #e0e0e0");
-
     switchesVBox->stackUnder(joystick);
 
+    signal(SIGPIPE, &Switch::sigpipeHandler);
     std::thread(&Switch::runServer).detach();
 
     switchesVBoxLayout->addWidget(new Switch("ONOFF", "Off", "On", switchesVBox), 0, Qt::AlignHCenter | Qt::AlignVCenter);
     switchesVBoxLayout->addWidget(new Switch("MODE", "Manual", "Auto", switchesVBox), 0, Qt::AlignHCenter | Qt::AlignVCenter);
-    switchesVBoxLayout->addWidget(new Switch("POSE", "Stand", "Sit", switchesVBox), 0, Qt::AlignHCenter | Qt::AlignVCenter);
+    switchesVBoxLayout->addWidget(new Switch("POSE", "Sit", "Stand", switchesVBox), 0, Qt::AlignHCenter | Qt::AlignVCenter);
 
     HBox2Layout->setContentsMargins(250, 40, 0, 40);
 
@@ -91,9 +82,7 @@ void MainWindow::setSizes()
     float height = size().height() / 2.0f;
     float cameraAspectRatio = (float)camera->pixmap().width() / camera->pixmap().height();
     float objDetAspectRatio = (float)objDet->pixmap().width() / objDet->pixmap().height();
-    float mapAspectRatio = (float)map->pixmap().width() / map->pixmap().height();
 
     camera->setFixedSize(height * cameraAspectRatio, height);
     objDet->setFixedSize(height * objDetAspectRatio, height);
-    map->setFixedSize(height * mapAspectRatio, height);
 }

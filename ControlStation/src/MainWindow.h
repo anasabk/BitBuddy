@@ -29,7 +29,6 @@ private:
     QGroupBox *HBox2;
     QGroupBox *cameraVBox;
     QGroupBox *objDetVBox;
-    QGroupBox *mapVBox;
     QPlainTextEdit *console;
     Joystick *joystick;
     QGroupBox *switchesVBox;
@@ -39,15 +38,12 @@ private:
     QHBoxLayout *HBox2Layout;
     QVBoxLayout *cameraVBoxLayout;
     QVBoxLayout *objDetVBoxLayout;
-    QVBoxLayout *mapVBoxLayout;
     QVBoxLayout *switchesVBoxLayout;
 
     QLabel *cameraLabel;
     QLabel *camera;
     QLabel *objDetLabel;
     Camera *objDet;
-    QLabel *mapLabel;
-    Map *map;
 };
 
 #endif // MAINWINDOW_H
