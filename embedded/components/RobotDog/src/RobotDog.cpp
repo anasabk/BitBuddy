@@ -96,35 +96,35 @@ void* RobotDog::control_thread(void* param) {
     addr.sin_port = htons(8081);
     addr.sin_addr.s_addr = inet_addr("192.168.43.174");
 
+    robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if(robot->js_server_fd < 0)  {
+        perror("joystick socket creation failed");
+        return NULL;
+    }
+
+    struct timeval read_timeout;
+    read_timeout.tv_sec = 5;
+    read_timeout.tv_usec = 0;
+    setsockopt(robot->js_server_fd, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
+
+    std::cout << "[RaspAxes] Sending address to client..." << std::endl;
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (sendto(robot->js_server_fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
+            perror("[RaspAxes] sendto");
+            break;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
     while(is_running) {
         if(robot->mode_flag == true) {
             // Auto
             sleep(3);
 
         } else {
-            robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
-            if(robot->js_server_fd < 0)  {
-                perror("joystick socket creation failed");
-                continue;
-            }
-
-            struct timeval read_timeout;
-            read_timeout.tv_sec = 5;
-            read_timeout.tv_usec = 0;
-            setsockopt(robot->js_server_fd, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
-
-            std::cout << "[RaspAxes] Sending address to client..." << std::endl;
-
-            for (int i = 0; i < 10; i++)
-            {
-                if (sendto(robot->js_server_fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
-                    perror("[RaspAxes] sendto");
-                    break;
-                }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-
             printf("getting joystick commands\n");
 
             Axes buffer;
@@ -147,9 +147,10 @@ void* RobotDog::control_thread(void* param) {
 
             printf("exitting joystick loop\n");
 
-            close(robot->js_server_fd);
         }
     }
+    
+    close(robot->js_server_fd);
 }
 
 void RobotDog::run() {
