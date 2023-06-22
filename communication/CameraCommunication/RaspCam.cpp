@@ -2,7 +2,7 @@
 #include <arpa/inet.h>
 #include <thread>
 
-#define DESKTOP_IP "127.0.0.1"
+#define DESKTOP_IP "192.168.43.174"
 #define DESKTOP_PORT 8081
 #define TARGET_FPS 30.0
 
