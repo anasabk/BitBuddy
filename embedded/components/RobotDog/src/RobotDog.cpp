@@ -134,7 +134,7 @@ void* RobotDog::control_thread(void* param) {
 
                 robot->main_body.move_forward(buffer.x * M_PI/4, buffer.y * 160);
                 
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 3; i++) {
                     if (sendto(robot->js_server_fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
                         perror("[RaspAxes] sendto");
                         break;
@@ -211,9 +211,9 @@ void RobotDog::run() {
             switch (get_symb(buffer.name)) {
             case POSE:
                 if(buffer.state)
-                    main_body.sit_down();
-                else
                     main_body.stand_up();
+                else
+                    main_body.sit_down();
                 break;
             
             case MODE:
