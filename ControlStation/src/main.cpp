@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
     if (atexit(atExit) != 0)
         std::cerr << "[Main] atexit failed." << std::endl;
 
+    signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     signal(SIGABRT, signalHandler);
     signal(SIGSEGV, signalHandler);
