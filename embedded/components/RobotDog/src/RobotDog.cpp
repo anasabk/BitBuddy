@@ -144,7 +144,7 @@ void RobotDog::run() {
 
         is_connected = 1;
         while(recv(fd, &buffer, sizeof(CS_msg_s), 0) > 0 && is_connected) {
-            printf("%s %d\n", buffer.name, buffer.state);
+            printf("%s %d %d\n", buffer.name, buffer.state, get_symb(buffer.name));
             switch (get_symb(buffer.name)) {
             case POSE:
                 if(buffer.state)
