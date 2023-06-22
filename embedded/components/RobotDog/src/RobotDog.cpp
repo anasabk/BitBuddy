@@ -87,13 +87,63 @@ enum RobotDog::symb RobotDog::get_symb(const char *str) {
     return UNKNOWN;
 }
 
+void* RobotDog::control_thread(void* param) {
+    RobotDog *robot = (RobotDog*)param;
+
+    // Joystick socket
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(8080);
+    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
+
+    while(is_running) {
+        if(robot->mode_flag == true) {
+            // Auto
+        } else {
+            robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
+            if(robot->js_server_fd < 0)  {
+                perror("joystick socket creation failed");
+                return;
+            }
+
+            std::cout << "[RaspAxes] Sending address to client..." << std::endl;
+
+            for (int i = 0; i < 10; i++)
+            {
+                if (sendto(robot->js_server_fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
+                    perror("[RaspAxes] sendto");
+                    break;
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+
+            Axes buffer;
+            bool js_connected = true;
+            while (js_connected) {
+                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) == -1) {
+                    perror("[RaspAxes] recvfrom");
+                    continue;
+                }
+
+                if(buffer.x > -0.00001 && buffer.x < 0.00001 && buffer.y > -0.00001 && buffer.y < 0.00001)
+                    continue;
+
+                robot->main_body.move_forward(buffer.x * M_PI/4, buffer.y * 40);
+            }
+        }
+    }
+}
+
 void RobotDog::run() {
     pthread_t temp;
 
     is_running = true;
+    mode_flag = 0;
 
 	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
 	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
+    pthread_create(&control_thread_id, NULL, control_thread, (void*)this);
     pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff));
     
     servos[0].set_degree(86);
@@ -112,11 +162,6 @@ void RobotDog::run() {
     sleep(2);
     main_body.sit_down();
 
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(8080);
-    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
-
 	struct sigaction int_act;
 	int_act.sa_handler = sigint_handler;
 	sigaction(SIGINT, &int_act, nullptr);
@@ -124,6 +169,11 @@ void RobotDog::run() {
 	struct sigaction pipe_act;
 	pipe_act.sa_handler = sigpipe_handler;
 	sigaction(SIGPIPE, &pipe_act, nullptr);
+
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(8080);
+    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
 
     int fd = -1;
     CS_msg_s buffer = {"\0\0\0\0\0\0\0\0", false};
@@ -154,11 +204,7 @@ void RobotDog::run() {
                 break;
             
             case MODE:
-                if(buffer.state)
-                    //MANUAL
-                    break;
-                else
-                    //AUTO
+                mode_flag = buffer.state;
                 break;
             
             case ONOFF:

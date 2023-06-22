@@ -47,6 +47,14 @@ private:
     MPU6050::MPU6050_data_t mpu_buff;
     double front_dist[2];
 
+    int switch_server_fd;
+    int js_server_fd;
+    int cam_server_fd;
+
+    bool mode_flag;
+    pthread_t control_thread_id;
+
+
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
     const int cal_degree_list[12][20] = {
@@ -69,10 +77,7 @@ private:
 
     static void* mpu6050_thread(void* args);
     static void* HCSR04_thread(void*);
-    static void* joystick_rec_thread(void *param);
-
-    void auto_mode();
-    void man_mode();
+    static void* control_thread(void *param);
 
     enum symb {
         UNKNOWN = -1,
@@ -91,6 +96,10 @@ private:
     struct CS_msg_s {
         const char name[9];
         bool state;
+    };
+
+    struct Axes {
+        float x, y;
     };
     
     const static char *symb_str[10];
