@@ -1,20 +1,61 @@
 #include "MainWindow.h"
 
-#include <thread>
 #include <QApplication>
-#include <QThread>
+#include <iostream>
+#include <thread>
+#include <sys/wait.h>
 
-int cameraServer();
-int controlServer();
+int raspCam();
+int raspAxes();
+int raspSwitch();
+int desktopCam();
+
+static pid_t pid;
+
+static void atExit()
+{
+    kill(pid, SIGKILL);
+    wait(NULL);
+}
+
+static void signalHandler(int signum)
+{
+    exit(EXIT_SUCCESS);
+}
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    std::thread cameraServ(cameraServer);
-    std::thread controlServ(controlServer);
-    QThread::sleep(3);
+    std::thread(raspCam).detach();
+    std::thread(raspAxes).detach();
+    std::thread(raspSwitch).detach();
+    std::thread(desktopCam).detach();
+
+    pid = fork();
+
+    if (pid == -1)
+    {
+        perror("[Main] fork");
+        exit(EXIT_FAILURE);
+    }
+
+    if (pid == 0)
+    {
+        execlp("python3", "python3", "yolo.py", (char*)NULL);
+        perror("[Main] execl");
+        _exit(127);
+    }
+
+    if (atexit(atExit) != 0)
+        std::cerr << "[Main] atexit failed." << std::endl;
+
+    if (signal(SIGTERM, signalHandler) == SIG_ERR)
+        perror("[Main] signal");
+
     new MainWindow();
 
-    return a.exec();
+    int ret = a.exec();
+
+    return ret;
 }

@@ -1,13 +1,9 @@
 #include "Joystick.h"
 
 #include <iostream>
-#include <cstring>
-#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <termios.h>
 #include <QMouseEvent>
-#include <limits>
+#include <thread>
 
 Joystick::Joystick(int size, QWidget *parent) :
     QWidget(parent),
@@ -31,34 +27,7 @@ Joystick::Joystick(int size, QWidget *parent) :
     setFocus();
     moveStick(QPoint(r, r));
 
-    connectToServer();
-}
-
-void Joystick::connectToServer()
-{
-    struct sockaddr_in serverAddr;
-    char message[1024];
-    std::string userInput;
-
-    // Create socket
-    clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (clientSocket < 0) {
-        std::cerr << "Error: Failed to create client socket for joystick." << std::endl;
-        return;
-    }
-
-    // Set server address
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(8081);
-    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    // connect to server
-    if (::connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
-        std::cerr << "Error: Could not connect joystick to server." << std::endl;
-        return;
-    }
-
-    std::cout << "Connected joystick to server." << std::endl;
+    std::thread(&Joystick::runServer, this).detach();
 }
 
 void Joystick::mousePressEvent(QMouseEvent *event)
@@ -138,24 +107,39 @@ void Joystick::moveStick(QPoint newPos)
 
     stick->move(newPos);
 
-    // Send joystick axes to server
+    axesMutex.lock();
+    axes = {x / r, y / r};
+    axesMutex.unlock();
+}
 
-    char message[1024];
+#define RASP_IP "127.0.0.1"
+#define RASP_PORT 8080
+#define SEND_RATE 10
 
-    sprintf(message, "%f|%f", x / r, y / r);
-
-    write(clientSocket, message, 1024);
-
-    // Get Response
-    memset(message, 0, sizeof(message));
-    int bytesRead = read(clientSocket, message, sizeof(message));
-    if (bytesRead < 0) {
-        std::cerr << "Error: Could not read Response." << std::endl;
-        return;
-    } else if (bytesRead == 0) {
-        std::cout << "The server connection has been closed." << std::endl;
+void Joystick::runServer()
+{
+    int sockFd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockFd == -1) {
+        perror("[Joystick] socket");
         return;
     }
 
-    std::cout << "Response from server: " << message << std::endl;
+    struct sockaddr_in raspAddress{};
+    raspAddress.sin_family = AF_INET;
+    raspAddress.sin_addr.s_addr = inet_addr(RASP_IP);
+    raspAddress.sin_port = htons(RASP_PORT);
+
+    while (true)
+    {
+        auto start = std::chrono::steady_clock::now();
+
+        axesMutex.lock();
+        if (sendto(sockFd, &axes, sizeof(axes), 0, (struct sockaddr *)&raspAddress, sizeof(raspAddress)) == -1)
+            perror("[Joystick] sendto");
+        axesMutex.unlock();
+
+        auto end = std::chrono::steady_clock::now();
+
+        std::this_thread::sleep_for(std::chrono::nanoseconds((long)(1.0 / SEND_RATE * 1e9)) - (end - start));
+    }
 }

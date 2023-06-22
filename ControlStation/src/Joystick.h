@@ -17,18 +17,24 @@ protected:
     void moveEvent(QMoveEvent *event) override;
 
 private:
+    struct Axes
+    {
+        float x, y;
+    };
+
     QWidget *stick;
     float r;
     float sr;
     bool isPressed = false;
     QSet<int> pressedKeys;
 
+    Axes axes;
+    std::mutex axesMutex;
+
     void moveWithPressedKeys();
     void moveStick(QPoint newPos);
 
-    int clientSocket;
-
-    void connectToServer();
+    void runServer();
 };
 
 #endif // JOYSTICK_H
