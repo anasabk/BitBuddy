@@ -12,7 +12,6 @@ add_subdirectory(${COMPONENT_DIR}/CalServo)
 add_subdirectory(${COMPONENT_DIR}/I2Cdev)
 add_subdirectory(${COMPONENT_DIR}/HC_SR04)
 add_subdirectory(${COMPONENT_DIR}/RobotDog)
-# add_subdirectory(${COMPONENT_DIR}/pigpio)
 
 target_include_directories(${PROJECT_NAME} PUBLIC 
     ${COMPONENT_DIR}/MPU6050 
@@ -22,7 +21,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${COMPONENT_DIR}/I2Cdev
     ${COMPONENT_DIR}/HC_SR04
     ${COMPONENT_DIR}/RobotDog
-    # ${COMPONENT_DIR}/pigpio
 )
 
 target_link_directories(${PROJECT_NAME} PRIVATE 
@@ -33,7 +31,6 @@ target_link_directories(${PROJECT_NAME} PRIVATE
     ${COMPONENT_DIR}/I2Cdev
     ${COMPONENT_DIR}/HC_SR04
     ${COMPONENT_DIR}/RobotDog
-    # ${COMPONENT_DIR}/pigpio
 )
 
 target_link_libraries(${PROJECT_NAME} 
@@ -44,7 +41,6 @@ target_link_libraries(${PROJECT_NAME}
     I2Cdev
     HC_SR04
     RobotDog
-    # pigpio
 )
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -g")
