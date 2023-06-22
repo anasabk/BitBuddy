@@ -120,14 +120,11 @@ void* RobotDog::control_thread(void* param) {
 
             Axes buffer;
             bool js_connected = true;
-            int read_size = 0;
             while (js_connected) {
-                while ((read_size = recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), O_NONBLOCK, NULL, NULL)) > 0);
-                if(read_size < 0) {
-                    perror("[RaspAxes] joystick read error");
-                    break;
-                } else if(read_size == 0)
+                if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) == -1) {
+                    perror("[RaspAxes] recvfrom");
                     continue;
+                }
 
                 printf("x:%f y:%f\n", buffer.x, buffer.y);
 
@@ -135,6 +132,8 @@ void* RobotDog::control_thread(void* param) {
                     continue;
 
                 robot->main_body.move_forward(buffer.x * M_PI/4, buffer.y * 160);
+
+                sendto(robot->js_server_fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr));
             }
         }
     }
