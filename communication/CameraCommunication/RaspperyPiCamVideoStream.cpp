@@ -12,7 +12,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#define PORT 8080
+#define PORT 9090
 
 int main() {
     cv::VideoCapture cap(0);
