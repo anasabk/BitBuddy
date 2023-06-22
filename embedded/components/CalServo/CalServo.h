@@ -24,6 +24,8 @@ public:
 
     void sweep(int dest, int duration_ms);
 
+    void sweep_offset(int dest, int duration_ms);
+
     int getChannel();
 
 private:
