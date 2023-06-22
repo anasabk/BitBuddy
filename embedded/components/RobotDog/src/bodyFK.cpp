@@ -390,8 +390,6 @@ void Body::move_forward(double rot_rad, double dist, int step_num) {
 
         steps_gone++;
     }
-
-    pose(0, 0, 0, 0, 0, 140);
 }
 
 void Body::recenter() {
