@@ -88,6 +88,11 @@ private:
         CENTER
     };
 
+    struct CS_msg_s {
+        const char name[9];
+        bool state;
+    };
+    
     const static char *symb_str[10];
 
     enum symb get_symb(const char* str);

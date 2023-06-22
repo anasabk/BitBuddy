@@ -70,34 +70,8 @@ void* read_thread(void *param) {
     }
 }
 
-
-int send_msg(int fd, const char* buf) {
-    char msg_head[64];
-    int msg_size = strlen(buf);
-    snprintf(msg_head, 1024, "%d|", msg_size);
-    send(fd, msg_head, strlen(msg_head), 0);
-
-    return send(fd, buf, msg_size, 0);
-}
-
-int rec_msg(int fd, char* buf, int maxlen) {
-    int size = 0;
-    char num;
-    while(recv(fd, &num, 1, 0) > 0) {
-        if(num >= '0' && num <= '9') 
-            size = size*10 + num - '0';
-        else
-            break;
-    }
-
-    int received = 0;
-    if(size > maxlen)
-        received = recv(fd, buf, maxlen, 0);
-    else if(size > 0)
-        received = recv(fd, buf, size, 0);
-    buf[received] = 0;
-
-    return received;
+void sigpipe_handler(int sig) {
+   is_connected = 0; 
 }
 
 enum RobotDog::symb RobotDog::get_symb(const char *str) {
@@ -157,11 +131,11 @@ void RobotDog::run() {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8080);
-    addr.sin_addr.s_addr = inet_addr("server address");
+    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
 
     int fd = -1;
-    char buffer[1024];
-    symb temp_symb[2];
+    CS_msg_s buffer = {"\0\0\0\0\0\0\0\0", false};
+    symb temp_symb;
     char *args[2];
     while(is_running) {
         fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -176,19 +150,32 @@ void RobotDog::run() {
             continue;
         }
 
-
         is_connected = 1;
-        while(rec_msg(fd, buffer, 1024) > 0 && is_connected) {
-            split_args(buffer, args, 2, ':');
-            temp_symb[0] = get_symb(args[0]);
-            temp_symb[1] = get_symb(args[1]);
-            
-            switch (temp_symb[0])
-            {
+        while(recv(fd, &buffer, sizeof(CS_msg_s), 0) > 0 && is_connected) {
+            switch (get_symb(buffer.name)) {
             case POSE:
-                if(temp_symb[])
+                if(buffer.state)
+                    main_body.sit_down();
+                else
+                    main_body.stand_up();
                 break;
             
+            case MODE:
+                if(buffer.state)
+                    //MANUAL
+                    break;
+                else
+                    //AUTO
+                break;
+            
+            case ONOFF:
+                if(buffer.state)
+                    //ON
+                    break;
+                else
+                    //OFF
+                break;
+
             default:
                 break;
             }
@@ -196,9 +183,6 @@ void RobotDog::run() {
 
         close(fd);
     }
-
-
-    // running_flag = false;
 
     return;
 }
