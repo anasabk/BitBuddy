@@ -109,8 +109,8 @@ void* RobotDog::control_thread(void* param) {
             }
 
             struct timeval read_timeout;
-            read_timeout.tv_sec = 0;
-            read_timeout.tv_usec = 10;
+            read_timeout.tv_sec = 2;
+            read_timeout.tv_usec = 0;
             setsockopt(robot->js_server_fd, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
 
             std::cout << "[RaspAxes] Sending address to client..." << std::endl;
