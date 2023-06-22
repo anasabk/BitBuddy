@@ -112,19 +112,20 @@ extern "C" {
 class MPU6050 : private I2Cdev {
 public:
 	typedef struct {
-		float x_rot;
 		float x_accel;
-		float y_rot;
 		float y_accel;
-		float z_rot;
 		float z_accel;
 		float tempr;
+		float x_rot;
+		float y_rot;
+		float z_rot;
 	} MPU6050_data_t;
 
 
-	MPU6050(int8_t bus, int8_t addr, bool run_update_thread = true);
+	MPU6050(int8_t bus, int8_t addr, MPU6050_data_t *offset = NULL);
 	void read_data(MPU6050_data_t *buffer);
 	void calibrate();
+	void set_offsets(MPU6050_data_t *offsets);
 
 
 private:
