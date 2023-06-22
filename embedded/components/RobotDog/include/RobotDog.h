@@ -30,33 +30,22 @@ public:
 
     void run();
 
-    void move_forward (int dist_mm);
 
 private:
     PCA9685 pca;
     LCD lcd;
+
+    pthread_t mpu_thread_id;
     MPU6050 mpu6050;
+
+    pthread_t hcsr04_thread_id;
     HC_SR04 hc_sr04[2];
+
     CalServo servos[12];
-    Leg legs[4];
     Body main_body;
 
     MPU6050::MPU6050_data_t mpu_buff;
-    int front_dist[2];
-
-    // typedef struct servo_params {
-    //     void* args;
-    //     int servo_id;
-    // } servo_params;
-
-    // {Back left, Back right, Front right, Front left} {x, y, z}
-    // double leg_move_buffer[4][3];
-    // int movement_speed;
-
-    // degree
-    // double servo_buffer[12];
-    // int dur_buffer[12]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
+    double front_dist[2];
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
@@ -80,7 +69,28 @@ private:
 
     static void* mpu6050_thread(void* args);
     static void* HCSR04_thread(void*);
-    static void* servo_thread(void*);
+    static void* joystick_rec_thread(void *param);
+
+    void auto_mode();
+    void man_mode();
+
+    enum symb {
+        UNKNOWN = -1,
+        ONOFF,
+        ON,
+        OFF,
+        POSE,
+        STAND,
+        SIT,
+        MODE,
+        MAN,
+        AUTO,
+        CENTER
+    };
+
+    const static char *symb_str[10];
+
+    enum symb get_symb(const char* str);
 };
 
 
