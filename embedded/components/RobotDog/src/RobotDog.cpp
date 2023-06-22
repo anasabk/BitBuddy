@@ -103,7 +103,7 @@ void* RobotDog::control_thread(void* param) {
             robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
             if(robot->js_server_fd < 0)  {
                 perror("joystick socket creation failed");
-                return;
+                continue;
             }
 
             std::cout << "[RaspAxes] Sending address to client..." << std::endl;
