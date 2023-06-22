@@ -100,7 +100,7 @@ void* RobotDog::control_thread(void* param) {
         if(robot->mode_flag == true) {
             // Auto
         } else {
-            robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, O_NONBLOCK);
+            robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
             if(robot->js_server_fd < 0)  {
                 perror("joystick socket creation failed");
                 continue;
@@ -122,7 +122,7 @@ void* RobotDog::control_thread(void* param) {
             bool js_connected = true;
             int read_size = 0;
             while (js_connected) {
-                while ((read_size = recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL)) > 0);
+                while ((read_size = recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), O_NONBLOCK, NULL, NULL)) > 0);
                 if(read_size < 0) {
                     perror("[RaspAxes] joystick read error");
                     break;
