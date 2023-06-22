@@ -189,6 +189,7 @@ void RobotDog::run() {
         if(connect(fd, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
             perror("socket connection failed");
             close(fd);
+            sleep(3);
             continue;
         }
 
