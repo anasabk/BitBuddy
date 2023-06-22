@@ -93,7 +93,7 @@ void* RobotDog::control_thread(void* param) {
     // Joystick socket
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(8080);
+    addr.sin_port = htons(8081);
     addr.sin_addr.s_addr = inet_addr("192.168.43.174");
 
     while(is_running) {
