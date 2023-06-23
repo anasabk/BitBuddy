@@ -109,8 +109,7 @@ void* RobotDog::control_thread(void* param) {
 
     std::cout << "[RaspAxes] Sending address to client..." << std::endl;
 
-    for (int i = 0; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
         if (sendto(robot->js_server_fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
             perror("[RaspAxes] sendto");
             break;
@@ -123,12 +122,16 @@ void* RobotDog::control_thread(void* param) {
         if(robot->mode_flag == true) {
             while (robot->mode_flag) {
                 if(robot->mpu_buff.x_accel < 0) {
-                    sleep(1);
+                    int i = 0;
+                    while (robot->mpu_buff.x_accel < 0.2 && i < 2) {
+                        i++;
+                        sleep(1);
+                    }
+
                     robot->main_body.recover();
                 }
                 sleep(3);
             }
-            
 
         } else {
             printf("getting joystick commands\n");
@@ -159,6 +162,9 @@ void* RobotDog::control_thread(void* param) {
 }
 
 void RobotDog::run() {
+    lcd.goHome();
+    lcd.printf("BitBuddy");
+
     pthread_t temp;
 
     is_running = true;
