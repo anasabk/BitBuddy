@@ -13,14 +13,14 @@ public:
     Camera(uint16_t port, bool convertToRGB, QWidget *parent = nullptr);
 
 signals:
-    void aspectRatioChanged(float aspectRatio);
+    void aspectRatioChanged(float aspectRatio);  // Emits signal when aspect ratio changes
 
 private:
-    uint16_t port;
-    bool convertToRGB;
-    float aspectRatio;
+    uint16_t port;      // Port that will receive the video stream from DesktopCam.
+    bool convertToRGB;  // Convert the video stream from BGR to RGB? There is no need to for the object detection overlay as its video stream will be received as RGB.
+    float aspectRatio;  // Aspect ratio of the received video stream. Used for adjusting the camera size on the UI.
 
-    void runClient();
+    void runClient();   // Runs the client that will receive the video stream.
 };
 
 #endif // CAMERA_H
