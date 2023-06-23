@@ -9,7 +9,6 @@ MainWindow::MainWindow() :
     cameraVBox(new QGroupBox(HBox1)),
     objDetVBox(new QGroupBox(HBox1)),
     console(new QPlainTextEdit(HBox2)),
-    joystick(new Joystick(200, HBox2)),
     switchesVBox(new QGroupBox(this)),
 
     VBoxLayout(new QVBoxLayout(this)),
@@ -43,6 +42,7 @@ MainWindow::MainWindow() :
     HBox1Layout->addWidget(cameraVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
     HBox1Layout->addWidget(objDetVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
 
+    joystick = new Joystick(200, HBox2);
     HBox2Layout->addWidget(console);
     HBox2Layout->addItem(new QSpacerItem(100, 0));
     HBox2Layout->addWidget(joystick);
@@ -60,7 +60,7 @@ MainWindow::MainWindow() :
     objDet->setStyleSheet("border: 2px solid #e0e0e0");
 
     console->setStyleSheet("border: 1px solid #202020");
-    console->setFixedWidth(400);
+    console->setFixedWidth(500);
     console->setReadOnly(true);
 
     switchesVBox->stackUnder(joystick);
@@ -76,7 +76,7 @@ MainWindow::MainWindow() :
 
     setAttribute(Qt::WA_DeleteOnClose);
 
-    show();
+    showMaximized();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
