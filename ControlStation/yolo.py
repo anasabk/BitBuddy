@@ -5,7 +5,7 @@ import numpy as np
 import socket
 
 def build_model(is_cuda):
-    net = cv2.dnn.readNet("../config_files/bestv2.onnx")
+    net = cv2.dnn.readNet("config_files/bestv2.onnx")
     if is_cuda:
         print("Attempty to use CUDA")
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -31,7 +31,7 @@ def detect(image, net):
 
 def load_classes():
     class_list = []
-    with open("../config_files/classes.txt", "r") as f:
+    with open("config_files/classes.txt", "r") as f:
         class_list = [cname.strip() for cname in f.readlines()]
     return class_list
 
@@ -103,6 +103,7 @@ PORT = 8082
 UI_CAM_PORT = 8083
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(("0.0.0.0", PORT))
 
 start = time.time_ns()

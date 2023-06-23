@@ -1,14 +1,5 @@
 #include "MainWindow.h"
-#include "Camera.h"
-#include "Joystick.h"
-#include "Switch.h"
 
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QResizeEvent>
-#include <QPlainTextEdit>
 #include <signal.h>
 
 MainWindow::MainWindow() :
@@ -31,11 +22,17 @@ MainWindow::MainWindow() :
     cameraLabel(new QLabel("Camera", cameraVBox)),
     camera(new Camera(8083, true, cameraVBox)),
     objDetLabel(new QLabel("Object Detection", objDetVBox)),
-    objDet(new Camera(8085, false, objDetVBox))
-{
-//    (new OutputWriter(console, STDOUT_FILENO, this))->start();
-//    (new OutputWriter(console, STDERR_FILENO, this))->start();
+    objDet(new Camera(8085, false, objDetVBox)),
 
+    stdoutWatcher(new OutputWatcher(STDOUT_FILENO, this)),
+    stderrWatcher(new OutputWatcher(STDERR_FILENO, this))
+{
+    connect(stdoutWatcher, &OutputWatcher::outputReceived, this, &MainWindow::writeOutput);
+    connect(stderrWatcher, &OutputWatcher::outputReceived, this, &MainWindow::writeOutput);
+    stdoutWatcher->start();
+    stderrWatcher->start();
+
+    connect(camera, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
     connect(objDet, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
 
     setStyleSheet("border: none; background: #303030");
@@ -82,12 +79,6 @@ MainWindow::MainWindow() :
     show();
 }
 
-MainWindow::~MainWindow()
-{
-    ::close(STDOUT_FILENO);
-    ::close(STDERR_FILENO);
-}
-
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     setSizes();
@@ -103,67 +94,14 @@ void MainWindow::setSizes()
     objDet->setFixedSize(height * objDetAspectRatio, height);
 }
 
-#define BUFFER_SIZE 4096
-
-std::mutex MainWindow::OutputWriter::outputMutex;
-
-MainWindow::OutputWriter::OutputWriter(QPlainTextEdit *console, int outputFd, QObject *parent) :
-    QThread(parent),
-    console(console),
-    outputFd(outputFd)
-{}
-
-void MainWindow::OutputWriter::run()
+void MainWindow::writeOutput(int originalOutputFd, char *output, int n)
 {
-    int originalOutput;
-    int outputFds[2];
+    console->moveCursor(QTextCursor::End);
+    console->insertPlainText(output);
+    console->moveCursor(QTextCursor::End);
 
-    if ((originalOutput = dup(outputFd)) == -1)
-    {
-        perror("[MainWindow] dup");
-        return;
-    }
+    if (write(originalOutputFd, output, n) == -1)
+        perror("[MainWindow] write");
 
-    if (pipe(outputFds) == -1)
-    {
-        perror("[MainWindow] pipe");
-        return;
-    }
-
-    if (dup2(outputFds[1], outputFd) == -1)
-    {
-        perror("[MainWindow] dup2");
-        return;
-    }
-
-    if (::close(outputFds[1]) == -1)
-        perror("[MainWindow] close");
-
-    char buffer[BUFFER_SIZE];
-    ssize_t bytesRead;
-
-    while (true)
-    {
-        bytesRead = read(outputFds[0], buffer, BUFFER_SIZE - 1);
-
-        if (bytesRead == -1)
-            perror("[MainWindow] read");
-        else if (bytesRead == 0)
-        {
-            std::cout << "[MainWindow] end of outputFd " << outputFd << std::endl;
-            return;
-        }
-        else
-        {
-            buffer[bytesRead] = '\0';
-
-            outputMutex.lock();
-            console->moveCursor(QTextCursor::End);
-            console->insertPlainText(buffer);
-            console->moveCursor(QTextCursor::End);
-            if (write(originalOutput, buffer, bytesRead) == -1)
-                perror("[MainWindow] write");
-            outputMutex.unlock();
-        }
-    }
+    free(output);
 }

@@ -34,11 +34,16 @@ int raspCam() {
         cv::Mat frame;
         cap.read(frame);
 
-        std::vector<uchar> buffer;
-        cv::imencode(".jpg", frame, buffer, {cv::IMWRITE_JPEG_QUALITY, 50});
+        if (frame.empty())
+            std::cerr << "[RaspCam] Frame is empty." << std::endl;
+        else
+        {
+            std::vector<uchar> buffer;
+            cv::imencode(".jpg", frame, buffer, {cv::IMWRITE_JPEG_QUALITY, 50});
 
-        if (sendto(sockFd, buffer.data(), buffer.size(), 0, (struct sockaddr *)&desktopAddress, sizeof(desktopAddress)) == -1)
-            perror("[RaspCam] sendto");
+            if (sendto(sockFd, buffer.data(), buffer.size(), 0, (struct sockaddr *)&desktopAddress, sizeof(desktopAddress)) == -1)
+                perror("[RaspCam] sendto");
+        }
 
         auto end = std::chrono::steady_clock::now();
 

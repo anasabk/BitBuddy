@@ -1,27 +1,25 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QGroupBox>
-#include <QThread>
+#include "Camera.h"
+#include "Joystick.h"
+#include "Switch.h"
+#include "OutputWatcher.h"
 
-class QGroupBox;
-class QVBoxLayout;
-class QHBoxLayout;
-class QLabel;
-class Camera;
-class Map;
-class Joystick;
-class Switch;
-class QPlainTextEdit;
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QPlainTextEdit>
 
 class MainWindow : public QGroupBox
 {
 public:
     MainWindow();
-    ~MainWindow();
 
 public slots:
     void setSizes();
+    void writeOutput(int originalOutputFd, char *output, int n);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -43,21 +41,12 @@ private:
     QVBoxLayout *switchesVBoxLayout;
 
     QLabel *cameraLabel;
-    QLabel *camera;
+    Camera *camera;
     QLabel *objDetLabel;
     Camera *objDet;
 
-    class OutputWriter : public QThread
-    {
-    public:
-        OutputWriter(QPlainTextEdit *console, int outputFd, QObject *parent = nullptr);
-        void run() override;
-
-    private:
-        QPlainTextEdit *console;
-        int outputFd;
-        static std::mutex outputMutex;
-    };
+    OutputWatcher *stdoutWatcher;
+    OutputWatcher *stderrWatcher;
 };
 
 #endif // MAINWINDOW_H
