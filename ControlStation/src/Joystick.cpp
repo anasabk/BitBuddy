@@ -160,7 +160,7 @@ void Joystick::runClient()
             perror("[Joystick] sendto");
         axesMutex.unlock();
 
-        std::cout << "Sent joystick axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
+        std::cout << "[Joystick] Sent axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
 
         auto end = std::chrono::steady_clock::now();
 

@@ -87,9 +87,11 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
                 else
                 {
                     setState(changedState.value);
-                    std::cout << "Sent changed switch state: " << switchState.name << " " << switchState.value << std::endl;
+                    std::cout << "[Switch] Sent changed state: " << switchState.name << " " << switchState.value << std::endl;
                 }
             }
+            else
+                std::cout << "[Switch] Not connected!" << std::endl;
         }
     }
 
