@@ -133,7 +133,7 @@ void Switch::runServer()
         return;
     }
 
-    std::cout << "[Switch] Bound to port and listening..." << std::endl;
+    std::cout << "[Switch] Bound to port and listening for connection..." << std::endl;
 
     Switch::acceptClient();
 }

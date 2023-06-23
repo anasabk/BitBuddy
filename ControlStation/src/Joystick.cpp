@@ -118,7 +118,7 @@ void Joystick::moveStick(QPoint newPos)
 }
 
 #define PORT 8081
-#define SEND_RATE 0.2
+#define SEND_RATE 0.3
 
 void Joystick::runClient()
 {
@@ -141,7 +141,7 @@ void Joystick::runClient()
         return;
     }
 
-    std::cout << "[Joystick] Bound to port. Waiting to receive address from server." << std::endl;
+    std::cout << "[Joystick] Bound to port. Waiting to receive address from server..." << std::endl;
 
     if (recvfrom(sockFd, NULL, 0, 0, (struct sockaddr *)&raspAddress, &raspAddressLen) == -1)
     {
@@ -149,7 +149,7 @@ void Joystick::runClient()
         return;
     }
 
-    std::cout << "[Joystick] recevied address from server. Starting to send data." << std::endl;
+    std::cout << "[Joystick] received address from server. Starting to send data." << std::endl;
 
     while (true)
     {
@@ -161,9 +161,6 @@ void Joystick::runClient()
         axesMutex.unlock();
 
         std::cout << "Sent joystick axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
-
-//        if (recvfrom(sockFd, NULL, 0, 0, NULL, NULL) == -1)
-//            perror("[Joystick] recvfrom 2");
 
         auto end = std::chrono::steady_clock::now();
 

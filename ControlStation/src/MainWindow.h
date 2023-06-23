@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QGroupBox>
+#include <QThread>
 
 class QGroupBox;
 class QVBoxLayout;
@@ -17,6 +18,7 @@ class MainWindow : public QGroupBox
 {
 public:
     MainWindow();
+    ~MainWindow();
 
 public slots:
     void setSizes();
@@ -44,6 +46,18 @@ private:
     QLabel *camera;
     QLabel *objDetLabel;
     Camera *objDet;
+
+    class OutputWriter : public QThread
+    {
+    public:
+        OutputWriter(QPlainTextEdit *console, int outputFd, QObject *parent = nullptr);
+        void run() override;
+
+    private:
+        QPlainTextEdit *console;
+        int outputFd;
+        static std::mutex outputMutex;
+    };
 };
 
 #endif // MAINWINDOW_H

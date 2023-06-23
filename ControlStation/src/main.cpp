@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-//    std::thread(raspCam).detach();
-//    std::thread(raspAxes).detach();
-//    std::thread(raspSwitch).detach();
+    std::thread(raspCam).detach();
+    std::thread(raspAxes).detach();
+    std::thread(raspSwitch).detach();
     desktopCam = new DesktopCam();
 
     pid = fork();
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     if (pid == 0)
     {
         execlp("python3", "python3", "yolo.py", (char*)NULL);
-        perror("[Main] execl");
+        perror("[Main] execlp");
         _exit(127);
     }
 
