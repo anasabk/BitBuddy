@@ -5,8 +5,6 @@
 
 class Joystick : public QWidget
 {
-    Q_OBJECT
-
 public:
     Joystick(int size, QWidget *parent = nullptr);
     ~Joystick();
