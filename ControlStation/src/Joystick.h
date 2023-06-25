@@ -28,15 +28,14 @@ private:
         float x, y;
     };
 
-    QWidget *stick;          // Joystick stick.
-    float r;                 // Joystick radius.
-    float sr;                // Stick radius.
-    bool isPressed = false;  // Is mouse pressed?
-    QSet<int> pressedKeys;   // Keys that are currently pressed. Used for implementing joystick movement based on key presses.
-    bool isDisabled = false;
+    QWidget *stick;           // Joystick stick.
+    float r;                  // Joystick radius.
+    float sr;                 // Stick radius.
+    bool isPressed = false;   // Is mouse pressed?
+    QSet<int> pressedKeys;    // Keys that are currently pressed. Used for implementing joystick movement based on key presses.
+    bool isDisabled = false;  // Is joystick disabled?
 
-    Axes axes;             // Axes that will be sent to the robot.
-    std::mutex axesMutex;  // Mutex used when modifying or reading axes. This is needed as the client that sends the axes to the robot runs on a different thread.
+    std::atomic<Axes> axes;  // Axes that will be sent to the robot.
 
     void moveWithPressedKeys();     // Moves stick based on pressed keys.
     void moveStick(QPoint newPos);  // Moves stick relative to joystick.
