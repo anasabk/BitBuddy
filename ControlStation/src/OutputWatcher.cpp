@@ -66,7 +66,8 @@ void OutputWatcher::run()
             }
             std::strncpy(output, buffer, bytesRead + 1);
 
-            write(originalOutputFd, output, bytesRead);
+            if (write(originalOutputFd, output, bytesRead) == -1)
+                perror("[OutputWatcher] write");
 
             emit outputRead(output, bytesRead);
         }
