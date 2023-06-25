@@ -12,6 +12,13 @@ public:
         LEFTFRONT = 3
     };
 
+    struct move_param {
+        const float *speed;
+        const float *rot;
+        const bool *run_flag;
+        Body *body;
+    };
+
     Body(
         CalServo (&servos)[12],
         double len_mm, 
@@ -71,6 +78,8 @@ public:
     void sit_down();
 
     void move_forward(double rot_rad, double dist, int step_num = 4);
+
+    static void* move_thread(void* param);
 
     void recenter();
 

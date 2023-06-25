@@ -392,98 +392,111 @@ void Body::move_forward(double rot_rad, double dist, int step_num) {
     }
 }
 
-void Body::recenter() {
-    double temp_leg[3];
-    double Tm[4][4];
+void* Body::move_thread(void *param) {
+    const float *rot_rad = ((Body::move_param*)param)->rot;
+    const float *speed = ((Body::move_param*)param)->speed;
+    const bool *run_flag = ((Body::move_param*)param)->run_flag;
+    Body* body = ((Body::move_param*)param)->body;
+
+    const double l_leen_off =  20.0;
+    const double r_leen_off = -30.0;
+    const double f_leen_off =  15.0;
+    const double b_leen_off = -15.0;
+    double drift_offset = 2;
+
+    double new_pose_buf[4][3];
+    double temp[4][4];
 
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
+    double temp_vector[3];
+    int leg_num = 0;
+    int pause_counter = 0;
+    while(*run_flag) {
+        if(fabsl(*speed) + fabsl(*rot_rad) < 0.0001) {
+            if(pause_counter == 2){
+                wait_real(&timeNow, 100);
+                continue;
+            }
+            else
+                pause_counter++;
+        } else
+            pause_counter = 0;
 
-    // Leen right front
-    pose(0, 0, 0, 15, -30, 140);
-    wait_real(&timeNow, 250);
+        if(leg_num == -1) leg_num = 0;
 
-    // Recenter leg
-    leg_buf[LEFTBACK][2] = 50;
-    vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], temp_leg);
-    legs[LEFTBACK].move(temp_leg);
-    wait_real(&timeNow, 250);
-
-    leg_buf[LEFTBACK][0] = -50, leg_buf[LEFTBACK][1] = 55;
-    vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], temp_leg);
-    legs[LEFTBACK].move(temp_leg);
-    wait_real(&timeNow, 250);
-
-    leg_buf[LEFTBACK][2] = 0;
-    vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], temp_leg);
-    legs[LEFTBACK].move(temp_leg);
-    wait_real(&timeNow, 250);
-
-
-    // Leen left back
-    pose(0, 0, 0, -15, 20, 140);
-    wait_real(&timeNow, 250);
-
-    // Recenter leg
-    leg_buf[RIGHTFRONT][2] = 50;
-    vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], temp_leg);
-    legs[RIGHTFRONT].move(temp_leg);
-    wait_real(&timeNow, 250);
-
-    leg_buf[RIGHTFRONT][0] = 15, leg_buf[RIGHTFRONT][1] = -55;
-    vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], temp_leg);
-    legs[RIGHTFRONT].move(temp_leg);
-    wait_real(&timeNow, 250);
-
-    leg_buf[RIGHTFRONT][2] = 0;
-    vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], temp_leg);
-    legs[RIGHTFRONT].move(temp_leg);
-    wait_real(&timeNow, 250);
+        // Get the new pose of the legs
+        body->get_pose(
+            0, -*rot_rad, 0, 
+            -*speed, 0, 140, 
+            temp, 
+            new_pose_buf[RIGHTBACK], 
+            new_pose_buf[RIGHTFRONT], 
+            new_pose_buf[LEFTBACK], 
+            new_pose_buf[LEFTFRONT]
+        );
 
 
-    // Leen to the right back
-    pose(0, 0, 0, -15, -30, 140);
-    wait_real(&timeNow, 250);
-
-    // Recenter leg
-    leg_buf[LEFTFRONT][2] = 50;
-    vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], temp_leg);
-    legs[LEFTFRONT].move(temp_leg);
-    wait_real(&timeNow, 250);
-
-    leg_buf[LEFTFRONT][0] = 15, leg_buf[LEFTFRONT][1] = 55;
-    vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], temp_leg);
-    legs[LEFTFRONT].move(temp_leg);
-    wait_real(&timeNow, 250);
-
-    leg_buf[LEFTFRONT][2] = 0;
-    vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], temp_leg);
-    legs[LEFTFRONT].move(temp_leg);
-    wait_real(&timeNow, 250);
+        // Leen to the opposite side
+        body->pose(0, 0, 0, 0, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
+        wait_real(&timeNow, 250);
 
 
-    // Leen left front
-    pose(0, 0, 0, 15, 20, 140);
-    wait_real(&timeNow, 250);
+        // Position the leg
+        body->leg_buf[leg_num][2] = 50;
+        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
+        body->legs[leg_num].move(temp_vector, 150);
+        wait_real(&timeNow, 200);
 
-    // Recenter leg
-    leg_buf[RIGHTBACK][2] = 50;
-    vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], temp_leg);
-    legs[RIGHTBACK].move(temp_leg);
-    wait_real(&timeNow, 250);
+        body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0];
+        body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
+        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
+        body->legs[leg_num].move(temp_vector, 150);
+        wait_real(&timeNow, 200);
 
-    leg_buf[RIGHTBACK][0] = -50, leg_buf[RIGHTBACK][1] = -55;
-    vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], temp_leg);
-    legs[RIGHTBACK].move(temp_leg);
-    wait_real(&timeNow, 250);
+        body->leg_buf[leg_num][2] = 0;
+        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
+        body->legs[leg_num].move(temp_vector, 150);
+        wait_real(&timeNow, 150);
 
-    leg_buf[RIGHTBACK][2] = 0;
-    vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], temp_leg);
-    legs[RIGHTBACK].move(temp_leg);
-    wait_real(&timeNow, 250);
 
-    pose(0, 0, 0, 0, 0, 140);
+        leg_num = -(leg_num - 3);
+
+        // Position the leg
+        body->leg_buf[leg_num][2] = 50;
+        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
+        body->legs[leg_num].move(temp_vector, 150);
+        wait_real(&timeNow, 200);
+
+        body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0];
+        body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
+        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
+        body->legs[leg_num].move(temp_vector, 150);
+        wait_real(&timeNow, 200);
+
+        body->leg_buf[leg_num][2] = 0;
+        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
+        body->legs[leg_num].move(temp_vector, 150);
+        wait_real(&timeNow, 200);
+
+
+        // Go forward
+        body->leg_buf[LEFTBACK][0]   -= + drift_offset - new_pose_buf[LEFTBACK][0];
+        body->leg_buf[RIGHTBACK][0]  -= - drift_offset - new_pose_buf[RIGHTBACK][0];
+        body->leg_buf[RIGHTFRONT][0] -= - drift_offset - new_pose_buf[RIGHTFRONT][0];
+        body->leg_buf[LEFTFRONT][0]  -= + drift_offset - new_pose_buf[LEFTFRONT][0];
+        body->leg_buf[LEFTBACK][1]   += new_pose_buf[LEFTBACK][1];
+        body->leg_buf[RIGHTBACK][1]  += new_pose_buf[RIGHTBACK][1];
+        body->leg_buf[RIGHTFRONT][1] += new_pose_buf[RIGHTFRONT][1];
+        body->leg_buf[LEFTFRONT][1]  += new_pose_buf[LEFTFRONT][1];
+
+
+        // Go to the next leg pair
+        leg_num = -(leg_num - 3);
+    }
+
+    pthread_exit(NULL);
 }
 
 void Body::recover() {
