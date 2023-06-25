@@ -1,14 +1,16 @@
 #include "MainWindow.h"
 
 #include <signal.h>
+#include <QScrollBar>
 
-MainWindow::MainWindow() :
+MainWindow::MainWindow(Console *console) :
     QGroupBox(),
     HBox1(new QGroupBox(this)),
     HBox2(new QGroupBox(this)),
     cameraVBox(new QGroupBox(HBox1)),
     objDetVBox(new QGroupBox(HBox1)),
-    console(new QPlainTextEdit(HBox2)),
+    console(console),
+    joystick(new Joystick(200, HBox2)),
     switchesVBox(new QGroupBox(this)),
 
     VBoxLayout(new QVBoxLayout(this)),
@@ -21,16 +23,8 @@ MainWindow::MainWindow() :
     cameraLabel(new QLabel("Camera", cameraVBox)),
     camera(new Camera(8083, true, cameraVBox)),
     objDetLabel(new QLabel("Object Detection", objDetVBox)),
-    objDet(new Camera(8085, false, objDetVBox)),
-
-    stdoutWatcher(new OutputWatcher(STDOUT_FILENO, this)),
-    stderrWatcher(new OutputWatcher(STDERR_FILENO, this))
+    objDet(new Camera(8085, false, objDetVBox))
 {
-    connect(stdoutWatcher, &OutputWatcher::outputReceived, this, &MainWindow::writeOutput);
-    connect(stderrWatcher, &OutputWatcher::outputReceived, this, &MainWindow::writeOutput);
-    stdoutWatcher->start();
-    stderrWatcher->start();
-
     connect(camera, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
     connect(objDet, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
 
@@ -42,7 +36,7 @@ MainWindow::MainWindow() :
     HBox1Layout->addWidget(cameraVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
     HBox1Layout->addWidget(objDetVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
 
-    joystick = new Joystick(200, HBox2);
+    console->setParent(HBox2);
     HBox2Layout->addWidget(console);
     HBox2Layout->addItem(new QSpacerItem(100, 0));
     HBox2Layout->addWidget(joystick);
@@ -59,18 +53,15 @@ MainWindow::MainWindow() :
     objDetVBoxLayout->addWidget(objDet);
     objDet->setStyleSheet("border: 2px solid #e0e0e0");
 
-    console->setStyleSheet("border: 1px solid #202020");
-    console->setFixedWidth(500);
-    console->setReadOnly(true);
-
     switchesVBox->stackUnder(joystick);
 
-    signal(SIGPIPE, &Switch::sigpipeHandler);
-    std::thread(&Switch::runServer).detach();
+    Switch *modeSwitch = new Switch("MODE", "Manual", "Auto", switchesVBox);
 
     switchesVBoxLayout->addWidget(new Switch("ONOFF", "Off", "On", switchesVBox), 0, Qt::AlignHCenter | Qt::AlignVCenter);
-    switchesVBoxLayout->addWidget(new Switch("MODE", "Manual", "Auto", switchesVBox), 0, Qt::AlignHCenter | Qt::AlignVCenter);
+    switchesVBoxLayout->addWidget(modeSwitch, 0, Qt::AlignHCenter | Qt::AlignVCenter);
     switchesVBoxLayout->addWidget(new Switch("POSE", "Sit", "Stand", switchesVBox), 0, Qt::AlignHCenter | Qt::AlignVCenter);
+
+    connect(modeSwitch, &Switch::stateChanged, this, &MainWindow::onSwitchStateChanged);
 
     HBox2Layout->setContentsMargins(0, 40, 200, 40);
 
@@ -94,14 +85,8 @@ void MainWindow::setSizes()
     objDet->setFixedSize(height * objDetAspectRatio, height);
 }
 
-void MainWindow::writeOutput(int originalOutputFd, char *output, int n)
+void MainWindow::onSwitchStateChanged(Switch::SwitchState state)
 {
-    console->moveCursor(QTextCursor::End);
-    console->insertPlainText(output);
-    console->moveCursor(QTextCursor::End);
-
-    if (write(originalOutputFd, output, n) == -1)
-        perror("[MainWindow] write");
-
-    free(output);
+    if (std::strcmp(state.name, "MODE") == 0)
+        joystick->setIsDisabled(state.value);
 }

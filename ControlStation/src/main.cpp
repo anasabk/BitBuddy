@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "DesktopCam.h"
+#include "OutputWatcher.h"
 
 #include <QApplication>
 #include <iostream>
@@ -15,9 +16,16 @@ static DesktopCam *desktopCam;
 
 static void atExit()
 {
+    std::cout << "[Main] Cleaning up and exiting program..." << std::endl;
+
     delete desktopCam;
-    kill(pid, SIGKILL);
-    wait(NULL);
+
+    if (kill(pid, SIGKILL) == -1)
+        perror("[Main] kill");
+    if (wait(NULL) == -1)
+        perror("[Main] wait");
+
+    std::cout << "[Main] Done." << std::endl;
 }
 
 static void signalHandler(int signum)
@@ -29,10 +37,16 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    OutputWatcher *stdoutWatcher = new OutputWatcher(STDOUT_FILENO);
+    OutputWatcher *stderrWatcher = new OutputWatcher(STDERR_FILENO);
+    Console *console = new Console(stdoutWatcher, stderrWatcher);
+
+    new MainWindow(console);
+    desktopCam = new DesktopCam();
+
 //    std::thread(raspCam).detach();
 //    std::thread(raspAxes).detach();
 //    std::thread(raspSwitch).detach();
-    desktopCam = new DesktopCam();
 
     pid = fork();
 
@@ -56,8 +70,6 @@ int main(int argc, char *argv[])
     signal(SIGTERM, signalHandler);
     signal(SIGABRT, signalHandler);
     signal(SIGSEGV, signalHandler);
-
-    new MainWindow();
 
     return a.exec();
 }

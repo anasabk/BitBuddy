@@ -7,13 +7,16 @@ import socket
 def build_model(is_cuda):
     net = cv2.dnn.readNet("config_files/bestv2.onnx")
     if is_cuda:
-        print("Attempty to use CUDA")
+        print("[Object Detection] Attempting to use CUDA.")
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
     else:
-        print("Running on CPU")
+        print("[Object Detection] Running on CPU.")
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
         net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
+        
+    sys.stdout.flush()
+    
     return net
 
 
@@ -98,13 +101,14 @@ is_cuda = len(sys.argv) > 1 and sys.argv[1] == "cuda"
 
 net = build_model(is_cuda)
 
-MAX_BUFFER = 65536
-PORT = 8082
-UI_CAM_PORT = 8083
+MAX_BUFFER = 65507
+PORT = 8084
+UI_CAM_PORT = 8085
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.bind(("0.0.0.0", PORT))
+receiverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+receiverSock.bind(("0.0.0.0", PORT))
+
+senderSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 start = time.time_ns()
 frame_count = 0
@@ -114,12 +118,14 @@ fps = -1
 while True:
     buffer = np.zeros(MAX_BUFFER, dtype=np.uint8)
 
-    bytesReceived, _ = sock.recvfrom_into(buffer)
+    bytesReceived, _ = receiverSock.recvfrom_into(buffer)
 
     rawData = np.asarray(buffer[:bytesReceived], dtype=np.uint8)
     frame = cv2.imdecode(rawData, cv2.IMREAD_COLOR)
     if frame is None:
-        print("[Yolo] Decoded frame is empty.")
+        print("[Object Detection] Decoded frame is empty.")
+        sys.stdout.flush()
+        time.sleep(0.1)
         continue
 
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -150,4 +156,5 @@ while True:
         
     buffer2 = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 50])[1].tobytes()
 
-    sock.sendto(buffer2, ("127.0.0.1", UI_CAM_PORT))
+    senderSock.sendto(buffer2, ("127.0.0.1", UI_CAM_PORT))
+

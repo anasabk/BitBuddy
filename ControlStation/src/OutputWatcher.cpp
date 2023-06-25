@@ -7,46 +7,51 @@
 OutputWatcher::OutputWatcher(int outputFd, QObject *parent) :
     QThread(parent),
     outputFd(outputFd)
-{}
+{
+    start();
+}
 
 void OutputWatcher::run()
 {
     int originalOutputFd;
-    int outputFds[2];
+    int redirectionFds[2];
 
     if ((originalOutputFd = dup(outputFd)) == -1)
     {
-        perror("[MainWindow] dup");
+        perror("[OutputWatcher] dup");
         return;
     }
 
-    if (pipe(outputFds) == -1)
+    if (pipe(redirectionFds) == -1)
     {
-        perror("[MainWindow] pipe");
+        perror("[OutputWatcher] pipe");
         return;
     }
 
-    if (dup2(outputFds[1], outputFd) == -1)
+    if (redirectionFds[1] != outputFd)
     {
-        perror("[MainWindow] dup2");
-        return;
-    }
+        if (dup2(redirectionFds[1], outputFd) == -1)
+        {
+            perror("[OutputWatcher] dup2");
+            return;
+        }
 
-    if (::close(outputFds[1]) == -1)
-        perror("[MainWindow] close");
+        if (::close(redirectionFds[1]) == -1)
+            perror("[OutputWatcher] close");
+    }
 
     char buffer[BUFFER_SIZE];
     ssize_t bytesRead;
 
     while (true)
     {
-        bytesRead = read(outputFds[0], buffer, BUFFER_SIZE - 1);
+        bytesRead = read(redirectionFds[0], buffer, BUFFER_SIZE - 1);
 
         if (bytesRead == -1)
-            perror("[MainWindow] read");
+            perror("[OutputWatcher] read");
         else if (bytesRead == 0)
         {
-            std::cout << "[MainWindow] end of outputFd " << outputFd << std::endl;
+            std::cout << "[OutputWatcher] end of outputFd " << outputFd << std::endl;
             return;
         }
         else
@@ -56,12 +61,14 @@ void OutputWatcher::run()
             char *output = (char*)malloc(bytesRead + 1);
             if (output == NULL)
             {
-                std::cerr << "[MainWindow] malloc failed." << std::endl;
+                std::cerr << "[OutputWatcher] malloc failed." << std::endl;
                 continue;
             }
-            std::strcpy(output, buffer);
+            std::strncpy(output, buffer, bytesRead + 1);
 
-            emit outputReceived(originalOutputFd, output, bytesRead);
+            write(originalOutputFd, output, bytesRead);
+
+            emit outputRead(output, bytesRead);
         }
     }
 }

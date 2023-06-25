@@ -6,6 +6,7 @@
 #include <QEvent>
 #include <iostream>
 #include <thread>
+#include <signal.h>
 
 Switch::Switch(const char *name, const QString &text1, const QString &text2, QWidget *parent) :
     QGroupBox(parent),
@@ -16,6 +17,14 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
     label1(new QLabel(text1, this)),
     label2(new QLabel(text2, this))
 {
+    static bool init = true;
+    if (init)
+    {
+        signal(SIGPIPE, &Switch::sigpipeHandler);
+        std::thread(&Switch::runServer).detach();
+        init = false;
+    }
+
     std::strncpy(switchState.name, name, 9);
     switchState.value = false;
 
@@ -43,29 +52,31 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
     sw->setAttribute(Qt::WA_Hover, true);
     sw->installEventFilter(this);
 
-    char styleSheet[300];
-
     sw->setFixedSize(stickHeight * 2 + 8, height);
-    sprintf(styleSheet, "border: 2px solid #e0e0e0; border-radius: %dpx;", height / 2);
-    sw->setStyleSheet(styleSheet);
+    sw->setStyleSheet(QString("border: 2px solid #e0e0e0; border-radius: %1px").arg(height / 2));
 
     swStick->setFixedSize(stickHeight, stickHeight);
-    sprintf(styleSheet, "background: #e0e0e0; border-radius: %dpx;", stickHeight / 2);
-    swStick->setStyleSheet(styleSheet);
+    swStick->setStyleSheet(QString("background: #e0e0e0; border-radius: %1px").arg(stickHeight / 2));
 
     setState(false);
 }
 
 Switch::~Switch()
 {
-    ::close(serverFd);
-    ::close(clientFd);
-}
+    if (serverFd != -1)
+    {
+        if (::close(serverFd) == -1)
+            perror("[Switch] close 1");
+        serverFd = -1;
+    }
 
-sockaddr_in Switch::clientAddr;
-socklen_t Switch::clientAddrLen = sizeof(Switch::clientAddr);
-int Switch::serverFd = -1;
-int Switch::clientFd = -1;
+    if (clientFd != -1)
+    {
+        if (::close(clientFd) == -1)
+            perror("[Switch] close 2");
+        clientFd = -1;
+    }
+}
 
 bool Switch::eventFilter(QObject *object, QEvent *event)
 {
@@ -87,11 +98,12 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
                 else
                 {
                     setState(changedState.value);
+                    emit stateChanged(changedState);
                     std::cout << "[Switch] Sent changed state: " << switchState.name << " " << switchState.value << std::endl;
                 }
             }
             else
-                std::cout << "[Switch] Not connected!" << std::endl;
+                std::cerr << "[Switch] Not connected!" << std::endl;
         }
     }
 
@@ -109,21 +121,22 @@ void Switch::setState(bool value)
 
 void Switch::runServer()
 {
-    struct sockaddr_in serverAddr{};
-
-    // Create socket
-    serverFd = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverFd == -1) {
+    if ((serverFd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    {
         perror("[Switch] socket");
         return;
     }
 
-    // Set server address
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = htons(PORT);
+    int optval = 1;
+    if (setsockopt(serverFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+        perror("[Switch] setsockopt");
 
-    if (bind(serverFd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
+    struct sockaddr_in serverAddress{};
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = INADDR_ANY;
+    serverAddress.sin_port = htons(PORT);
+
+    if (bind(serverFd, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1)
     {
         perror("[Switch] bind");
         return;
@@ -142,14 +155,15 @@ void Switch::runServer()
 
 void Switch::sigpipeHandler(int signum)
 {
+    if (::close(clientFd) == -1)
+        perror("[Switch] close 3");
+    clientFd = -1;
     std::thread(&Switch::acceptClient).detach();
 }
 
 void Switch::acceptClient()
 {
-    clientFd = -1;
-
-    if ((clientFd = accept(serverFd, (struct sockaddr *)&Switch::clientAddr, &Switch::clientAddrLen)) == -1)
+    if ((clientFd = accept(serverFd, (struct sockaddr *)&Switch::clientAddress, &Switch::clientAddressLen)) == -1)
     {
         perror("[Switch] accept");
         return;
@@ -157,3 +171,8 @@ void Switch::acceptClient()
 
     std::cout << "[Switch] Accepted connection." << std::endl;
 }
+
+sockaddr_in Switch::clientAddress;
+socklen_t Switch::clientAddressLen = sizeof(Switch::clientAddress);
+int Switch::serverFd = -1;
+int Switch::clientFd = -1;

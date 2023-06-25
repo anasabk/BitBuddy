@@ -10,8 +10,10 @@ DesktopCam::DesktopCam()
 
 DesktopCam::~DesktopCam()
 {
-    ::close(receiverSockFd);
-    ::close(senderSockFd);
+    if (::close(receiverSockFd) == -1)
+        perror("[DesktopCam] close 1");
+    if (::close(senderSockFd) == -1)
+        perror("[DesktopCam] close 2");
 }
 
 #define PORT 8082

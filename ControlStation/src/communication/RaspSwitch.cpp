@@ -13,28 +13,28 @@ struct SwitchState {
 };
 
 int raspSwitch() {
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(DESKTOP_PORT);
-    addr.sin_addr.s_addr = inet_addr(DESKTOP_IP);
+    struct sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port = htons(DESKTOP_PORT);
+    serverAddress.sin_addr.s_addr = inet_addr(DESKTOP_IP);
 
-    int fd = socket(AF_INET, SOCK_STREAM, 0);
-    if(fd == -1)  {
-        perror("socket creation failed");
+    int sockFd = socket(AF_INET, SOCK_STREAM, 0);
+    if(sockFd == -1)  {
+        perror("[RaspSwitch] socket");
         return -1;
     }
 
-    if(connect(fd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
-        perror("socket connection failed");
+    if(connect(sockFd, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
+        perror("[RaspSwitch] connect");
         return -1;
     }
 
     while(true) {
         SwitchState state;
 
-        if(read(fd, &state, sizeof(state)) == -1)
+        if(read(sockFd, &state, sizeof(state)) == -1)
         {
-            perror("read failed");
+            perror("[RaspSwitch] read");
             continue;
         }
     }

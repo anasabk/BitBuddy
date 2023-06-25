@@ -4,22 +4,20 @@
 #include "Camera.h"
 #include "Joystick.h"
 #include "Switch.h"
-#include "OutputWatcher.h"
+#include "Console.h"
 
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 
 class MainWindow : public QGroupBox
 {
-public:
-    MainWindow();
+    Q_OBJECT
 
-public slots:
-    void setSizes();
-    void writeOutput(int originalOutputFd, char *output, int n);
+public:
+    MainWindow(Console *console);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -29,7 +27,7 @@ private:
     QGroupBox *HBox2;
     QGroupBox *cameraVBox;
     QGroupBox *objDetVBox;
-    QPlainTextEdit *console;
+    Console *console;
     Joystick *joystick;
     QGroupBox *switchesVBox;
 
@@ -45,8 +43,9 @@ private:
     QLabel *objDetLabel;
     Camera *objDet;
 
-    OutputWatcher *stdoutWatcher;
-    OutputWatcher *stderrWatcher;
+private slots:
+    void setSizes();
+    void onSwitchStateChanged(Switch::SwitchState state);
 };
 
 #endif // MAINWINDOW_H

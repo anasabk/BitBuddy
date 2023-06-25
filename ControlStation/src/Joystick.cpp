@@ -11,15 +11,11 @@ Joystick::Joystick(int size, QWidget *parent) :
     r(size / 2.0f),
     sr(size / 6.0f)
 {
-    char styleSheet[300];
-
     setFixedSize(size, size);
-    sprintf(styleSheet, "background: rgba(0, 0, 0, 0.3); border: 2px solid #e0e0e0; border-radius: %dpx;", static_cast<int>(r));
-    setStyleSheet(styleSheet);
+    setStyleSheet(QString("background: rgba(0, 0, 0, 0.3); border: 2px solid #e0e0e0; border-radius: %1px").arg((int)r));
 
     stick->setFixedSize(sr * 2, sr * 2);
-    sprintf(styleSheet, "background: #e0e0e0; border-radius: %dpx;", static_cast<int>(sr));
-    stick->setStyleSheet(styleSheet);
+    stick->setStyleSheet(QString("background: #e0e0e0; border-radius: %1px").arg((int)sr));
 
     stick->setAttribute(Qt::WA_TransparentForMouseEvents);
 
@@ -32,7 +28,8 @@ Joystick::Joystick(int size, QWidget *parent) :
 
 Joystick::~Joystick()
 {
-    ::close(sockFd);
+    if (::close(sockFd) == -1)
+        perror("[Joystick] close");
 }
 
 void Joystick::mousePressEvent(QMouseEvent *event)
@@ -118,7 +115,7 @@ void Joystick::moveStick(QPoint newPos)
 }
 
 #define PORT 8081
-#define SEND_RATE 0.3
+#define SEND_RATE 10
 
 void Joystick::runClient()
 {
@@ -141,7 +138,7 @@ void Joystick::runClient()
         return;
     }
 
-    std::cout << "[Joystick] Bound to port. Waiting to receive address from server..." << std::endl;
+    std::cout << "[Joystick] Bound to port and waiting to receive address from server..." << std::endl;
 
     if (recvfrom(sockFd, NULL, 0, 0, (struct sockaddr *)&raspAddress, &raspAddressLen) == -1)
     {
@@ -149,21 +146,29 @@ void Joystick::runClient()
         return;
     }
 
-    std::cout << "[Joystick] received address from server. Starting to send data." << std::endl;
+    std::cout << "[Joystick] Received address from server. Starting to send data." << std::endl;
 
     while (true)
     {
         auto start = std::chrono::steady_clock::now();
 
-        axesMutex.lock();
-        if (sendto(sockFd, &axes, sizeof(axes), 0, (struct sockaddr *)&raspAddress, sizeof(raspAddress)) == -1)
-            perror("[Joystick] sendto");
-        axesMutex.unlock();
+        if (!isDisabled)
+        {
+            axesMutex.lock();
+            if (sendto(sockFd, &axes, sizeof(axes), 0, (struct sockaddr *)&raspAddress, sizeof(raspAddress)) == -1)
+                perror("[Joystick] sendto");
+            axesMutex.unlock();
 
-        std::cout << "[Joystick] Sent axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
+//            std::cout << "[Joystick] Sent axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
+        }
 
         auto end = std::chrono::steady_clock::now();
 
         std::this_thread::sleep_for(std::chrono::nanoseconds((long)(1.0 / SEND_RATE * 1e9)) - (end - start));
     }
+}
+
+void Joystick::setIsDisabled(bool isDisabled)
+{
+    this->isDisabled = isDisabled;
 }
