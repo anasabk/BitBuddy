@@ -414,15 +414,15 @@ void* Body::move_thread(void *param) {
     int leg_num = 0;
     int pause_counter = 0;
     while(*run_flag) {
-        if(fabsl(*speed) + fabsl(*rot_rad) < 0.0001) {
-            if(pause_counter == 2){
-                wait_real(&timeNow, 100);
-                continue;
-            }
-            else
-                pause_counter++;
-        } else
+        if(fabsl(*speed) + fabsl(*rot_rad) < 0.0001)
+            pause_counter++;
+        else
             pause_counter = 0;
+
+        if(pause_counter == 2){
+            wait_real(&timeNow, 100);
+            continue;
+        }
 
         if(leg_num == -1) leg_num = 0;
 
