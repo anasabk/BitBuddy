@@ -139,7 +139,7 @@ void* RobotDog::control_thread(void* param) {
 
         } else {
             printf("Entered manual mode\n");
-            Axes buffer;
+            Axes buffer = {0, 0};
             
             pthread_t motion_thread;
             bool move_flag = true;
