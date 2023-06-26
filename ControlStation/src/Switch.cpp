@@ -1,12 +1,13 @@
 #include "Switch.h"
+#include "constants.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSpacerItem>
 #include <QEvent>
 #include <iostream>
-#include <thread>
 #include <signal.h>
+#include <fcntl.h>
 
 Switch::Switch(const char *name, const QString &text1, const QString &text2, QWidget *parent) :
     QGroupBox(parent),
@@ -21,7 +22,7 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
     if (init)
     {
         signal(SIGPIPE, &Switch::sigpipeHandler);
-        std::thread(&Switch::runServer).detach();
+        Switch::serverThread = std::thread(&Switch::runServer);
         init = false;
     }
 
@@ -63,18 +64,29 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
 
 Switch::~Switch()
 {
-    if (serverFd != -1)
+    static bool cleanup = true;
+    if (cleanup)
     {
-        if (::close(serverFd) == -1)
-            perror("[Switch] close 1");
-        serverFd = -1;
-    }
+        std::cout << "[Switch] Cleaning up..." << std::endl;
 
-    if (clientFd != -1)
-    {
-        if (::close(clientFd) == -1)
-            perror("[Switch] close 2");
-        clientFd = -1;
+        Switch::isServerRunning.store(false);
+        Switch::serverThread.join();
+
+        if (serverFd != -1)
+        {
+            if (::close(serverFd) == -1)
+                perror("[Switch] close 1");
+        }
+
+        if (clientFd != -1)
+        {
+            if (::close(clientFd) == -1)
+                perror("[Switch] close 2");
+        }
+
+        std::cout << "[Switch] Done." << std::endl;
+
+        cleanup = false;
     }
 }
 
@@ -117,11 +129,9 @@ void Switch::setState(bool value)
     switchState.value = value;
 }
 
-#define PORT 8080
-
 void Switch::runServer()
 {
-    if ((serverFd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    if ((serverFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) == -1)
     {
         perror("[Switch] socket");
         return;
@@ -134,7 +144,7 @@ void Switch::runServer()
     struct sockaddr_in serverAddress{};
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons(PORT);
+    serverAddress.sin_port = htons(constants::switchPort);
 
     if (bind(serverFd, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1)
     {
@@ -158,21 +168,32 @@ void Switch::sigpipeHandler(int signum)
     if (::close(clientFd) == -1)
         perror("[Switch] close 3");
     clientFd = -1;
-    std::thread(&Switch::acceptClient).detach();
+
+    std::cout << "[Switch] Connection closed." << std::endl;
+
+    Switch::serverThread.join();
+    Switch::serverThread = std::thread(&Switch::acceptClient);
 }
 
 void Switch::acceptClient()
 {
-    if ((clientFd = accept(serverFd, (struct sockaddr *)&Switch::clientAddress, &Switch::clientAddressLen)) == -1)
+    while ((clientFd = accept(serverFd, (struct sockaddr *)&Switch::clientAddress, &Switch::clientAddressLen)) == -1)
     {
-        perror("[Switch] accept");
-        return;
+        if (errno != EAGAIN)
+            perror("[Switch] accept");
+        else
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        if (!Switch::isServerRunning.load())
+            return;
     }
 
     std::cout << "[Switch] Accepted connection." << std::endl;
 }
 
-sockaddr_in Switch::clientAddress;
-socklen_t Switch::clientAddressLen = sizeof(Switch::clientAddress);
 int Switch::serverFd = -1;
 int Switch::clientFd = -1;
+sockaddr_in Switch::clientAddress;
+socklen_t Switch::clientAddressLen = sizeof(Switch::clientAddress);
+std::thread Switch::serverThread;
+std::atomic<bool> Switch::isServerRunning = true;

@@ -10,10 +10,10 @@ class Console : public QTextEdit
     Q_OBJECT
 
 public:
-    Console(OutputWatcher *stdoutWatcher, OutputWatcher *stderrWatcher, QWidget *parent = nullptr);
+    Console(const OutputWatcher *stdoutWatcher, const OutputWatcher *stderrWatcher, QWidget *parent = nullptr);
 
 private:
-    void writeOutput(char *output, int n, QColor color);
+    void writeOutput(QString output, QColor color);
 };
 
 #endif // CONSOLE_H

@@ -1,14 +1,20 @@
 #include "OutputWatcher.h"
 
 #include <iostream>
-
-#define BUFFER_SIZE 4096
+#include <fcntl.h>
 
 OutputWatcher::OutputWatcher(int outputFd, QObject *parent) :
-    QThread(parent),
+    QObject(parent),
     outputFd(outputFd)
 {
-    start();
+    thread = std::thread(&OutputWatcher::run, this);
+}
+
+OutputWatcher::~OutputWatcher()
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    isRunning.store(false);
+    thread.join();
 }
 
 void OutputWatcher::run()
@@ -40,36 +46,40 @@ void OutputWatcher::run()
             perror("[OutputWatcher] close");
     }
 
-    char buffer[BUFFER_SIZE];
+    char buffer[OutputWatcher::bufferSize];
     ssize_t bytesRead;
 
-    while (true)
+    int flags = fcntl(redirectionFds[0], F_GETFL);
+    if (flags == -1)
+        perror("[OutputWatcher] fcntl 1");
+    if (fcntl(redirectionFds[0], F_SETFL, flags | O_NONBLOCK) == -1)
+        perror("[OutputWatcher] fcntl 2");
+
+    while (isRunning.load())
     {
-        bytesRead = read(redirectionFds[0], buffer, BUFFER_SIZE - 1);
+        bytesRead = read(redirectionFds[0], buffer, OutputWatcher::bufferSize - 1);
 
         if (bytesRead == -1)
-            perror("[OutputWatcher] read");
+        {
+            if (errno != EAGAIN)
+                perror("[OutputWatcher] read");
+            else
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+            continue;
+        }
         else if (bytesRead == 0)
         {
-            std::cout << "[OutputWatcher] end of outputFd " << outputFd << std::endl;
+            std::cout << "[OutputWatcher] End of outputFd " << outputFd << std::endl;
             return;
         }
         else
         {
-            buffer[bytesRead] = '\0';
-
-            char *output = (char*)malloc(bytesRead + 1);
-            if (output == NULL)
-            {
-                std::cerr << "[OutputWatcher] malloc failed." << std::endl;
-                continue;
-            }
-            std::strncpy(output, buffer, bytesRead + 1);
-
-            if (write(originalOutputFd, output, bytesRead) == -1)
+            if (write(originalOutputFd, buffer, bytesRead) == -1)
                 perror("[OutputWatcher] write");
 
-            emit outputRead(output, bytesRead);
+            buffer[bytesRead] = '\0';
+            emit outputRead(buffer);
         }
     }
 }

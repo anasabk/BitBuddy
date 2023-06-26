@@ -1,58 +1,74 @@
 #include "DesktopCam.h"
+#include "constants.h"
 
 #include <opencv2/opencv.hpp>
-#include <thread>
 
 DesktopCam::DesktopCam()
 {
-    std::thread(&DesktopCam::runServer, this).detach();
+    serverThread = std::thread(&DesktopCam::runServer, this);
 }
 
 DesktopCam::~DesktopCam()
 {
-    if (::close(receiverSockFd) == -1)
-        perror("[DesktopCam] close 1");
-    if (::close(senderSockFd) == -1)
-        perror("[DesktopCam] close 2");
-}
+    std::cout << "[DesktopCam] Cleaning up..." << std::endl;
 
-#define PORT 8082
-#define MAX_BUFFER 65507
+    isServerRunning.store(false);
+    serverThread.join();
 
-int DesktopCam::runServer()
-{
-    receiverSockFd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (receiverSockFd == -1)
+    if (receiverSockFd != -1)
     {
-        perror("[DesktopCam] receiver socket");
-        return -1;
+        if (::close(receiverSockFd) == -1)
+            perror("[DesktopCam] close 1");
     }
 
-    senderSockFd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (senderSockFd == -1)
+    if (senderSockFd != -1)
+    {
+        if (::close(senderSockFd) == -1)
+            perror("[DesktopCam] close 2");
+    }
+
+    std::cout << "[DesktopCam] Done." << std::endl;
+}
+
+void DesktopCam::runServer()
+{
+    if ((receiverSockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    {
+        perror("[DesktopCam] receiver socket");
+        return;
+    }
+
+    if ((senderSockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
         perror("[DesktopCam] sender socket");
-        return -1;
+        return;
     }
 
     struct sockaddr_in desktopAddress{};
     desktopAddress.sin_family = AF_INET;
     desktopAddress.sin_addr.s_addr = INADDR_ANY;
-    desktopAddress.sin_port = htons(PORT);
+    desktopAddress.sin_port = htons(constants::desktopCamPort);
 
     if (bind(receiverSockFd, (struct sockaddr *)&desktopAddress, sizeof(desktopAddress)) == -1)
     {
         perror("[DesktopCam] bind");
-        return -1;
+        return ;
     }
 
-    while (true) {
-        uchar buffer[MAX_BUFFER];
+    struct timeval optval = {0, 100000};
+    if (setsockopt(receiverSockFd, SOL_SOCKET, SO_RCVTIMEO, &optval, sizeof(optval)) == -1)
+        perror("[DesktopCam] setsockopt");
 
-        ssize_t bytesReceived = recvfrom(receiverSockFd, buffer, MAX_BUFFER, 0, NULL, NULL);
+    while (isServerRunning.load())
+    {
+        uchar buffer[constants::maxUdpBuffer];
+
+        ssize_t bytesReceived = recvfrom(receiverSockFd, buffer, constants::maxUdpBuffer, 0, NULL, NULL);
         if (bytesReceived == -1)
         {
-            perror("[DesktopCam] recvfrom");
+            if (errno != EAGAIN)
+                perror("[DesktopCam] recvfrom");
+
             continue;
         }
 
@@ -62,13 +78,11 @@ int DesktopCam::runServer()
                 perror("[DesktopCam] sendto");
         }
     }
-
-    return 0;
 }
 
 std::vector<sockaddr_in> DesktopCam::getClientAddresses()
 {
-    std::vector<uint16_t> ports = {8083, 8084};
+    std::vector<uint16_t> ports = {constants::uiCameraPort, constants::objDetport};
     std::vector<sockaddr_in> addresses;
 
     for (uint16_t port : ports)

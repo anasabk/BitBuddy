@@ -1,9 +1,9 @@
 #include "Joystick.h"
+#include "constants.h"
 
 #include <iostream>
 #include <arpa/inet.h>
 #include <QMouseEvent>
-#include <thread>
 
 Joystick::Joystick(int size, QWidget *parent) :
     QWidget(parent),
@@ -23,13 +23,28 @@ Joystick::Joystick(int size, QWidget *parent) :
     setFocus();
     moveStick(QPoint(r, r));
 
-    std::thread(&Joystick::runClient, this).detach();
+    serverThread = std::thread(&Joystick::runServer, this);
 }
 
 Joystick::~Joystick()
 {
-    if (::close(sockFd) == -1)
-        perror("[Joystick] close");
+    std::cout << "[Joystick] Cleaning up..." << std::endl;
+
+    isServerRunning.store(false);
+    serverThread.join();
+
+    if (sockFd != -1)
+    {
+        if (::close(sockFd) == -1)
+            perror("[Joystick] close");
+    }
+
+    std::cout << "[Joystick] Done." << std::endl;
+}
+
+void Joystick::setIsDisabled(bool isDisabled)
+{
+    this->isDisabled = isDisabled;
 }
 
 void Joystick::mousePressEvent(QMouseEvent *event)
@@ -112,41 +127,44 @@ void Joystick::moveStick(QPoint newPos)
     axes.store({x / r, y / r});
 }
 
-#define PORT 8081
-#define SEND_RATE 10
-
-void Joystick::runClient()
+void Joystick::runServer()
 {
-    int sockFd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockFd == -1) {
+    if ((sockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
         perror("[Joystick] socket");
         return;
     }
 
-    struct sockaddr_in clientAddress{}, raspAddress{};
+    struct sockaddr_in serverAddress{}, raspAddress{};
     socklen_t raspAddressLen = sizeof(raspAddress);
 
-    clientAddress.sin_family = AF_INET;
-    clientAddress.sin_addr.s_addr = INADDR_ANY;
-    clientAddress.sin_port = htons(PORT);
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = INADDR_ANY;
+    serverAddress.sin_port = htons(constants::joystickPort);
 
-    if (bind(sockFd, (struct sockaddr *)&clientAddress, sizeof(clientAddress)) == -1)
+    if (bind(sockFd, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1)
     {
         perror("[Joystick] bind");
         return;
     }
 
-    std::cout << "[Joystick] Bound to port and waiting to receive address from server..." << std::endl;
+    std::cout << "[Joystick] Bound to port and waiting to receive address from robot..." << std::endl;
 
-    if (recvfrom(sockFd, NULL, 0, 0, (struct sockaddr *)&raspAddress, &raspAddressLen) == -1)
+    struct timeval optval = {0, 100000};
+    if (setsockopt(sockFd, SOL_SOCKET, SO_RCVTIMEO, &optval, sizeof(optval)) == -1)
+        perror("[Joystick] setsockopt");
+
+    while (recvfrom(sockFd, NULL, 0, 0, (struct sockaddr *)&raspAddress, &raspAddressLen) == -1)
     {
-        perror("[Joystick] recvfrom");
-        return;
+        if (errno != EAGAIN)
+            perror("[Joystick] recvfrom");
+
+        if (!isServerRunning.load())
+            return;
     }
 
-    std::cout << "[Joystick] Received address from server. Starting to send data." << std::endl;
+    std::cout << "[Joystick] Received address from robot. Starting to send data." << std::endl;
 
-    while (true)
+    while (isServerRunning.load())
     {
         auto start = std::chrono::steady_clock::now();
 
@@ -162,11 +180,6 @@ void Joystick::runClient()
 
         auto end = std::chrono::steady_clock::now();
 
-        std::this_thread::sleep_for(std::chrono::nanoseconds((long)(1.0 / SEND_RATE * 1e9)) - (end - start));
+        std::this_thread::sleep_for(std::chrono::nanoseconds((long)(1.0 / constants::joystickSendRate * 1e9)) - (end - start));
     }
-}
-
-void Joystick::setIsDisabled(bool isDisabled)
-{
-    this->isDisabled = isDisabled;
 }

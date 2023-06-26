@@ -18,6 +18,7 @@ class MainWindow : public QGroupBox
 
 public:
     MainWindow(Console *console);
+    ~MainWindow();
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -42,6 +43,9 @@ private:
     Camera *camera;
     QLabel *objDetLabel;
     Camera *objDet;
+
+    pid_t objDetPid;
+    void startObjDetProcess();
 
 private slots:
     void setSizes();
