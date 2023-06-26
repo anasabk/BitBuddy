@@ -11,13 +11,14 @@
 
 Switch::Switch(const char *name, const QString &text1, const QString &text2, QWidget *parent) :
     QGroupBox(parent),
-    layout(new QHBoxLayout(this)),
-    sw(new QWidget(this)),
-    swStick(new QWidget(sw)),
-    stickHeight(height - 8),
-    label1(new QLabel(text1, this)),
-    label2(new QLabel(text2, this))
+    stickHeight(height - 8)
 {
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    sw = new QWidget(this);
+    swStick = new QWidget(sw);
+    QLabel *label1 = new QLabel(text1, this);
+    QLabel *label2 = new QLabel(text2, this);
+
     static bool init = true;
     if (init)
     {
@@ -32,7 +33,7 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
     layout->setContentsMargins(0, 0, 0, 0);
 
     int diff = label1->fontMetrics().size(0, text1).width() - label2->fontMetrics().size(0, text2).width();
-    QSpacerItem *spacer = new QSpacerItem(std::abs(diff), 0);
+    auto *spacer = new QSpacerItem(std::abs(diff), 0);
 
     if (diff < 0)
         layout->addItem(spacer);
@@ -90,6 +91,13 @@ Switch::~Switch()
     }
 }
 
+void Switch::setState(bool value)
+{
+    swStick->move(!value ? 4 : 4 + stickHeight, 4);
+
+    switchState.value = value;
+}
+
 bool Switch::eventFilter(QObject *object, QEvent *event)
 {
     if (object == sw)
@@ -120,13 +128,6 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
     }
 
     return false;
-}
-
-void Switch::setState(bool value)
-{
-    swStick->move(!value ? 4 : 4 + stickHeight, 4);
-
-    switchState.value = value;
 }
 
 void Switch::runServer()

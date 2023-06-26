@@ -5,27 +5,30 @@
 #include <sys/wait.h>
 
 MainWindow::MainWindow(Console *console) :
-    QGroupBox(),
-    HBox1(new QGroupBox(this)),
-    HBox2(new QGroupBox(this)),
-    cameraVBox(new QGroupBox(HBox1)),
-    objDetVBox(new QGroupBox(HBox1)),
-    console(console),
-    joystick(new Joystick(200, HBox2)),
-    switchesVBox(new QGroupBox(this)),
-
-    VBoxLayout(new QVBoxLayout(this)),
-    HBox1Layout(new QHBoxLayout(HBox1)),
-    HBox2Layout(new QHBoxLayout(HBox2)),
-    cameraVBoxLayout(new QVBoxLayout(cameraVBox)),
-    objDetVBoxLayout(new QVBoxLayout(objDetVBox)),
-    switchesVBoxLayout(new QVBoxLayout(switchesVBox)),
-
-    cameraLabel(new QLabel("Camera", cameraVBox)),
-    camera(new Camera(8083, true, cameraVBox)),
-    objDetLabel(new QLabel("Object Detection", objDetVBox)),
-    objDet(new Camera(8085, false, objDetVBox))
+    QGroupBox()
 {
+    startObjDetProcess();
+
+    QGroupBox *HBox1 = new QGroupBox(this);
+    QGroupBox *HBox2 = new QGroupBox(this);
+    QGroupBox *cameraVBox = new QGroupBox(HBox1);
+    QGroupBox *objDetVBox = new QGroupBox(HBox1);
+    joystick = new Joystick(200, HBox2);
+    QGroupBox *switchesVBox = new QGroupBox(this);
+
+    QVBoxLayout *VBoxLayout = new QVBoxLayout(this);
+    QHBoxLayout *HBox1Layout = new QHBoxLayout(HBox1);
+    QHBoxLayout *HBox2Layout = new QHBoxLayout(HBox2);
+    QVBoxLayout *cameraVBoxLayout = new QVBoxLayout(cameraVBox);
+    QVBoxLayout *objDetVBoxLayout = new QVBoxLayout(objDetVBox);
+    QVBoxLayout *switchesVBoxLayout = new QVBoxLayout(switchesVBox);
+
+    QLabel *cameraLabel = new QLabel("Camera", cameraVBox);
+    camera = new Camera(8083, true, cameraVBox);
+
+    QLabel *objDetLabel = new QLabel("Object Detection", objDetVBox);
+    objDet = new Camera(8085, false, objDetVBox);
+
     connect(camera, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
     connect(objDet, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
 
@@ -69,8 +72,6 @@ MainWindow::MainWindow(Console *console) :
         connect(sw, &Switch::stateChanged, this, &MainWindow::onSwitchStateChanged);
     }
 
-    startObjDetProcess();
-
     setAttribute(Qt::WA_DeleteOnClose);
 
     showMaximized();
@@ -109,7 +110,7 @@ void MainWindow::startObjDetProcess()
     if (objDetPid == 0)
     {
         execlp("python3", "python3", "yolo.py", (char*)NULL);
-        perror("[Main] execlp");
+        perror("[MainWindow] execlp");
         _exit(127);
     }
 }

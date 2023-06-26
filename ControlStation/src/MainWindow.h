@@ -24,25 +24,9 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    QGroupBox *HBox1;
-    QGroupBox *HBox2;
-    QGroupBox *cameraVBox;
-    QGroupBox *objDetVBox;
-    Console *console;
-    Joystick *joystick;
-    QGroupBox *switchesVBox;
-
-    QVBoxLayout *VBoxLayout;
-    QHBoxLayout *HBox1Layout;
-    QHBoxLayout *HBox2Layout;
-    QVBoxLayout *cameraVBoxLayout;
-    QVBoxLayout *objDetVBoxLayout;
-    QVBoxLayout *switchesVBoxLayout;
-
-    QLabel *cameraLabel;
     Camera *camera;
-    QLabel *objDetLabel;
     Camera *objDet;
+    Joystick *joystick;
 
     pid_t objDetPid;
     void startObjDetProcess();

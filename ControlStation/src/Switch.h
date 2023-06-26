@@ -28,19 +28,15 @@ signals:
     void stateChanged(SwitchState state);
 
 private:
-    // Layout and widgets for the UI.
-    QHBoxLayout *layout;
-    QWidget *sw;
-    QWidget *swStick;
-    QLabel *label1;
-    QLabel *label2;
+    QWidget *sw;       // Switch
+    QWidget *swStick;  // Movable part of the switch.
 
     SwitchState switchState{};  // State that will be sent to the robot.
     const int height = 24;      // Height of the switch on the UI.
     int stickHeight;            // Height of the switch stick on the UI.
 
-    bool eventFilter(QObject *object, QEvent *event);  // Handles mouse hover and click events on the switch.
     void setState(bool state);                         // Sets the switch state.
+    bool eventFilter(QObject *object, QEvent *event);  // Handles mouse hover and click events on the switch.
 
     static struct sockaddr_in clientAddress;  // Robot's address that is received after it connects.
     static socklen_t clientAddressLen;
