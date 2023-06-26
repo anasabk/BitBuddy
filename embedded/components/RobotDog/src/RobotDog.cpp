@@ -192,7 +192,7 @@ void RobotDog::run() {
     CS_msg_s buffer = {"\0\0\0\0\0\0\0\0", false};
     symb temp_symb;
     char *args[2];
-    while(term_flag) {
+    while(!term_flag) {
         fd = socket(AF_INET, SOCK_STREAM, 0);
         if(fd < 0) {
             perror("socket creation failed");
