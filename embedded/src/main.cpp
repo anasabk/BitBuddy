@@ -3,7 +3,7 @@
 #include "MPU6050.h"
 #include "LCD.h"
 #include "CalServo.h"
-#include "RobotDog.h"
+// #include "RobotDog.h"
 #include <cstdio>
 #include "cstring"
 #include "HC_SR04.h"
@@ -14,7 +14,7 @@
 #include <sched.h>
 #include <linux/i2c-dev.h>
 #include <i2c/smbus.h>
-#include "inverse_kinematics.h"
+// #include "inverse_kinematics.h"
 
 int pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
@@ -36,20 +36,20 @@ int degree_list[12][20] = {
 	{0, 7, 15, 24, 34, 43, 51, 61, 70, 77, 86, 95, 103, 113, 121, 130, 138, 148, 155, 165}, 
 };
 
-Leg *legs_g;
-CalServo *servos_g;
+// Leg *legs_g;
+// CalServo *servos_g;
 
-void *thread_stand(void *val) {
-	printf("Standing thread\n");
-	servos_g[(int)val].sweep(sit[(int)val], stand[(int)val], 2000);
-	pthread_exit(0);
-}
+// void *thread_stand(void *val) {
+// 	printf("Standing thread\n");
+// 	servos_g[(int)val].sweep(sit[(int)val], stand[(int)val], 2000);
+// 	pthread_exit(0);
+// }
 
-void *thread_sit(void *val) {
-	printf("Sitting thread\n");
-	servos_g[(int)val].sweep(stand[(int)val], sit[(int)val], 2000);
-	pthread_exit(0);
-}
+// void *thread_sit(void *val) {
+// 	printf("Sitting thread\n");
+// 	servos_g[(int)val].sweep(stand[(int)val], sit[(int)val], 2000);
+// 	pthread_exit(0);
+// }
 
 // HC_SR04 *hcsr04_g;
 // LCD *lcd_g;
@@ -111,15 +111,15 @@ extern "C" int main() {
 		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
 	};
 
-	Leg legs[4] {
-		Leg(&servo[0],  -4, &servo[1], 2.443508, &servo[2], -8, 55, 110, 130, false, false),
-		Leg(&servo[3],  10, &servo[4], -3.443508, &servo[5], 0, 55, 110, 130, true, false),
-		Leg(&servo[6],   0, &servo[7], -4.042452, &servo[8], 13.594, 55, 110, 130, true, true),
-		Leg(&servo[9], 8, &servo[10], 5.957548, &servo[11], 14.594, 55, 110, 130, false, true),
-	};
+	// Leg legs[4] {
+	// 	Leg(&servo[0],  -4, &servo[1], 2.443508, &servo[2], -8, 55, 110, 130, false, false),
+	// 	Leg(&servo[3],  10, &servo[4], -3.443508, &servo[5], 0, 55, 110, 130, true, false),
+	// 	Leg(&servo[6],   0, &servo[7], -4.042452, &servo[8], 13.594, 55, 110, 130, true, true),
+	// 	Leg(&servo[9], 8, &servo[10], 5.957548, &servo[11], 14.594, 55, 110, 130, false, true),
+	// };
 
-	servos_g = servo;
-	legs_g = legs;
+	// servos_g = servo;
+	// legs_g = legs;
 
     pca.set_pwm_freq(50);
 	usleep(1000000);
