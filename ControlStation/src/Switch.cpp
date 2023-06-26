@@ -180,7 +180,7 @@ void Switch::acceptClient()
 {
     while ((clientFd = accept(serverFd, (struct sockaddr *)&Switch::clientAddress, &Switch::clientAddressLen)) == -1)
     {
-        if (errno != EAGAIN)
+        if (errno != EAGAIN && errno != EWOULDBLOCK)
             perror("[Switch] accept");
         else
             std::this_thread::sleep_for(std::chrono::milliseconds(100));

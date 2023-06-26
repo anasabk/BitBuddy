@@ -68,7 +68,7 @@ public:
 
             if (bytesRead == -1)
             {
-                if (errno != EAGAIN)
+                if (errno != EAGAIN && errno != EWOULDBLOCK)
                     perror("[RaspSwitch] read");
                 else
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));

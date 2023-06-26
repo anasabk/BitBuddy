@@ -66,7 +66,7 @@ void DesktopCam::runServer()
         ssize_t bytesReceived = recvfrom(receiverSockFd, buffer, constants::maxUdpBuffer, 0, NULL, NULL);
         if (bytesReceived == -1)
         {
-            if (errno != EAGAIN)
+            if (errno != EAGAIN && errno != EWOULDBLOCK)
                 perror("[DesktopCam] recvfrom");
 
             continue;

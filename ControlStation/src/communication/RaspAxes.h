@@ -72,7 +72,7 @@ public:
 
             ssize_t bytesReceived = recvfrom(sockFd, &axes, sizeof(axes), 0, NULL, NULL);
             if (bytesReceived == -1) {
-                if (errno != EAGAIN)
+                if (errno != EAGAIN && errno != EWOULDBLOCK)
                     perror("[RaspAxes] recvfrom");
 
                 continue;

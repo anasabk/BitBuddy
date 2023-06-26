@@ -155,7 +155,7 @@ void Joystick::runServer()
 
     while (recvfrom(sockFd, NULL, 0, 0, (struct sockaddr *)&raspAddress, &raspAddressLen) == -1)
     {
-        if (errno != EAGAIN)
+        if (errno != EAGAIN && errno != EWOULDBLOCK)
             perror("[Joystick] recvfrom");
 
         if (!isServerRunning.load())

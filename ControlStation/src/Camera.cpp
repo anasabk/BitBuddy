@@ -65,7 +65,7 @@ void Camera::runClient()
         ssize_t bytesReceived = recvfrom(sockFd, &buffer[0], buffer.size(), 0, NULL, NULL);
         if (bytesReceived == -1)
         {
-            if (errno != EAGAIN)
+            if (errno != EAGAIN && errno != EWOULDBLOCK)
                 perror("[Camera] recvfrom");
 
             continue;

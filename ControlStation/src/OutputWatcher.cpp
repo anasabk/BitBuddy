@@ -61,7 +61,7 @@ void OutputWatcher::run()
 
         if (bytesRead == -1)
         {
-            if (errno != EAGAIN)
+            if (errno != EAGAIN && errno != EWOULDBLOCK)
                 perror("[OutputWatcher] read");
             else
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
