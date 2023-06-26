@@ -94,7 +94,7 @@ void* RobotDog::control_thread(void* param) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8081);
-    addr.sin_addr.s_addr = inet_addr("192.168.43.206");
+    addr.sin_addr.s_addr = inet_addr("192.168.43.165");
 
     robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(robot->js_server_fd < 0)  {
@@ -186,7 +186,7 @@ void RobotDog::run() {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8080);
-    addr.sin_addr.s_addr = inet_addr("192.168.43.206");
+    addr.sin_addr.s_addr = inet_addr("192.168.43.165");
 
     int fd = -1;
     CS_msg_s buffer = {"\0\0\0\0\0\0\0\0", false};
