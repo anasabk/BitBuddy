@@ -73,19 +73,19 @@ void Joystick::keyReleaseEvent(QKeyEvent *event)
 
 void Joystick::moveWithPressedKeys()
 {
-    QPoint axes(0, 0);
+    QPoint directions(0, 0);
 
     if (pressedKeys.contains(Qt::Key_D))
-        axes.rx() = 1;
+        directions.rx() = 1;
     else if (pressedKeys.contains(Qt::Key_A))
-        axes.rx() = -1;
+        directions.rx() = -1;
 
     if (pressedKeys.contains(Qt::Key_W))
-        axes.ry() = -1;
+        directions.ry() = -1;
     else if (pressedKeys.contains(Qt::Key_S))
-        axes.ry() = 1;
+        directions.ry() = 1;
 
-    moveStick(QPoint(r, r) + axes * r);
+    moveStick(QPoint(r, r) + directions * r);
 }
 
 void Joystick::moveStick(QPoint newPos)
@@ -109,9 +109,7 @@ void Joystick::moveStick(QPoint newPos)
 
     stick->move(newPos);
 
-    axesMutex.lock();
-    axes = {x / r, y / r};
-    axesMutex.unlock();
+    axes.store({x / r, y / r});
 }
 
 #define PORT 8081
@@ -154,12 +152,12 @@ void Joystick::runClient()
 
         if (!isDisabled)
         {
-            axesMutex.lock();
-            if (sendto(sockFd, &axes, sizeof(axes), 0, (struct sockaddr *)&raspAddress, sizeof(raspAddress)) == -1)
-                perror("[Joystick] sendto");
-            axesMutex.unlock();
+            Axes axesValue = axes.load();
 
-//            std::cout << "[Joystick] Sent axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
+            if (sendto(sockFd, &axesValue, sizeof(axesValue), 0, (struct sockaddr *)&raspAddress, sizeof(raspAddress)) == -1)
+                perror("[Joystick] sendto");
+
+//            std::cout << "[Joystick] Sent axes: " << "x: " << axesValue.x << ", y: " << axesValue.y << std::endl;
         }
 
         auto end = std::chrono::steady_clock::now();
