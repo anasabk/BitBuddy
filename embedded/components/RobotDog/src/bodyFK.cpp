@@ -493,7 +493,7 @@ void* Body::move_thread(void *param) {
 
 
         // Go to the next leg pair
-        leg_num = -(leg_num - 3);
+        leg_num -= 2;
     }
 
     pthread_exit(NULL);
