@@ -150,11 +150,10 @@ void* RobotDog::control_thread(void* param) {
                 printf("looping\n");
                 if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) <= 0) {
                     perror("[RaspAxes] recvfrom");
-                    break;
+                    continue;
                 }
 
                 printf("x:%f y:%f\n", buffer.x, buffer.y);
-                
             }
 
             move_flag = false;
