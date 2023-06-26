@@ -20,8 +20,14 @@ const char* RobotDog::symb_str[] = {
     "CENTER"
 };
 
+// Tells weither the tcp connection is there
 sig_atomic_t is_connected;
+
+// Controls all of the running loops
 sig_atomic_t is_running;
+
+// Marks the termination to the main loop
+sig_atomic_t term_flag;
 
 
 RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
@@ -47,12 +53,7 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 }
 
 RobotDog::~RobotDog() {
-    is_running = false;
-    sleep(1);
-    pthread_join(mpu_thread_id, NULL);
-    pthread_join(hcsr04_thread_id, NULL);
-    main_body.sit_down();
-    sleep(2);
+
 }
 
 void* read_thread(void *param) {
@@ -71,12 +72,11 @@ void* read_thread(void *param) {
 }
 
 void sigpipe_handler(int sig) {
-   is_connected = 0; 
+    is_connected = 0; 
 }
 
 void sigint_handler(int sig) {
-    is_running = 0;
-    is_connected = 0; 
+    term_flag = 1;
 }
 
 enum RobotDog::symb RobotDog::get_symb(const char *str) {
@@ -120,7 +120,8 @@ void* RobotDog::control_thread(void* param) {
 
     while(is_running) {
         if(robot->mode_flag == true) {
-            while (robot->mode_flag) {
+            printf("Entered auto mode\n");
+            while (is_running && robot->mode_flag) {
                 if(robot->mpu_buff.x_accel < 0) {
                     int i = 0;
                     while (robot->mpu_buff.x_accel < 0.2 && i < 2) {
@@ -132,29 +133,32 @@ void* RobotDog::control_thread(void* param) {
                 }
                 sleep(3);
             }
+            printf("exitting auto mode\n");
 
         } else {
-            printf("getting joystick commands\n");
-
+            printf("Entered manual mode\n");
             Axes buffer;
-            bool js_connected = true;
-            while (js_connected && is_running && !robot->mode_flag) {
+            
+            pthread_t motion_thread;
+            bool move_flag = true;
+            Body::move_param move_param = {&buffer.y, &buffer.x, &move_flag, &robot->main_body};
+            pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
+
+            while (is_running && !robot->mode_flag) {
                 printf("looping\n");
                 if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) <= 0) {
                     perror("[RaspAxes] recvfrom");
-                    js_connected = false;
                     break;
                 }
 
                 printf("x:%f y:%f\n", buffer.x, buffer.y);
-
-                if(buffer.x > -0.00001 && buffer.x < 0.00001 && buffer.y > -0.00001 && buffer.y < 0.00001)
-                    continue;
-
-                robot->main_body.move_forward(buffer.x * -M_PI/4, buffer.y * 160);
+                
             }
 
-            printf("exitting joystick loop\n");
+            move_flag = false;
+            pthread_join(motion_thread, NULL);
+
+            printf("exitting manual mode\n");
         }
     }
 
@@ -167,29 +171,9 @@ void RobotDog::run() {
 
     pthread_t temp;
 
-    is_running = true;
-    mode_flag = 0;
-
-	pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
-	pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
-    pthread_create(&control_thread_id, NULL, control_thread, (void*)this);
-    pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff));
-    
-    servos[0].set_degree(86);
-    servos[1].set_degree(128);
-    servos[2].set_degree(4);
-    servos[3].set_degree(80);
-    servos[4].set_degree(61);
-    servos[5].set_degree(176);
-    servos[6].set_degree(90);
-    servos[7].set_degree(119);
-    servos[8].set_degree(176);
-    servos[9].set_degree(82);
-    servos[10].set_degree(69);
-    servos[11].set_degree(12);
-
-    sleep(2);
-    main_body.sit_down();
+    term_flag = 0;
+    mode_flag = 1;
+    is_running = 0;
 
 	struct sigaction int_act;
 	int_act.sa_handler = sigint_handler;
@@ -208,41 +192,79 @@ void RobotDog::run() {
     CS_msg_s buffer = {"\0\0\0\0\0\0\0\0", false};
     symb temp_symb;
     char *args[2];
-    while(is_running) {
+    while(term_flag) {
         fd = socket(AF_INET, SOCK_STREAM, 0);
-        if(fd < 0)  {
+        if(fd < 0) {
             perror("socket creation failed");
             continue;
         }
 
         if(connect(fd, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
-            perror("socket connection failed");
             close(fd);
+            
+            if(errno == EINTR) {
+                printf("Connection interrupted, aborting ...\n");
+                break;
+            }
+
+            perror("socket connection failed");
             sleep(3);
             continue;
         }
 
         is_connected = 1;
         while(recv(fd, &buffer, sizeof(CS_msg_s), 0) > 0 && is_connected) {
-            printf("%s %d %d\n", buffer.name, buffer.state, get_symb(buffer.name));
+            printf("%s %d\n", buffer.name, buffer.state);
             switch (get_symb(buffer.name)) {
             case POSE:
-                if(buffer.state)
-                    main_body.stand_up();
-                else
-                    main_body.sit_down();
+                if(is_running) {
+                    if(buffer.state)
+                        main_body.stand_up();
+                    else
+                        main_body.sit_down();
+                }
                 break;
             
             case MODE:
-                mode_flag = buffer.state;
+                if(is_running)
+                    mode_flag = buffer.state;
                 break;
             
             case ONOFF:
-                if(buffer.state)
-                    //ON
-                    break;
-                else
-                    //OFF
+                if(buffer.state && !is_running) {
+                    is_running = 1;
+
+                    pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
+                    pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
+                    pthread_create(&control_thread_id, NULL, control_thread, (void*)this);
+                    pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff));
+                    
+                    servos[0].set_degree(86);
+                    servos[1].set_degree(128);
+                    servos[2].set_degree(4);
+                    servos[3].set_degree(80);
+                    servos[4].set_degree(61);
+                    servos[5].set_degree(176);
+                    servos[6].set_degree(90);
+                    servos[7].set_degree(119);
+                    servos[8].set_degree(176);
+                    servos[9].set_degree(82);
+                    servos[10].set_degree(69);
+                    servos[11].set_degree(12);
+
+                    sleep(2);
+                    main_body.sit_down();
+
+                } else if(!buffer.state && is_running) {
+                    is_running = 0;
+                    sleep(1);
+                    pthread_join(mpu_thread_id, NULL);
+                    pthread_join(hcsr04_thread_id, NULL);
+                    pthread_join(control_thread_id, NULL);
+                    pthread_join(temp, NULL);
+                    main_body.sit_down();
+                    sleep(2);
+                }
                 break;
 
             default:
@@ -250,13 +272,28 @@ void RobotDog::run() {
             }
         }
 
+        if(is_running) {
+            is_running = 0;
+            sleep(1);
+            pthread_join(mpu_thread_id, NULL);
+            pthread_join(hcsr04_thread_id, NULL);
+            pthread_join(control_thread_id, NULL);
+            pthread_join(temp, NULL);
+            main_body.sit_down();
+            sleep(2);
+        }
+
         close(fd);
     }
+
+    is_connected = 0;
+    is_running = 0;
 
     return;
 }
 
 void* RobotDog::mpu6050_thread(void* args) {
+    printf("Entrering MPU6050 thread.\n");
     RobotDog *robot = (RobotDog*)args;
 
 	struct sched_param param;
@@ -265,8 +302,6 @@ void* RobotDog::mpu6050_thread(void* args) {
         std::cerr << "sched_setscheduler error!" << std::endl;
         return NULL;
     }
-
-    robot->mpu6050.read_data(&robot->mpu_buff);
 
     // Get current time
     struct timespec timeNow;
@@ -290,10 +325,13 @@ void* RobotDog::mpu6050_thread(void* args) {
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     }
 
+    printf("Exiting MPU6050 thread.\n");
+
     pthread_exit(NULL);
 }
 
 void* RobotDog::HCSR04_thread(void* args) {
+    printf("Entering HC-SR04 thread.\n");
     RobotDog *robot = (RobotDog*)args;
 
     struct sched_param param;
@@ -301,17 +339,6 @@ void* RobotDog::HCSR04_thread(void* args) {
     if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
         std::cerr << "sched_setscheduler error!" << std::endl;
         return NULL;
-    }
-
-    // Check all HC_SR04 sensors
-    for (int i = 0; i < NUM_HCSR04; i++) {
-        robot->hc_sr04[i].get_distance();
-
-        // Test connection
-        if (robot->hc_sr04[i].get_distance() == 0) {
-            std::cerr << "HC_SR04[" << i << "] connection error!" << std::endl;
-            return NULL;
-        }
     }
 
     // Get current time
@@ -336,6 +363,8 @@ void* RobotDog::HCSR04_thread(void* args) {
         // Sleep until the next dt_ns point
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
     }
+
+    printf("Exiting HC-SR04 thread.\n");
 
     pthread_exit(NULL);
 }
