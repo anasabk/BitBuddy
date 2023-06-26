@@ -2,6 +2,7 @@
 #define JOYSTICK_H
 
 #include <QWidget>
+#include <thread>
 
 class Joystick : public QWidget
 {
@@ -40,8 +41,10 @@ private:
     void moveWithPressedKeys();     // Moves stick based on pressed keys.
     void moveStick(QPoint newPos);  // Moves stick relative to joystick.
 
-    int sockFd;        // Socket to send the axes.
-    void runClient();  // Run the client that will send the axes.
+    int sockFd = -1;  // Socket to send the axes.
+    std::thread serverThread;
+    std::atomic<bool> isServerRunning = true;
+    void runServer();  // Run the client that will send the axes.
 };
 
 #endif // JOYSTICK_H

@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "constants.h"
 
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -15,15 +16,29 @@ Camera::Camera(uint16_t port, bool convertToRGB, QWidget *parent) :
 
     setPixmap(QPixmap::fromImage(QImage(":/camera.png")));
 
-    std::thread(&Camera::runClient, this).detach();
+    clientThread = std::thread(&Camera::runClient, this);
 }
 
-#define MAX_BUFFER 65507
+Camera::~Camera()
+{
+    std::cout << "[Camera] Cleaning up..." << std::endl;
+
+    isClientRunning.store(false);
+    clientThread.join();
+
+    if (sockFd != -1)
+    {
+        if (::close(sockFd) == -1)
+            perror("[Camera] close");
+    }
+
+    std::cout << "[Camera] Done." << std::endl;
+}
 
 void Camera::runClient()
 {
-    int sockFd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockFd == -1) {
+    if ((sockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    {
         perror("[Camera] socket");
         return;
     }
@@ -33,23 +48,33 @@ void Camera::runClient()
     clientAddress.sin_addr.s_addr = INADDR_ANY;
     clientAddress.sin_port = htons(port);
 
-    if (bind(sockFd, (struct sockaddr *)&clientAddress, sizeof(clientAddress)) == -1) {
+    if (bind(sockFd, (struct sockaddr *)&clientAddress, sizeof(clientAddress)) == -1)
+    {
         perror("[Camera] bind");
         return;
     }
 
-    while (true) {
-        std::vector<uchar> buffer(MAX_BUFFER);
+    struct timeval optval = {0, 100000};
+    if (setsockopt(sockFd, SOL_SOCKET, SO_RCVTIMEO, &optval, sizeof(optval)) == -1)
+        perror("[Camera] setsockopt");
+
+    while (isClientRunning.load())
+    {
+        std::vector<uchar> buffer(constants::maxUdpBuffer);
 
         ssize_t bytesReceived = recvfrom(sockFd, &buffer[0], buffer.size(), 0, NULL, NULL);
-        if (bytesReceived == -1) {
-            perror("[Camera] recvfrom");
+        if (bytesReceived == -1)
+        {
+            if (errno != EAGAIN)
+                perror("[Camera] recvfrom");
+
             continue;
         }
 
         cv::Mat rawData = cv::Mat(buffer);
         cv::Mat frame = cv::imdecode(rawData, cv::IMREAD_COLOR);
-        if (frame.empty()) {
+        if (frame.empty())
+        {
             std::cerr << "[Camera] Decoded frame is empty." << std::endl;
             continue;
         }

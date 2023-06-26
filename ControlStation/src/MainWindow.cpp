@@ -1,7 +1,8 @@
 #include "MainWindow.h"
 
-#include <signal.h>
 #include <QScrollBar>
+#include <signal.h>
+#include <sys/wait.h>
 
 MainWindow::MainWindow(Console *console) :
     QGroupBox(),
@@ -42,6 +43,7 @@ MainWindow::MainWindow(Console *console) :
     HBox2Layout->addWidget(joystick);
     HBox2Layout->addItem(new QSpacerItem(100, 0));
     HBox2Layout->addWidget(switchesVBox);
+    HBox2Layout->setContentsMargins(0, 40, 200, 40);
 
     cameraVBoxLayout->addWidget(cameraLabel);
     cameraLabel->setStyleSheet("color: #e0e0e0");
@@ -55,24 +57,61 @@ MainWindow::MainWindow(Console *console) :
 
     switchesVBox->stackUnder(joystick);
 
-    Switch *modeSwitch = new Switch("MODE", "Manual", "Auto", switchesVBox);
+    std::vector<Switch *> switches = {
+        new Switch("ONOFF", "Off", "On", switchesVBox),
+        new Switch("MODE", "Manual", "Auto", switchesVBox),
+        new Switch("POSE", "Sit", "Stand", switchesVBox)
+    };
 
-    switchesVBoxLayout->addWidget(new Switch("ONOFF", "Off", "On", switchesVBox), 0, Qt::AlignHCenter | Qt::AlignVCenter);
-    switchesVBoxLayout->addWidget(modeSwitch, 0, Qt::AlignHCenter | Qt::AlignVCenter);
-    switchesVBoxLayout->addWidget(new Switch("POSE", "Sit", "Stand", switchesVBox), 0, Qt::AlignHCenter | Qt::AlignVCenter);
+    for (Switch *sw : switches)
+    {
+        switchesVBoxLayout->addWidget(sw, 0, Qt::AlignHCenter | Qt::AlignVCenter);
+        connect(sw, &Switch::stateChanged, this, &MainWindow::onSwitchStateChanged);
+    }
 
-    connect(modeSwitch, &Switch::stateChanged, this, &MainWindow::onSwitchStateChanged);
-
-    HBox2Layout->setContentsMargins(0, 40, 200, 40);
+    startObjDetProcess();
 
     setAttribute(Qt::WA_DeleteOnClose);
 
     showMaximized();
 }
 
+MainWindow::~MainWindow()
+{
+    std::cout << "[MainWindow] Cleaning up..." << std::endl;
+
+    if (objDetPid != -1)
+    {
+        if (kill(objDetPid, SIGKILL) == -1)
+            perror("[MainWindow] kill");
+        if (wait(NULL) == -1)
+            perror("[MainWindow] wait");
+    }
+
+    std::cout << "[MainWindow] Done." << std::endl;
+}
+
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     setSizes();
+}
+
+void MainWindow::startObjDetProcess()
+{
+    objDetPid = fork();
+
+    if (objDetPid == -1)
+    {
+        perror("[MainWindow] fork");
+        return;
+    }
+
+    if (objDetPid == 0)
+    {
+        execlp("python3", "python3", "yolo.py", (char*)NULL);
+        perror("[Main] execlp");
+        _exit(127);
+    }
 }
 
 void MainWindow::setSizes()

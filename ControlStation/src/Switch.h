@@ -3,6 +3,7 @@
 
 #include <QGroupBox>
 #include <arpa/inet.h>
+#include <thread>
 
 class QHBoxLayout;
 class QCheckBox;
@@ -17,7 +18,8 @@ public:
     Switch(const char *name, const QString &text1, const QString &text2, QWidget *parent = nullptr);
     ~Switch();
 
-    struct SwitchState {
+    struct SwitchState
+    {
         char name[9];
         bool value;
     };
@@ -40,13 +42,12 @@ private:
     bool eventFilter(QObject *object, QEvent *event);  // Handles mouse hover and click events on the switch.
     void setState(bool state);                         // Sets the switch state.
 
-    // Robot's address that is received after it connects.
-    static struct sockaddr_in clientAddress;
+    static struct sockaddr_in clientAddress;  // Robot's address that is received after it connects.
     static socklen_t clientAddressLen;
-
     static int serverFd;  // Server (switch) socket.
     static int clientFd;  // Client socket.
-
+    static std::thread serverThread;
+    static std::atomic<bool> isServerRunning;
     static void runServer();                 // Runs the server that will send the changed states to the robot.
     static void sigpipeHandler(int signum);  // Accepts another connection when the current one closes.
     static void acceptClient();              // Accepts connection.

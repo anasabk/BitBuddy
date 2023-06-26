@@ -2,14 +2,14 @@
 
 #include <QScrollBar>
 
-Console::Console(OutputWatcher *stdoutWatcher, OutputWatcher *stderrWatcher, QWidget *parent) :
+Console::Console(const OutputWatcher *stdoutWatcher, const OutputWatcher *stderrWatcher, QWidget *parent) :
     QTextEdit(parent)
 {
-    connect(stdoutWatcher, &OutputWatcher::outputRead, this, [this](char *output, int n) {
-        writeOutput(output, n, QColor::fromString("#e0e0e0"));
+    connect(stdoutWatcher, &OutputWatcher::outputRead, this, [this](QString output) {
+        writeOutput(output, QColor::fromString("#e0e0e0"));
     });
-    connect(stderrWatcher, &OutputWatcher::outputRead, this, [this](char *output, int n) {
-        writeOutput(output, n, QColor::fromString("#ff3030"));
+    connect(stderrWatcher, &OutputWatcher::outputRead, this, [this](QString output) {
+        writeOutput(output, QColor::fromString("#ff3030"));
     });
 
     setStyleSheet("border: 1px solid #202020");
@@ -21,7 +21,7 @@ Console::Console(OutputWatcher *stdoutWatcher, OutputWatcher *stderrWatcher, QWi
     textCursor().setBlockFormat(blockFormat);
 }
 
-void Console::writeOutput(char *output, int n, QColor color)
+void Console::writeOutput(QString output, QColor color)
 {
     QScrollBar *scrollBar = verticalScrollBar();
     int sliderPosition = scrollBar->sliderPosition();
@@ -34,6 +34,4 @@ void Console::writeOutput(char *output, int n, QColor color)
 
     if (!atEnd)
         scrollBar->setSliderPosition(sliderPosition);
-
-    free(output);
 }
