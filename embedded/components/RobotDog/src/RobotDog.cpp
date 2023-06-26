@@ -276,22 +276,19 @@ void RobotDog::run() {
             }
         }
 
-        if(is_running) {
-            is_running = 0;
-            sleep(1);
-            pthread_join(mpu_thread_id, NULL);
-            pthread_join(hcsr04_thread_id, NULL);
-            pthread_join(control_thread_id, NULL);
-            pthread_join(temp, NULL);
-            main_body.sit_down();
-            sleep(2);
-        }
-
         close(fd);
     }
 
-    is_connected = 0;
-    is_running = 0;
+    if(is_running) {
+        is_running = 0;
+        sleep(1);
+        pthread_join(mpu_thread_id, NULL);
+        pthread_join(hcsr04_thread_id, NULL);
+        pthread_join(control_thread_id, NULL);
+        pthread_join(temp, NULL);
+        main_body.sit_down();
+        sleep(2);
+    }
 
     return;
 }
