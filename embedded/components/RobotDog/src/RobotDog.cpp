@@ -69,6 +69,8 @@ void* read_thread(void *param) {
         );
         sleep(1);
     }
+
+    pthread_exit(NULL);
 }
 
 void sigpipe_handler(int sig) {
@@ -163,6 +165,7 @@ void* RobotDog::control_thread(void* param) {
     }
 
     close(robot->js_server_fd);
+    pthread_exit(NULL);
 }
 
 void RobotDog::run() {
@@ -172,7 +175,7 @@ void RobotDog::run() {
     pthread_t temp;
 
     term_flag = 0;
-    mode_flag = 1;
+    mode_flag = 0;
     is_running = 0;
 
 	struct sigaction int_act;
@@ -197,7 +200,8 @@ void RobotDog::run() {
         if(fd < 0) {
             perror("socket creation failed");
             continue;
-        }
+        } else
+            printf("Socket created\n");
 
         if(connect(fd, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
             close(fd);
@@ -210,7 +214,8 @@ void RobotDog::run() {
             perror("socket connection failed");
             sleep(3);
             continue;
-        }
+        } else
+            printf("Connected to the server\n");
 
         is_connected = 1;
         while(recv(fd, &buffer, sizeof(CS_msg_s), 0) > 0 && is_connected) {
