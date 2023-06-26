@@ -11,7 +11,7 @@ add_subdirectory(${COMPONENT_DIR}/PCA9685)
 add_subdirectory(${COMPONENT_DIR}/CalServo)
 add_subdirectory(${COMPONENT_DIR}/I2Cdev)
 add_subdirectory(${COMPONENT_DIR}/HC_SR04)
-add_subdirectory(${COMPONENT_DIR}/RobotDog)
+# add_subdirectory(${COMPONENT_DIR}/RobotDog)
 # add_subdirectory(${COMPONENT_DIR}/pigpio)
 
 target_include_directories(${PROJECT_NAME} PUBLIC 
@@ -21,7 +21,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${COMPONENT_DIR}/CalServo
     ${COMPONENT_DIR}/I2Cdev
     ${COMPONENT_DIR}/HC_SR04
-    ${COMPONENT_DIR}/RobotDog
+    # ${COMPONENT_DIR}/RobotDog
     include
     # ${COMPONENT_DIR}/pigpio
 )
@@ -33,7 +33,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
     ${COMPONENT_DIR}/CalServo
     ${COMPONENT_DIR}/I2Cdev
     ${COMPONENT_DIR}/HC_SR04
-    ${COMPONENT_DIR}/RobotDog
+    # ${COMPONENT_DIR}/RobotDog
     # ${COMPONENT_DIR}/pigpio
 )
 
@@ -44,7 +44,7 @@ target_link_libraries(${PROJECT_NAME}
     CalServo
     I2Cdev
     HC_SR04
-    RobotDog
+    # RobotDog
     # pigpio
 )
 
