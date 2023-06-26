@@ -7,7 +7,7 @@ Body::Body(
     double len_mm, 
     double width_mm) 
     : legs {
-        Leg(&servos[0], 4, &servos[1], 17, &servos[2], 1, 55, 110, 130, false, false),
+        Leg(&servos[0], 4, &servos[1], 0, &servos[2], 1, 55, 110, 130, false, false),
         Leg(&servos[3],-10, &servos[4], -3, &servos[5], -7, 55, 110, 130,  true, false),
         Leg(&servos[6], 0, &servos[7], -2, &servos[8], -3, 55, 110, 130,  true, true),
         Leg(&servos[9], 8, &servos[10], 6, &servos[11],5, 55, 110, 130, false, true),
