@@ -245,17 +245,17 @@ void RobotDog::run() {
                     pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff));
                     
                     servos[0].set_degree(86);
-                    servos[1].set_degree(151);
-                    servos[2].set_degree(37);
+                    servos[1].set_degree(128);
+                    servos[2].set_degree(4);
                     servos[3].set_degree(80);
-                    servos[4].set_degree(32);
-                    servos[5].set_degree(136);
+                    servos[4].set_degree(61);
+                    servos[5].set_degree(176);
                     servos[6].set_degree(90);
-                    servos[7].set_degree(33);
-                    servos[8].set_degree(140);
+                    servos[7].set_degree(119);
+                    servos[8].set_degree(176);
                     servos[9].set_degree(82);
-                    servos[10].set_degree(151);
-                    servos[11].set_degree(41);
+                    servos[10].set_degree(69);
+                    servos[11].set_degree(12);
 
                     sleep(2);
                     main_body.sit_down();
