@@ -186,8 +186,6 @@ void Joystick::runServer()
 
             if (sendto(sockFd, &axesValue, sizeof(axesValue), 0, (struct sockaddr *)&raspAddress, sizeof(raspAddress)) == -1)
                 perror("[Joystick] sendto");
-
-//            std::cout << "[Joystick] Sent axes: " << "x: " << axesValue.x << ", y: " << axesValue.y << std::endl;
         }
 
         auto end = std::chrono::steady_clock::now();

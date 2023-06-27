@@ -1,9 +1,7 @@
 #include "MainWindow.h"
 #include "DesktopCam.h"
 #include "OutputWatcher.h"
-//#include "communication/RaspCam.h"
-//#include "communication/RaspAxes.h"
-//#include "communication/RaspSwitch.h"
+//#include "RaspSim/RaspSim.h"
 
 #include <QApplication>
 #include <iostream>
@@ -25,7 +23,7 @@ static void atExit()
 
 static void signalHandler(int signum)
 {
-    exit(EXIT_SUCCESS);
+    QApplication::quit();
 }
 
 int main(int argc, char *argv[])
@@ -39,9 +37,7 @@ int main(int argc, char *argv[])
     new MainWindow(console);
     DesktopCam desktopCam;
 
-//    RaspCam raspCam;
-//    RaspAxes raspAxes;
-//    RaspSwitch raspSwitch;
+//    RaspSim raspSim(true);
 
     if (atexit(atExit) != 0)
         std::cerr << "[Main] atexit failed." << std::endl;

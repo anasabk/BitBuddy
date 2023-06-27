@@ -79,7 +79,7 @@ private:
                 continue;
             }
 
-            std::cout << "[RaspAxes] Received axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
+//            std::cout << "[RaspAxes] Received axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
         }
     }
 };
