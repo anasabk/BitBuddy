@@ -150,7 +150,8 @@ void* RobotDog::control_thread(void* param) {
             pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
             while (is_running && !robot->mode_flag) {
-                printf("looping\n");
+                printf("joystick loop\n");
+                printf("x:%f y:%f\n", buffer.x, buffer.y);
                 if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) <= 0) {
                     perror("[RaspAxes] recvfrom");
                     continue;
@@ -158,8 +159,6 @@ void* RobotDog::control_thread(void* param) {
 
                 speed = buffer.y * 40;
                 rot = buffer.x * M_PI/16;
-
-                printf("x:%f y:%f\n", buffer.x, buffer.y);
             }
 
             move_flag = false;
@@ -264,6 +263,7 @@ void RobotDog::run() {
 
                     sleep(2);
                     main_body.sit_down();
+                    sleep(3);
 
                 } else if(!buffer.state && is_running) {
                     is_running = 0;
