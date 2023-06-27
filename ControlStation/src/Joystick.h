@@ -45,6 +45,7 @@ private:
     std::thread serverThread;
     std::atomic<bool> isServerRunning = true;
     void runServer();  // Run the client that will send the axes.
+    void clearRecvBuffer();
 };
 
 #endif // JOYSTICK_H

@@ -31,6 +31,7 @@ public:
         std::cout << "[RaspCam] Done." << std::endl;
     }
 
+private:
     int sockFd = -1;
     std::thread serverThread;
     std::atomic<bool> isRunning = true;
