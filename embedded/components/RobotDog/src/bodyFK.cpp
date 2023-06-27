@@ -398,8 +398,8 @@ void* Body::move_thread(void *param) {
     const bool *run_flag = ((Body::move_param*)param)->run_flag;
     Body* body = ((Body::move_param*)param)->body;
 
-    const double l_leen_off =  20.0;
-    const double r_leen_off = -30.0;
+    const double l_leen_off =  35.0;
+    const double r_leen_off = -35.0;
     const double f_leen_off =  15.0;
     const double b_leen_off = -15.0;
     double drift_offset = 2;
@@ -442,7 +442,7 @@ void* Body::move_thread(void *param) {
 
 
         // Leen to the opposite side
-        body->pose(0, 0, 0, f_leen_off, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
+        body->pose(0, 0, 0, 0, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
         wait_real(&timeNow, 250);
 
 
