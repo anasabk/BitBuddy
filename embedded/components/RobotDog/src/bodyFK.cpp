@@ -461,7 +461,7 @@ void* Body::move_thread(void *param) {
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
         body->legs[leg_num].move(temp_vector, 150);
-        wait_real(&timeNow, 200);
+        wait_real(&timeNow, 250);
 
 
         leg_num = -(leg_num - 3);
