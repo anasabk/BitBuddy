@@ -420,7 +420,7 @@ void* Body::move_thread(void *param) {
         else
             pause_counter = 0;
 
-        if(pause_counter == 2){
+        if(pause_counter >= 2){
             wait_real(&timeNow, 100);
             continue;
         }
