@@ -147,7 +147,7 @@ void Joystick::runServer()
         return;
     }
 
-    std::cout << "[Joystick] Bound to port and waiting to receive address from robot..." << std::endl;
+    std::cout << "[Joystick] Bound to port and waiting to receive address from the robot..." << std::endl;
 
     while (recvfrom(sockFd, NULL, 0, 0, (struct sockaddr *)&raspAddress, &raspAddressLen) == -1)
     {
@@ -160,7 +160,7 @@ void Joystick::runServer()
             return;
     }
 
-    std::cout << "[Joystick] Received address from robot. Starting to send data." << std::endl;
+    std::cout << "[Joystick] Received address from the robot. Starting to send data." << std::endl;
 
     clearRecvBuffer();
 
@@ -175,7 +175,7 @@ void Joystick::runServer()
         }
         else
         {
-            std::cout << "[Joystick] Received new address from robot." << std::endl;
+            std::cout << "[Joystick] Received new address from the robot." << std::endl;
 
             clearRecvBuffer();
         }

@@ -165,14 +165,14 @@ void Switch::startServer()
         return;
     }
 
-    std::cout << "[Switch] Bound to port and listening for connection..." << std::endl;
+    std::cout << "[Switch] Bound to port and listening for connection from the robot..." << std::endl;
 
     Switch::acceptThread = std::thread(&Switch::acceptClient);
 }
 
 void Switch::acceptClient()
 {
-    while (isAcceptRunning.load())
+    while (Switch::isAcceptRunning.load())
     {
         int ret;
         if ((ret = accept(Switch::serverFd, (struct sockaddr *)&Switch::clientAddress, &Switch::clientAddressLen)) == -1)
@@ -184,8 +184,13 @@ void Switch::acceptClient()
         }
         else
         {
+            if (Switch::clientFd != -1)
+            {
+                if (::close(clientFd) == -1)
+                    perror("[Switch] close 3");
+            }
             Switch::clientFd.store(ret);
-            std::cout << "[Switch] Connected to robot." << std::endl;
+            std::cout << "[Switch] Connected to the robot." << std::endl;
         }
     }
 }
