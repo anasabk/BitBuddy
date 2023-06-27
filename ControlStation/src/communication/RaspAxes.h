@@ -61,7 +61,7 @@ private:
                 return;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
 
         struct timeval optval = {0, 100000};
@@ -79,7 +79,7 @@ private:
                 continue;
             }
 
-//            std::cout << "[RaspAxes] Received axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
+            std::cout << "[RaspAxes] Received axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
         }
     }
 };

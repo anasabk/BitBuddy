@@ -129,7 +129,7 @@ void Joystick::moveStick(QPoint newPos)
 
 void Joystick::runServer()
 {
-    if ((sockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+    if ((sockFd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0)) == -1) {
         perror("[Joystick] socket");
         return;
     }
@@ -149,14 +149,12 @@ void Joystick::runServer()
 
     std::cout << "[Joystick] Bound to port and waiting to receive address from robot..." << std::endl;
 
-    struct timeval optval = {0, 100000};
-    if (setsockopt(sockFd, SOL_SOCKET, SO_RCVTIMEO, &optval, sizeof(optval)) == -1)
-        perror("[Joystick] setsockopt");
-
     while (recvfrom(sockFd, NULL, 0, 0, (struct sockaddr *)&raspAddress, &raspAddressLen) == -1)
     {
         if (errno != EAGAIN && errno != EWOULDBLOCK)
             perror("[Joystick] recvfrom");
+        else
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         if (!isServerRunning.load())
             return;
@@ -164,9 +162,23 @@ void Joystick::runServer()
 
     std::cout << "[Joystick] Received address from robot. Starting to send data." << std::endl;
 
+    clearRecvBuffer();
+
     while (isServerRunning.load())
     {
         auto start = std::chrono::steady_clock::now();
+
+        if (recvfrom(sockFd, NULL, 0, 0, (struct sockaddr *)&raspAddress, &raspAddressLen) == -1)
+        {
+            if (errno != EAGAIN && errno != EWOULDBLOCK)
+                perror("[Joystick] recvfrom");
+        }
+        else
+        {
+            std::cout << "[Joystick] Received new address from robot." << std::endl;
+
+            clearRecvBuffer();
+        }
 
         if (!isDisabled)
         {
@@ -181,5 +193,19 @@ void Joystick::runServer()
         auto end = std::chrono::steady_clock::now();
 
         std::this_thread::sleep_for(std::chrono::nanoseconds((long)(1.0 / constants::joystickSendRate * 1e9)) - (end - start));
+    }
+}
+
+void Joystick::clearRecvBuffer()
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (recvfrom(sockFd, NULL, 0, 0, NULL, NULL) == -1)
+        {
+            if (errno != EAGAIN && errno != EWOULDBLOCK)
+                perror("[Joystick] recvfrom");
+        }
     }
 }
