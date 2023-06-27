@@ -78,6 +78,8 @@ void sigpipe_handler(int sig) {
 }
 
 void sigint_handler(int sig) {
+    is_connected = 0;
+    is_running = 0;
     term_flag = 1;
 }
 
@@ -143,7 +145,8 @@ void* RobotDog::control_thread(void* param) {
             
             pthread_t motion_thread;
             bool move_flag = true;
-            Body::move_param move_param = {&buffer.y, &buffer.x, &move_flag, &robot->main_body};
+            float speed = 0.0, rot = 0.0;
+            Body::move_param move_param = {&speed, &rot, &move_flag, &robot->main_body};
             pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
             while (is_running && !robot->mode_flag) {
@@ -152,6 +155,9 @@ void* RobotDog::control_thread(void* param) {
                     perror("[RaspAxes] recvfrom");
                     continue;
                 }
+
+                speed = buffer.y * 40;
+                rot = buffer.x * M_PI/16;
 
                 printf("x:%f y:%f\n", buffer.x, buffer.y);
             }
