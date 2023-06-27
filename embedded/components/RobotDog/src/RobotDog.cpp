@@ -175,7 +175,9 @@ void* RobotDog::control_thread(void* param) {
 
 void RobotDog::run() {
     lcd.goHome();
-    lcd.printf("BitBuddy");
+    lcd.printf("Hello world");
+    lcd.setPosition(0, 1);
+    lcd.printf("I am dug");
 
     pthread_t temp;
 
