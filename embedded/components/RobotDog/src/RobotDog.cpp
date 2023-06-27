@@ -243,11 +243,6 @@ void RobotDog::run() {
             case ONOFF:
                 if(buffer.state && !is_running) {
                     is_running = 1;
-
-                    pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
-                    pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
-                    pthread_create(&control_thread_id, NULL, control_thread, (void*)this);
-                    pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff));
                     
                     servos[0].set_degree(86);
                     servos[1].set_degree(128);
@@ -265,6 +260,11 @@ void RobotDog::run() {
                     sleep(2);
                     main_body.sit_down();
                     sleep(3);
+
+                    pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
+                    pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
+                    pthread_create(&control_thread_id, NULL, control_thread, (void*)this);
+                    pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff));
 
                 } else if(!buffer.state && is_running) {
                     is_running = 0;
