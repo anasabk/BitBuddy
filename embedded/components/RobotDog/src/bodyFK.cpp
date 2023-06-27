@@ -414,6 +414,7 @@ void* Body::move_thread(void *param) {
     int leg_num = 0;
     int pause_counter = 0;
     while(*run_flag) {
+        printf("%f %f\n", rot_rad, speed);
         if(fabsl(*speed) + fabsl(*rot_rad) < 0.0001)
             pause_counter++;
         else
@@ -423,6 +424,8 @@ void* Body::move_thread(void *param) {
             wait_real(&timeNow, 100);
             continue;
         }
+
+        printf("Performing\n");
 
         if(leg_num == -1) leg_num = 0;
 
