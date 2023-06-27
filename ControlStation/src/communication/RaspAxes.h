@@ -31,6 +31,7 @@ public:
         std::cout << "[RaspAxes] Done." << std::endl;
     }
 
+private:
     int sockFd = -1;
     std::thread clientThread;
     std::atomic<bool> isRunning = true;
@@ -77,6 +78,8 @@ public:
 
                 continue;
             }
+
+//            std::cout << "[RaspAxes] Received axes: " << "x: " << axes.x << ", y: " << axes.y << std::endl;
         }
     }
 };

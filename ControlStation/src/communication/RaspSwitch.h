@@ -34,6 +34,7 @@ public:
         std::cout << "[RaspSwitch] Done." << std::endl;
     }
 
+private:
     int sockFd = -1;
     std::thread clientThread;
     std::atomic<bool> isRunning = true;
@@ -78,8 +79,8 @@ public:
                 std::cout << "[RaspSwitch] Connection closed." << std::endl;
                 return;
             }
-            else
-                std::cout << "[RaspSwitch] Received changed state: " << state.name << " " << state.value << std::endl;
+//            else
+//                std::cout << "[RaspSwitch] Received changed state: " << state.name << " " << state.value << std::endl;
         }
     }
 };
