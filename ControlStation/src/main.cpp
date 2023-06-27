@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     new MainWindow(console);
     DesktopCam desktopCam;
 
-//    RaspSim raspSim(true);
+//    RaspSim raspSim(false);
 
     if (atexit(atExit) != 0)
         std::cerr << "[Main] atexit failed." << std::endl;

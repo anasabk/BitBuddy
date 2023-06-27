@@ -79,8 +79,8 @@ private:
                 std::cout << "[RaspSwitch] Connection closed." << std::endl;
                 return;
             }
-//            else
-//                std::cout << "[RaspSwitch] Received changed state: " << state.name << " " << state.value << std::endl;
+            else
+                std::cout << "[RaspSwitch] Received changed state: " << state.name << " " << state.value << std::endl;
         }
     }
 };

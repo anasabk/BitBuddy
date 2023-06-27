@@ -22,8 +22,7 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
     static bool init = true;
     if (init)
     {
-        signal(SIGPIPE, &Switch::sigpipeHandler);
-        Switch::serverThread = std::thread(&Switch::runServer);
+        Switch::startServer();
         init = false;
     }
 
@@ -70,16 +69,16 @@ Switch::~Switch()
     {
         std::cout << "[Switch] Cleaning up..." << std::endl;
 
-        Switch::isServerRunning.store(false);
-        Switch::serverThread.join();
+        Switch::isAcceptRunning.store(false);
+        Switch::acceptThread.join();
 
-        if (serverFd != -1)
+        if (Switch::serverFd != -1)
         {
             if (::close(serverFd) == -1)
                 perror("[Switch] close 1");
         }
 
-        if (clientFd != -1)
+        if (Switch::clientFd != -1)
         {
             if (::close(clientFd) == -1)
                 perror("[Switch] close 2");
@@ -108,13 +107,21 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
             setCursor(Qt::ArrowCursor);
         else if (event->type() == QEvent::MouseButtonRelease)
         {
-            if (clientFd != -1)
+            if (Switch::clientFd.load() != -1)
             {
                 SwitchState changedState = switchState;
                 changedState.value = !switchState.value;
 
-                if (write(clientFd, &changedState, sizeof(changedState)) == -1)
-                    perror("[Switch] write");
+                if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1)
+                {
+                    if (errno == EPIPE)
+                    {
+                        Switch::clientFd.store(-1);
+                        std::cerr << "[Switch] Not connected!" << std::endl;
+                    }
+                    else
+                        perror("[Switch] write");
+                }
                 else
                 {
                     setState(changedState.value);
@@ -129,16 +136,16 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-void Switch::runServer()
+void Switch::startServer()
 {
-    if ((serverFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) == -1)
+    if ((Switch::serverFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) == -1)
     {
         perror("[Switch] socket");
         return;
     }
 
     int optval = 1;
-    if (setsockopt(serverFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+    if (setsockopt(Switch::serverFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
         perror("[Switch] setsockopt");
 
     struct sockaddr_in serverAddress{};
@@ -146,13 +153,13 @@ void Switch::runServer()
     serverAddress.sin_addr.s_addr = INADDR_ANY;
     serverAddress.sin_port = htons(constants::switchPort);
 
-    if (bind(serverFd, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1)
+    if (bind(Switch::serverFd, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1)
     {
         perror("[Switch] bind");
         return;
     }
 
-    if (listen(serverFd, 1) == -1)
+    if (listen(Switch::serverFd, 1) == -1)
     {
         perror("[Switch] listen");
         return;
@@ -160,40 +167,32 @@ void Switch::runServer()
 
     std::cout << "[Switch] Bound to port and listening for connection..." << std::endl;
 
-    Switch::acceptClient();
-}
-
-void Switch::sigpipeHandler(int signum)
-{
-    if (::close(clientFd) == -1)
-        perror("[Switch] close 3");
-    clientFd = -1;
-
-    std::cout << "[Switch] Connection closed." << std::endl;
-
-    Switch::serverThread.join();
-    Switch::serverThread = std::thread(&Switch::acceptClient);
+    Switch::acceptThread = std::thread(&Switch::acceptClient);
 }
 
 void Switch::acceptClient()
 {
-    while ((clientFd = accept(serverFd, (struct sockaddr *)&Switch::clientAddress, &Switch::clientAddressLen)) == -1)
+    while (isAcceptRunning.load())
     {
-        if (errno != EAGAIN && errno != EWOULDBLOCK)
-            perror("[Switch] accept");
+        int ret;
+        if ((ret = accept(Switch::serverFd, (struct sockaddr *)&Switch::clientAddress, &Switch::clientAddressLen)) == -1)
+        {
+            if (errno != EAGAIN && errno != EWOULDBLOCK)
+                perror("[Switch] accept");
+            else
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
         else
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        if (!Switch::isServerRunning.load())
-            return;
+        {
+            Switch::clientFd.store(ret);
+            std::cout << "[Switch] Connected to robot." << std::endl;
+        }
     }
-
-    std::cout << "[Switch] Accepted connection." << std::endl;
 }
 
 int Switch::serverFd = -1;
-int Switch::clientFd = -1;
+std::atomic<int> Switch::clientFd = -1;
 sockaddr_in Switch::clientAddress;
 socklen_t Switch::clientAddressLen = sizeof(Switch::clientAddress);
-std::thread Switch::serverThread;
-std::atomic<bool> Switch::isServerRunning = true;
+std::thread Switch::acceptThread;
+std::atomic<bool> Switch::isAcceptRunning = true;

@@ -41,12 +41,11 @@ private:
     static struct sockaddr_in clientAddress;  // Robot's address that is received after it connects.
     static socklen_t clientAddressLen;
     static int serverFd;  // Server (switch) socket.
-    static int clientFd;  // Client socket.
-    static std::thread serverThread;
-    static std::atomic<bool> isServerRunning;
-    static void runServer();                 // Runs the server that will send the changed states to the robot.
-    static void sigpipeHandler(int signum);  // Accepts another connection when the current one closes.
-    static void acceptClient();              // Accepts connection.
+    static std::atomic<int> clientFd;  // Client socket.
+    static std::thread acceptThread;
+    static std::atomic<bool> isAcceptRunning;
+    static void startServer();                 // Runs the server that will send the changed states to the robot.
+    static void acceptClient();                // Accepts connection.
 };
 
 #endif // SWITCH_H
