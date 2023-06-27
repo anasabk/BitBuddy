@@ -145,7 +145,8 @@ void* RobotDog::control_thread(void* param) {
             
             pthread_t motion_thread;
             bool move_flag = true;
-            float speed = 0.0, rot = 0.0;
+            float speed = 0.0;
+            float rot = 0.0;
             Body::move_param move_param = {&speed, &rot, &move_flag, &robot->main_body};
             pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
