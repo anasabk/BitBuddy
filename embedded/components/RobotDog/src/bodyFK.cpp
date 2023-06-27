@@ -415,9 +415,9 @@ void* Body::move_thread(void *param) {
     int pause_counter = 0;
     while(*run_flag) {
         printf("%f %f %d\n", fabs(*speed), fabs(*rot_rad), pause_counter);
-        if((fabs(*speed) + fabs(*rot_rad)) < 0.0001)
-            pause_counter++;
-        else
+        if((fabs(*speed) + fabs(*rot_rad)) < 0.0001) {
+            if(pause_counter < 2) pause_counter++;
+        } else
             pause_counter = 0;
 
         if(pause_counter >= 2){
