@@ -14,25 +14,33 @@ class Switch : public QGroupBox
     Q_OBJECT
 
 public:
-    // Name is used while sending the state to the robot. text1 and text2 are the names of the states.
-    Switch(const char *name, const QString &text1, const QString &text2, QWidget *parent = nullptr);
-    ~Switch();
-
-    struct SwitchState
+    enum class Type
     {
-        char name[9];
+        OnOff,
+        Mode,
+        Pose
+    };
+
+    struct State
+    {
+        Type type;
         bool value;
     };
 
+    Switch(Type type, QWidget *parent = nullptr);
+    ~Switch();
+
+    static std::array<std::array<QString, 3>, 3> texts;
+
 signals:
-    void stateChanged(SwitchState state);
+    void stateChanged(State state);
 
 private:
     QWidget *sw;       // Switch
     QWidget *swStick;  // Movable part of the switch.
 
-    SwitchState switchState{};  // State that will be sent to the robot.
-    const int height = 24;      // Height of the switch on the UI.
+    State state;                // Switch state
+    const int height;           // Height of the switch on the UI.
     int stickHeight;            // Height of the switch stick on the UI.
 
     void setState(bool state);                         // Sets the switch state.

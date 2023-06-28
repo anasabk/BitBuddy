@@ -33,7 +33,7 @@ private:
 
 private slots:
     void setSizes();
-    void onSwitchStateChanged(Switch::SwitchState state);
+    void onSwitchStateChanged(Switch::State state);
 };
 
 #endif // MAINWINDOW_H

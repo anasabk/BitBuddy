@@ -61,9 +61,9 @@ MainWindow::MainWindow(Console *console) :
     switchesVBox->stackUnder(joystick);
 
     std::vector<Switch *> switches = {
-        new Switch("ONOFF", "Off", "On", switchesVBox),
-        new Switch("MODE", "Manual", "Auto", switchesVBox),
-        new Switch("POSE", "Sit", "Stand", switchesVBox)
+        new Switch(Switch::Type::OnOff, switchesVBox),
+        new Switch(Switch::Type::Mode, switchesVBox),
+        new Switch(Switch::Type::Pose, switchesVBox)
     };
 
     for (Switch *sw : switches)
@@ -125,8 +125,8 @@ void MainWindow::setSizes()
     objDet->setFixedSize(height * objDetAspectRatio, height);
 }
 
-void MainWindow::onSwitchStateChanged(Switch::SwitchState state)
+void MainWindow::onSwitchStateChanged(Switch::State state)
 {
-    if (std::strcmp(state.name, "MODE") == 0)
+    if (state.type == Switch::Type::Mode)
         joystick->setIsDisabled(state.value);
 }

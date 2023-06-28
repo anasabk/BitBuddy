@@ -9,15 +9,23 @@
 #include <signal.h>
 #include <fcntl.h>
 
-Switch::Switch(const char *name, const QString &text1, const QString &text2, QWidget *parent) :
+std::array<std::array<QString, 3>, 3> Switch::texts = {{
+    {"OnOff", "Off", "On"},
+    {"Mode", "Manual", "Auto"},
+    {"Pose", "Sit", "Stand"}
+}};
+
+Switch::Switch(Type type, QWidget *parent) :
     QGroupBox(parent),
-    stickHeight(height - 8)
+    height(24),
+    stickHeight(height - 8),
+    state({type, false})
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
     sw = new QWidget(this);
     swStick = new QWidget(sw);
-    QLabel *label1 = new QLabel(text1, this);
-    QLabel *label2 = new QLabel(text2, this);
+    QLabel *label1 = new QLabel(Switch::texts[(int)type][1], this);
+    QLabel *label2 = new QLabel(Switch::texts[(int)type][2], this);
 
     static bool init = true;
     if (init)
@@ -26,12 +34,9 @@ Switch::Switch(const char *name, const QString &text1, const QString &text2, QWi
         init = false;
     }
 
-    std::strncpy(switchState.name, name, 9);
-    switchState.value = false;
-
     layout->setContentsMargins(0, 0, 0, 0);
 
-    int diff = label1->fontMetrics().size(0, text1).width() - label2->fontMetrics().size(0, text2).width();
+    int diff = label1->fontMetrics().size(0, label1->text()).width() - label2->fontMetrics().size(0, label2->text()).width();
     auto *spacer = new QSpacerItem(std::abs(diff), 0);
 
     if (diff < 0)
@@ -94,7 +99,7 @@ void Switch::setState(bool value)
 {
     swStick->move(!value ? 4 : 4 + stickHeight, 4);
 
-    switchState.value = value;
+    state.value = value;
 }
 
 bool Switch::eventFilter(QObject *object, QEvent *event)
@@ -109,8 +114,8 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
         {
             if (Switch::clientFd.load() != -1)
             {
-                SwitchState changedState = switchState;
-                changedState.value = !switchState.value;
+                State changedState = state;
+                changedState.value = !state.value;
 
                 if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1)
                 {

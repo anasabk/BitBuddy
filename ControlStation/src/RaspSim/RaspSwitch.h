@@ -2,6 +2,7 @@
 #define RASPSWITCH_H
 
 #include "../constants.h"
+#include "../Switch.h"
 
 #include <iostream>
 #include <cstring>
@@ -39,12 +40,6 @@ private:
     std::thread clientThread;
     std::atomic<bool> isRunning = true;
 
-    struct SwitchState
-    {
-        char name[9];
-        bool value;
-    };
-
     void runClient()
     {
         struct sockaddr_in desktopAddress;
@@ -63,7 +58,7 @@ private:
 
         while(isRunning.load())
         {
-            SwitchState state;
+            Switch::State state;
 
             ssize_t bytesRead = read(sockFd, &state, sizeof(state));
 
@@ -80,7 +75,9 @@ private:
                 return;
             }
             else
-                std::cout << "[RaspSwitch] Received changed state: " << state.name << " " << state.value << std::endl;
+                std::cout << "[RaspSwitch] Received changed state: "
+                          << Switch::texts[(int)state.type][0].toStdString() << " "
+                          << Switch::texts[(int)state.type][1 + state.value].toStdString() << std::endl;
         }
     }
 };
