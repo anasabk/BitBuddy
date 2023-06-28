@@ -47,10 +47,10 @@ private:
     static socklen_t clientAddressLen;
     static int serverFd;  // Server (switch) socket.
     static std::atomic<int> clientFd;  // Client socket.
-    static std::thread acceptThread;
-    static std::atomic<bool> isAcceptRunning;
-    static void startServer();                 // Runs the server that will send the changed states to the robot.
-    static void acceptClient();                // Accepts connection.
+    static std::thread manageConnectionThread;
+    static std::atomic<bool> isManageConnectionRunning;
+    static void startServer();       // Runs the server that will send the changed states to the robot.
+    static void manageConnection();  // Accepts connection and checks the status of the current connection.
 };
 
 #endif // SWITCH_H

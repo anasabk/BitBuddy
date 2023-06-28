@@ -40,8 +40,6 @@ private:
     std::thread clientThread;
     std::atomic<bool> isRunning = true;
 
-    std::array<bool, 3> states = {true, false, true};
-
     void runClient()
     {
         struct sockaddr_in desktopAddress;
@@ -57,15 +55,6 @@ private:
 
         if (connect(sockFd, (struct sockaddr*)&desktopAddress, sizeof(desktopAddress)) == -1 && errno != EINPROGRESS)
             perror("[RaspSwitch] connect");
-
-        for (bool state : states)
-        {
-            while (write(sockFd, &state, sizeof(state)) == -1)
-            {
-                perror("[RaspSwitch] write");
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-        }
 
         while(isRunning.load())
         {
@@ -106,11 +95,6 @@ private:
                 std::cout << "[RaspSwitch] Connection closed." << std::endl;
                 return;
             }
-
-            bool buf = true;
-
-            if (write(sockFd, &buf, sizeof(buf)) == -1)
-                perror("[RaspSwitch] write");
 
             std::cout << "[RaspSwitch] Received changed state: "
                       << Switch::texts[(int)type][0].toStdString() << " "

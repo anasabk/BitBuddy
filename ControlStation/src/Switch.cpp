@@ -74,8 +74,8 @@ Switch::~Switch()
     {
         std::cout << "[Switch] Cleaning up..." << std::endl;
 
-        Switch::isAcceptRunning.store(false);
-        Switch::acceptThread.join();
+        Switch::isManageConnectionRunning.store(false);
+        Switch::manageConnectionThread.join();
 
         if (Switch::serverFd != -1)
         {
@@ -117,35 +117,19 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
                 bool changedState = !state;
 
                 if (write(Switch::clientFd.load(), &type, sizeof(type)) == -1 && errno != EPIPE)
+                {
                     perror("[Switch] write 1");
+                    return false;
+                }
 
                 if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1 && errno != EPIPE)
+                {
                     perror("[Switch] write 2");
-
-                ssize_t bytesRead;
-                bool buf;
-
-                while ((bytesRead = read(Switch::clientFd.load(), &buf, sizeof(buf))) == -1)
-                {
-                    if (errno != EAGAIN && errno != EWOULDBLOCK)
-                    {
-                        perror("[Switch] read 1");
-                        break;
-                    }
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    return false;
                 }
 
-                if (bytesRead == 0)
-                {
-                    Switch::clientFd.store(-1);
-                    std::cerr << "[Switch] Not connected!" << std::endl;
-                }
-                else
-                {
-                    setState(changedState);
-                    emit stateChanged(type, changedState);
-                }
+                setState(changedState);
+                emit stateChanged(type, changedState);
             }
             else
                 std::cerr << "[Switch] Not connected!" << std::endl;
@@ -186,20 +170,18 @@ void Switch::startServer()
 
     std::cout << "[Switch] Bound to port and listening for connection from the robot..." << std::endl;
 
-    Switch::acceptThread = std::thread(&Switch::acceptClient);
+    Switch::manageConnectionThread = std::thread(&Switch::manageConnection);
 }
 
-void Switch::acceptClient()
+void Switch::manageConnection()
 {
-    while (Switch::isAcceptRunning.load())
+    while (Switch::isManageConnectionRunning.load())
     {
         int ret;
         if ((ret = accept(Switch::serverFd, (struct sockaddr *)&Switch::clientAddress, &Switch::clientAddressLen)) == -1)
         {
             if (errno != EAGAIN && errno != EWOULDBLOCK)
                 perror("[Switch] accept");
-            else
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         else
         {
@@ -210,22 +192,34 @@ void Switch::acceptClient()
             }
             Switch::clientFd.store(ret);
             std::cout << "[Switch] Connected to the robot." << std::endl;
+        }
 
-            for (Switch *sw : Switch::switches)
+        if (Switch::clientFd.load() != -1)
+        {
+            ssize_t bytesRead;
+            bool buf;
+
+            if ((bytesRead = read(Switch::clientFd.load(), &buf, sizeof(buf))) == -1)
             {
-                bool state;
-
-                while (read(Switch::clientFd, &state, sizeof(state)) == -1)
+                if (errno != EAGAIN && errno != EWOULDBLOCK)
                 {
-                    if (errno != EAGAIN && errno != EWOULDBLOCK)
-                        perror("[Switch] read 2");
+                    if (errno == ECONNRESET)
+                        bytesRead = 0;
                     else
-                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                        perror("[Switch] read");
                 }
+            }
 
-                sw->setState(state);
+            if (bytesRead == 0)
+            {
+                Switch::clientFd.store(-1);
+                std::cerr << "[Switch] Connection closed." << std::endl;
+                for (Switch *sw : Switch::switches)
+                    sw->setState(false);
             }
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
@@ -233,9 +227,9 @@ std::array<Switch *, 3> Switch::switches;
 std::array<Switch *, 3> Switch::createSwitches()
 {
     return switches = {
-        new Switch(Type::OnOff),
-        new Switch(Type::Mode),
-        new Switch(Type::Pose)
+       new Switch(Type::OnOff),
+       new Switch(Type::Mode),
+       new Switch(Type::Pose)
     };
 }
 
@@ -243,5 +237,5 @@ int Switch::serverFd = -1;
 std::atomic<int> Switch::clientFd = -1;
 sockaddr_in Switch::clientAddress;
 socklen_t Switch::clientAddressLen = sizeof(Switch::clientAddress);
-std::thread Switch::acceptThread;
-std::atomic<bool> Switch::isAcceptRunning = true;
+std::thread Switch::manageConnectionThread;
+std::atomic<bool> Switch::isManageConnectionRunning = true;
