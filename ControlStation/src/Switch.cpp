@@ -116,13 +116,13 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
             {
                 bool changedState = !state;
 
-                if (write(Switch::clientFd.load(), &type, sizeof(type)) == -1 && errno != EPIPE)
+                if (write(Switch::clientFd.load(), &type, sizeof(type)) == -1)
                 {
                     perror("[Switch] write 1");
                     return false;
                 }
 
-                if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1 && errno != EPIPE)
+                if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1)
                 {
                     perror("[Switch] write 2");
                     return false;
