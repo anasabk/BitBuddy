@@ -21,27 +21,24 @@ public:
         Pose
     };
 
-    struct State
-    {
-        Type type;
-        bool value;
-    };
-
     Switch(Type type, QWidget *parent = nullptr);
     ~Switch();
 
-    static std::array<std::array<QString, 3>, 3> texts;
+    static const std::array<std::array<QString, 3>, 3> texts;
+    static std::array<Switch *, 3> createSwitches();
 
 signals:
-    void stateChanged(State state);
+    void stateChanged(Type type, bool state);
 
 private:
     QWidget *sw;       // Switch
     QWidget *swStick;  // Movable part of the switch.
+    const int height;  // Height of the switch.
+    const int stickHeight;   // Height of the switch.
 
-    State state;                // Switch state
-    const int height;           // Height of the switch on the UI.
-    int stickHeight;            // Height of the switch stick on the UI.
+    Type type;
+    bool state = false;
+    static std::array<Switch *, 3> switches;
 
     void setState(bool state);                         // Sets the switch state.
     bool eventFilter(QObject *object, QEvent *event);  // Handles mouse hover and click events on the switch.

@@ -9,7 +9,7 @@
 #include <signal.h>
 #include <fcntl.h>
 
-std::array<std::array<QString, 3>, 3> Switch::texts = {{
+const std::array<std::array<QString, 3>, 3> Switch::texts = {{
     {"OnOff", "Off", "On"},
     {"Mode", "Manual", "Auto"},
     {"Pose", "Sit", "Stand"}
@@ -19,7 +19,7 @@ Switch::Switch(Type type, QWidget *parent) :
     QGroupBox(parent),
     height(24),
     stickHeight(height - 8),
-    state({type, false})
+    type(type)
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
     sw = new QWidget(this);
@@ -95,11 +95,11 @@ Switch::~Switch()
     }
 }
 
-void Switch::setState(bool value)
+void Switch::setState(bool state)
 {
-    swStick->move(!value ? 4 : 4 + stickHeight, 4);
+    swStick->move(!state ? 4 : 4 + stickHeight, 4);
 
-    state.value = value;
+    this->state = state;
 }
 
 bool Switch::eventFilter(QObject *object, QEvent *event)
@@ -114,23 +114,37 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
         {
             if (Switch::clientFd.load() != -1)
             {
-                State changedState = state;
-                changedState.value = !state.value;
+                bool changedState = !state;
 
-                if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1)
+                if (write(Switch::clientFd.load(), &type, sizeof(type)) == -1 && errno != EPIPE)
+                    perror("[Switch] write 1");
+
+                if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1 && errno != EPIPE)
+                    perror("[Switch] write 2");
+
+                ssize_t bytesRead;
+                bool buf;
+
+                while ((bytesRead = read(Switch::clientFd.load(), &buf, sizeof(buf))) == -1)
                 {
-                    if (errno == EPIPE)
+                    if (errno != EAGAIN && errno != EWOULDBLOCK)
                     {
-                        Switch::clientFd.store(-1);
-                        std::cerr << "[Switch] Not connected!" << std::endl;
+                        perror("[Switch] read 1");
+                        break;
                     }
-                    else
-                        perror("[Switch] write");
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+
+                if (bytesRead == 0)
+                {
+                    Switch::clientFd.store(-1);
+                    std::cerr << "[Switch] Not connected!" << std::endl;
                 }
                 else
                 {
-                    setState(changedState.value);
-                    emit stateChanged(changedState);
+                    setState(changedState);
+                    emit stateChanged(type, changedState);
                 }
             }
             else
@@ -196,8 +210,33 @@ void Switch::acceptClient()
             }
             Switch::clientFd.store(ret);
             std::cout << "[Switch] Connected to the robot." << std::endl;
+
+            for (Switch *sw : Switch::switches)
+            {
+                bool state;
+
+                while (read(Switch::clientFd, &state, sizeof(state)) == -1)
+                {
+                    if (errno != EAGAIN && errno != EWOULDBLOCK)
+                        perror("[Switch] read 2");
+                    else
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+
+                sw->setState(state);
+            }
         }
     }
+}
+
+std::array<Switch *, 3> Switch::switches;
+std::array<Switch *, 3> Switch::createSwitches()
+{
+    return switches = {
+        new Switch(Type::OnOff),
+        new Switch(Type::Mode),
+        new Switch(Type::Pose)
+    };
 }
 
 int Switch::serverFd = -1;

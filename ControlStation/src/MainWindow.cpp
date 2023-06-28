@@ -60,14 +60,10 @@ MainWindow::MainWindow(Console *console) :
 
     switchesVBox->stackUnder(joystick);
 
-    std::vector<Switch *> switches = {
-        new Switch(Switch::Type::OnOff, switchesVBox),
-        new Switch(Switch::Type::Mode, switchesVBox),
-        new Switch(Switch::Type::Pose, switchesVBox)
-    };
-
+    auto switches = Switch::createSwitches();
     for (Switch *sw : switches)
     {
+        sw->setParent(switchesVBox);
         switchesVBoxLayout->addWidget(sw, 0, Qt::AlignHCenter | Qt::AlignVCenter);
         connect(sw, &Switch::stateChanged, this, &MainWindow::onSwitchStateChanged);
     }
@@ -125,8 +121,8 @@ void MainWindow::setSizes()
     objDet->setFixedSize(height * objDetAspectRatio, height);
 }
 
-void MainWindow::onSwitchStateChanged(Switch::State state)
+void MainWindow::onSwitchStateChanged(Switch::Type type, bool state)
 {
-    if (state.type == Switch::Type::Mode)
-        joystick->setIsDisabled(state.value);
+    if (type == Switch::Type::Mode)
+        joystick->setIsDisabled(state);
 }
