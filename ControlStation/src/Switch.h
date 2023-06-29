@@ -20,32 +20,50 @@ public:
         Mode,
         Pose
     };
+    static constexpr int typeCount = 3;
+    inline static const std::array<std::array<QString, 3>, typeCount> texts = {{
+        {"OnOff", "Off", "On"},
+        {"Mode", "Manual", "Auto"},
+        {"Pose", "Sit", "Stand"}
+    }};
 
     Switch(Type type, QWidget *parent = nullptr);
     ~Switch();
 
-    static const std::array<std::array<QString, 3>, 3> texts;
-    static std::array<Switch *, 3> createSwitches();
+    static void createSwitches();
+    static std::array<Switch *, typeCount> getSwitches() { return switches; }
+
+    void setEnabled_(bool enabled);
+
+    Type getType() { return type; }
+    bool getState() { return state; }
 
 signals:
     void stateChanged(Type type, bool state);
 
+private slots:
+    void onKeyPressed(QKeyEvent *event);  // Implements switching based on number presses (1-9).
+
 private:
-    QWidget *sw;       // Switch
-    QWidget *swStick;  // Movable part of the switch.
-    const int height;  // Height of the switch.
-    const int stickHeight;   // Height of the switch.
+    QWidget *sw;            // Switch
+    QWidget *swStick;       // Movable part of the switch.
+    const int height;       // Height of the switch.
+    const int stickHeight;  // Height of the switch.
+    QLabel *label1;         // Left label
+    QLabel *label2;         // Right label
 
     Type type;
     bool state = false;
-    static std::array<Switch *, 3> switches;
 
+    void toggle();                                     // Toggles the switch.
     void setState(bool state);                         // Sets the switch state.
     bool eventFilter(QObject *object, QEvent *event);  // Handles mouse hover and click events on the switch.
 
+    static std::array<Switch *, typeCount> switches;
+
     static struct sockaddr_in clientAddress;  // Robot's address that is received after it connects.
     static socklen_t clientAddressLen;
-    static int serverFd;  // Server (switch) socket.
+    static int serverFd;               // Server (switch) socket.
     static std::atomic<int> clientFd;  // Client socket.
     static std::thread manageConnectionThread;
     static std::atomic<bool> isManageConnectionRunning;

@@ -10,7 +10,7 @@ public:
     Joystick(int size, QWidget *parent = nullptr);
     ~Joystick();
 
-    void setIsDisabled(bool isDisabled);
+    void setEnabled_(bool enabled);
 
 protected:
     // Implements joystick movement based on mouse presses.
@@ -19,9 +19,11 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 
     // Implements joystick movement based on key presses.
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
     void moveEvent(QMoveEvent *event) override;
+
+private slots:
+    void onKeyPressed(QKeyEvent *event);
+    void onKeyReleased(QKeyEvent *event);
 
 private:
     struct Axes
@@ -34,7 +36,6 @@ private:
     float sr;                 // Stick radius.
     bool isPressed = false;   // Is mouse pressed?
     QSet<int> pressedKeys;    // Keys that are currently pressed. Used for implementing joystick movement based on key presses.
-    bool isDisabled = false;  // Is joystick disabled?
 
     std::atomic<Axes> axes;  // Axes that will be sent to the robot.
 

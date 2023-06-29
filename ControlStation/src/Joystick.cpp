@@ -1,5 +1,6 @@
 #include "Joystick.h"
 #include "constants.h"
+#include "MainWindow.h"
 
 #include <iostream>
 #include <arpa/inet.h>
@@ -11,17 +12,17 @@ Joystick::Joystick(int size, QWidget *parent) :
     r(size / 2.0f),
     sr(size / 6.0f)
 {
+    connect(MainWindow::get(), &MainWindow::keyPressed, this, &Joystick::onKeyPressed);
+    connect(MainWindow::get(), &MainWindow::keyReleased, this, &Joystick::onKeyReleased);
+
     setFixedSize(size, size);
-    setStyleSheet(QString("background: rgba(0, 0, 0, 0.3); border: 2px solid #e0e0e0; border-radius: %1px").arg((int)r));
-
     stick->setFixedSize(sr * 2, sr * 2);
-    stick->setStyleSheet(QString("background: #e0e0e0; border-radius: %1px").arg((int)sr));
-
-    stick->setAttribute(Qt::WA_TransparentForMouseEvents);
+    moveStick(QPoint(r, r));
 
     stackUnder(stick);
-    setFocus();
-    moveStick(QPoint(r, r));
+    stick->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+    setEnabled_(true);
 
     serverThread = std::thread(&Joystick::runServer, this);
 }
@@ -42,9 +43,21 @@ Joystick::~Joystick()
     std::cout << "[Joystick] Done." << std::endl;
 }
 
-void Joystick::setIsDisabled(bool isDisabled)
+void Joystick::setEnabled_(bool enabled)
 {
-    this->isDisabled = isDisabled;
+    setEnabled(enabled);
+
+    if (!enabled)
+    {
+        pressedKeys.clear();
+        moveStick(QPoint(r, r));
+    }
+
+    QString color = enabled ? constants::white : constants::whiteDisabled;
+    QString bg = enabled ? constants::bg : constants::bgDisabled;
+
+    setStyleSheet(QString("background: %1; border: 2px solid %2; border-radius: %3px").arg(bg, color).arg((int)r));
+    stick->setStyleSheet(QString("background: %1; border-radius: %2px").arg(color).arg((int)sr));
 }
 
 void Joystick::mousePressEvent(QMouseEvent *event)
@@ -72,18 +85,24 @@ void Joystick::moveEvent(QMoveEvent *event)
     moveStick(QPoint(r, r));
 }
 
-void Joystick::keyPressEvent(QKeyEvent *event)
+void Joystick::onKeyPressed(QKeyEvent *event)
 {
-    pressedKeys += event->key();
+    if (isEnabled())
+    {
+        pressedKeys += event->key();
 
-    moveWithPressedKeys();
+        moveWithPressedKeys();
+    }
 }
 
-void Joystick::keyReleaseEvent(QKeyEvent *event)
+void Joystick::onKeyReleased(QKeyEvent *event)
 {
-    pressedKeys -= event->key();
+    if (isEnabled())
+    {
+        pressedKeys -= event->key();
 
-    moveWithPressedKeys();
+        moveWithPressedKeys();
+    }
 }
 
 void Joystick::moveWithPressedKeys()
@@ -180,7 +199,7 @@ void Joystick::runServer()
             clearRecvBuffer();
         }
 
-        if (!isDisabled)
+        if (isEnabled())
         {
             Axes axesValue = axes.load();
 

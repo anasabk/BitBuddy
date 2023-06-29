@@ -1,11 +1,11 @@
 #include "MainWindow.h"
 
 #include <QScrollBar>
+#include <QKeyEvent>
 #include <signal.h>
 #include <sys/wait.h>
 
-MainWindow::MainWindow(Console *console) :
-    QGroupBox()
+void MainWindow::init(Console *console)
 {
     startObjDetProcess();
 
@@ -60,12 +60,13 @@ MainWindow::MainWindow(Console *console) :
 
     switchesVBox->stackUnder(joystick);
 
-    auto switches = Switch::createSwitches();
-    for (Switch *sw : switches)
+    Switch::createSwitches();
+    for (Switch *sw : Switch::getSwitches())
     {
         sw->setParent(switchesVBox);
         switchesVBoxLayout->addWidget(sw, 0, Qt::AlignHCenter | Qt::AlignVCenter);
         connect(sw, &Switch::stateChanged, this, &MainWindow::onSwitchStateChanged);
+        onSwitchStateChanged(sw->getType(), false);
     }
 
     setAttribute(Qt::WA_DeleteOnClose);
@@ -91,6 +92,18 @@ MainWindow::~MainWindow()
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     setSizes();
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    emit keyPressed(event);
+    QGroupBox::keyPressEvent(event);
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    emit keyReleased(event);
+    QGroupBox::keyReleaseEvent(event);
 }
 
 void MainWindow::startObjDetProcess()
@@ -123,6 +136,23 @@ void MainWindow::setSizes()
 
 void MainWindow::onSwitchStateChanged(Switch::Type type, bool state)
 {
-    if (type == Switch::Type::Mode)
-        joystick->setIsDisabled(state);
+    auto switches = Switch::getSwitches();
+
+    if (type == Switch::Type::OnOff)
+    {
+        for (int i = 1; i < switches.size(); i++)
+            switches[i]->setEnabled_(state);
+
+        if (state && !switches[(int)Switch::Type::Mode]->getState())
+            joystick->setEnabled_(true);
+        else
+            joystick->setEnabled_(false);
+    }
+    else if (type == Switch::Type::Mode)
+    {
+        if (!state && switches[(int)Switch::Type::OnOff]->getState())
+            joystick->setEnabled_(true);
+        else
+            joystick->setEnabled_(false);
+    }
 }

@@ -1,19 +1,15 @@
 #include "Switch.h"
 #include "constants.h"
+#include "MainWindow.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSpacerItem>
 #include <QEvent>
+#include <QKeyEvent>
 #include <iostream>
 #include <signal.h>
 #include <fcntl.h>
-
-const std::array<std::array<QString, 3>, 3> Switch::texts = {{
-    {"OnOff", "Off", "On"},
-    {"Mode", "Manual", "Auto"},
-    {"Pose", "Sit", "Stand"}
-}};
 
 Switch::Switch(Type type, QWidget *parent) :
     QGroupBox(parent),
@@ -21,11 +17,13 @@ Switch::Switch(Type type, QWidget *parent) :
     stickHeight(height - 8),
     type(type)
 {
+    connect(MainWindow::get(), &MainWindow::keyPressed, this, &Switch::onKeyPressed);
+
     QHBoxLayout *layout = new QHBoxLayout(this);
     sw = new QWidget(this);
     swStick = new QWidget(sw);
-    QLabel *label1 = new QLabel(Switch::texts[(int)type][1], this);
-    QLabel *label2 = new QLabel(Switch::texts[(int)type][2], this);
+    label1 = new QLabel(Switch::texts[(int)type][1], this);
+    label2 = new QLabel(Switch::texts[(int)type][2], this);
 
     static bool init = true;
     if (init)
@@ -52,18 +50,13 @@ Switch::Switch(Type type, QWidget *parent) :
     if (diff == 0)
         delete spacer;
 
-    label1->setStyleSheet("color: #e0e0e0");
-    label2->setStyleSheet("color: #e0e0e0");
-
     sw->setAttribute(Qt::WA_Hover, true);
     sw->installEventFilter(this);
 
     sw->setFixedSize(stickHeight * 2 + 8, height);
-    sw->setStyleSheet(QString("border: 2px solid #e0e0e0; border-radius: %1px").arg(height / 2));
-
     swStick->setFixedSize(stickHeight, stickHeight);
-    swStick->setStyleSheet(QString("background: #e0e0e0; border-radius: %1px").arg(stickHeight / 2));
 
+    setEnabled_(true);
     setState(false);
 }
 
@@ -95,48 +88,87 @@ Switch::~Switch()
     }
 }
 
+std::array<Switch *, 3> Switch::switches;
+void Switch::createSwitches()
+{
+    Switch::switches = {
+        new Switch(Type::OnOff),
+        new Switch(Type::Mode),
+        new Switch(Type::Pose)
+    };
+}
+
+void Switch::setEnabled_(bool enabled)
+{
+    setEnabled(enabled);
+
+    if (enabled)
+        setFocus();
+
+    QString color = enabled ? constants::white : constants::whiteDisabled;
+    QString bg = enabled ? constants::bg : constants::bgDisabled;
+
+    label1->setStyleSheet(QString("color: %1").arg(color));
+    label2->setStyleSheet(QString("color: %1").arg(color));
+
+    sw->setStyleSheet(QString("background: %1; border: 2px solid %2; border-radius: %3px").arg(bg, color).arg(height / 2));
+    swStick->setStyleSheet(QString("background: %1; border-radius: %2px").arg(color).arg(stickHeight / 2));
+}
+
+void Switch::toggle()
+{
+    if (Switch::clientFd.load() != -1)
+    {
+        bool changedState = !state;
+
+        if (write(Switch::clientFd.load(), &type, sizeof(type)) == -1)
+        {
+            perror("[Switch] write 1");
+            return;
+        }
+
+        if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1)
+        {
+            perror("[Switch] write 2");
+            return;
+        }
+
+        setState(changedState);
+    }
+    else
+        std::cerr << "[Switch] Not connected!" << std::endl;
+}
+
 void Switch::setState(bool state)
 {
     swStick->move(!state ? 4 : 4 + stickHeight, 4);
 
-    this->state = state;
+    if (this->state != state)
+    {
+        this->state = state;
+        emit stateChanged(type, state);
+    }
 }
 
 bool Switch::eventFilter(QObject *object, QEvent *event)
 {
     if (object == sw)
     {
-        if (event->type() == QEvent::HoverEnter)
+        if (event->type() == QEvent::HoverEnter && isEnabled())
             setCursor(Qt::PointingHandCursor);
         else if (event->type() == QEvent::HoverLeave)
             setCursor(Qt::ArrowCursor);
-        else if (event->type() == QEvent::MouseButtonRelease)
-        {
-            if (Switch::clientFd.load() != -1)
-            {
-                bool changedState = !state;
-
-                if (write(Switch::clientFd.load(), &type, sizeof(type)) == -1)
-                {
-                    perror("[Switch] write 1");
-                    return false;
-                }
-
-                if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1)
-                {
-                    perror("[Switch] write 2");
-                    return false;
-                }
-
-                setState(changedState);
-                emit stateChanged(type, changedState);
-            }
-            else
-                std::cerr << "[Switch] Not connected!" << std::endl;
-        }
+        else if (event->type() == QEvent::MouseButtonRelease &&  isEnabled())
+            toggle();
     }
 
     return false;
+}
+
+void Switch::onKeyPressed(QKeyEvent *event)
+{
+    if (!event->isAutoRepeat() && event->key() == Qt::Key_1 + (int)type && isEnabled())
+        toggle();
 }
 
 void Switch::startServer()
@@ -185,12 +217,20 @@ void Switch::manageConnection()
         }
         else
         {
-            if (Switch::clientFd != -1)
+            if (Switch::clientFd.load() != -1)
             {
                 if (::close(clientFd) == -1)
                     perror("[Switch] close 3");
             }
+
             Switch::clientFd.store(ret);
+
+            int flags = fcntl(Switch::clientFd.load(), F_GETFL);
+            if (flags == -1)
+                perror("[Switch] fcntl 1");
+            if (fcntl(Switch::clientFd.load(), F_SETFL, flags | O_NONBLOCK) == -1)
+                perror("[Switch] fcntl 2");
+
             std::cout << "[Switch] Connected to the robot." << std::endl;
         }
 
@@ -221,16 +261,6 @@ void Switch::manageConnection()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-}
-
-std::array<Switch *, 3> Switch::switches;
-std::array<Switch *, 3> Switch::createSwitches()
-{
-    return switches = {
-       new Switch(Type::OnOff),
-       new Switch(Type::Mode),
-       new Switch(Type::Pose)
-    };
 }
 
 int Switch::serverFd = -1;

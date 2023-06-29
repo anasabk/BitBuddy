@@ -36,6 +36,9 @@ private:
             if (testReconnection)
                 std::this_thread::sleep_for(std::chrono::seconds(5));
 
+            if (!isRunning.load())
+                return;
+
             RaspCam raspCam;
             RaspAxes raspAxes;
             RaspSwitch raspSwitch;

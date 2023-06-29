@@ -1,4 +1,5 @@
 #include "Console.h"
+#include "constants.h"
 
 #include <QScrollBar>
 
@@ -6,10 +7,10 @@ Console::Console(const OutputWatcher *stdoutWatcher, const OutputWatcher *stderr
     QTextEdit(parent)
 {
     connect(stdoutWatcher, &OutputWatcher::outputRead, this, [this](QString output) {
-        writeOutput(output, QColor::fromString("#e0e0e0"));
+        writeOutput(output, QColor::fromString(constants::white));
     });
     connect(stderrWatcher, &OutputWatcher::outputRead, this, [this](QString output) {
-        writeOutput(output, QColor::fromString("#ff3030"));
+        writeOutput(output, QColor::fromString(constants::red));
     });
 
     setStyleSheet("border: 1px solid #202020");
