@@ -19,11 +19,9 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 
     // Implements joystick movement based on key presses.
+    Q_SLOT void onKeyPressed(QKeyEvent *event);
+    Q_SLOT void onKeyReleased(QKeyEvent *event);
     void moveEvent(QMoveEvent *event) override;
-
-private slots:
-    void onKeyPressed(QKeyEvent *event);
-    void onKeyReleased(QKeyEvent *event);
 
 private:
     struct Axes

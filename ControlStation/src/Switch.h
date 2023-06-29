@@ -41,9 +41,6 @@ public:
 signals:
     void stateChanged(Type type, bool state);
 
-private slots:
-    void onKeyPressed(QKeyEvent *event);  // Implements switching based on number presses (1-9).
-
 private:
     QWidget *sw;            // Switch
     QWidget *swStick;       // Movable part of the switch.
@@ -58,6 +55,7 @@ private:
     void toggle();                                     // Toggles the switch.
     void setState(bool state);                         // Sets the switch state.
     bool eventFilter(QObject *object, QEvent *event);  // Handles mouse hover and click events on the switch.
+    Q_SLOT void onKeyPressed(QKeyEvent *event);        // Handles keyboard shortcut press for the switch.
 
     static std::array<Switch *, typeCount> switches;
 
