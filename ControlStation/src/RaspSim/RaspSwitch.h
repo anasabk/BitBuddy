@@ -53,8 +53,11 @@ private:
             return;
         }
 
-        if (connect(sockFd, (struct sockaddr*)&desktopAddress, sizeof(desktopAddress)) == -1 && errno != EINPROGRESS)
+        if (connect(sockFd, (struct sockaddr *)&desktopAddress, sizeof(desktopAddress)) == -1 && errno != EINPROGRESS)
+        {
             perror("[RaspSwitch] connect");
+            return;
+        }
 
         while(isRunning.load())
         {
@@ -75,7 +78,7 @@ private:
 
             if (bytesRead == 0)
             {
-                std::cout << "[RaspSwitch] Connection closed." << std::endl;
+                std::cerr << "[RaspSwitch] Connection closed." << std::endl;
                 return;
             }
 
@@ -92,7 +95,7 @@ private:
 
             if (bytesRead == 0)
             {
-                std::cout << "[RaspSwitch] Connection closed." << std::endl;
+                std::cerr << "[RaspSwitch] Connection closed." << std::endl;
                 return;
             }
 

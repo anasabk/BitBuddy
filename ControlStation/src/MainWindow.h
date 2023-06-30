@@ -4,7 +4,7 @@
 #include "Camera.h"
 #include "Joystick.h"
 #include "Switch.h"
-#include "Console.h"
+#include "DesktopCam.h"
 
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -22,18 +22,22 @@ public:
     MainWindow(const MainWindow &) = delete;
     void operator=(const MainWindow &) = delete;
 
-    static MainWindow *get(Console *console = nullptr)
+    static MainWindow *get()
     {
         static MainWindow *instance;
 
         if (instance == nullptr)
         {
             instance = new MainWindow();
-            instance->init(console);
+            instance->init();
         }
 
         return instance;
     }
+
+private:
+    MainWindow() : QGroupBox() {};
+    void init();
 
 signals:
     void keyPressed(QKeyEvent *event);
@@ -46,12 +50,11 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
-    MainWindow() : QGroupBox() {};
-    void init(Console *console);
-
     Camera *camera;
     Camera *objDet;
     Joystick *joystick;
+
+    DesktopCam desktopCam;
 
     pid_t objDetPid;
     void startObjDetProcess();

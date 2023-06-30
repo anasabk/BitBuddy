@@ -1,15 +1,16 @@
 #include "Console.h"
 #include "constants.h"
+#include "OutputWatcher.h"
 
 #include <QScrollBar>
 
-Console::Console(const OutputWatcher *stdoutWatcher, const OutputWatcher *stderrWatcher, QWidget *parent) :
+Console::Console(QWidget *parent) :
     QTextEdit(parent)
 {
-    connect(stdoutWatcher, &OutputWatcher::outputRead, this, [this](QString output) {
+    connect(&OutputWatcher::stdoutWatcher, &OutputWatcher::outputRead, this, [this](QString output) {
         writeOutput(output, QColor::fromString(constants::white));
     });
-    connect(stderrWatcher, &OutputWatcher::outputRead, this, [this](QString output) {
+    connect(&OutputWatcher::stderrWatcher, &OutputWatcher::outputRead, this, [this](QString output) {
         writeOutput(output, QColor::fromString(constants::red));
     });
 

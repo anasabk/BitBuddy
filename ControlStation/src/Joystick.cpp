@@ -179,7 +179,7 @@ void Joystick::runServer()
             return;
     }
 
-    std::cout << "[Joystick] Received address from the robot. Starting to send data." << std::endl;
+    std::cout << "[Joystick] Received the address. Starting to send data." << std::endl;
 
     clearRecvBuffer();
 
@@ -194,7 +194,7 @@ void Joystick::runServer()
         }
         else
         {
-            std::cout << "[Joystick] Received new address from the robot." << std::endl;
+            std::cout << "[Joystick] Received new address." << std::endl;
 
             clearRecvBuffer();
         }

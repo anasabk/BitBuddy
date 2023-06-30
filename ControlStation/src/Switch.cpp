@@ -231,7 +231,7 @@ void Switch::manageConnection()
             if (fcntl(Switch::clientFd.load(), F_SETFL, flags | O_NONBLOCK) == -1)
                 perror("[Switch] fcntl 2");
 
-            std::cout << "[Switch] Connected to the robot." << std::endl;
+            std::cout << "[Switch] Connected." << std::endl;
         }
 
         if (Switch::clientFd.load() != -1)

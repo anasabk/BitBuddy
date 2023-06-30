@@ -1,11 +1,12 @@
 #include "MainWindow.h"
+#include "Console.h"
 
 #include <QScrollBar>
 #include <QKeyEvent>
 #include <signal.h>
 #include <sys/wait.h>
 
-void MainWindow::init(Console *console)
+void MainWindow::init()
 {
     startObjDetProcess();
 
@@ -13,8 +14,9 @@ void MainWindow::init(Console *console)
     QGroupBox *HBox2 = new QGroupBox(this);
     QGroupBox *cameraVBox = new QGroupBox(HBox1);
     QGroupBox *objDetVBox = new QGroupBox(HBox1);
+    Console *console = new Console(HBox2);
     joystick = new Joystick(200, HBox2);
-    QGroupBox *switchesVBox = new QGroupBox(this);
+    QGroupBox *switchesVBox = new QGroupBox(HBox2);
 
     QVBoxLayout *VBoxLayout = new QVBoxLayout(this);
     QHBoxLayout *HBox1Layout = new QHBoxLayout(HBox1);
@@ -40,7 +42,6 @@ void MainWindow::init(Console *console)
     HBox1Layout->addWidget(cameraVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
     HBox1Layout->addWidget(objDetVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
 
-    console->setParent(HBox2);
     HBox2Layout->addWidget(console);
     HBox2Layout->addItem(new QSpacerItem(100, 0));
     HBox2Layout->addWidget(joystick);

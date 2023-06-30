@@ -12,6 +12,9 @@ public:
     OutputWatcher(int outputFd, QObject *parent = nullptr);
     ~OutputWatcher();
 
+    static const OutputWatcher stdoutWatcher;
+    static const OutputWatcher stderrWatcher;
+
 signals:
     void outputRead(QString output);  // Signal for when something is read from outputFd.
 

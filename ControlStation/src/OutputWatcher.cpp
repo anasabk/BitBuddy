@@ -17,6 +17,9 @@ OutputWatcher::~OutputWatcher()
     thread.join();
 }
 
+const OutputWatcher OutputWatcher::stdoutWatcher(STDOUT_FILENO);
+const OutputWatcher OutputWatcher::stderrWatcher(STDERR_FILENO);
+
 void OutputWatcher::run()
 {
     int originalOutputFd;
