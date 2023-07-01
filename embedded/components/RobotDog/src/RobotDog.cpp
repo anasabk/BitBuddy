@@ -66,16 +66,16 @@ void* RobotDog::telem_thread(void *param) {
         sendto(fd, robot->front_dist, sizeof(robot->front_dist), 0, (struct sockaddr*)&addr, sizeof(addr));
         sendto(fd, &robot->mpu_buff, sizeof(robot->mpu_buff), 0, (struct sockaddr*)&addr, sizeof(addr));
 
-        printf("accel: x=%.4f y=%.4f z=%.4f / gyro: x=%.4f y=%.4f z=%.4f \ndist: left=%.4f right=%.4f\n", 
-            robot->mpu_buff.x_accel,
-            robot->mpu_buff.y_accel,
-            robot->mpu_buff.z_accel,
-            robot->mpu_buff.x_rot,
-            robot->mpu_buff.y_rot,
-            robot->mpu_buff.z_rot,
-            robot->front_dist[0],
-            robot->front_dist[1]
-        );
+        // printf("accel: x=%.4f y=%.4f z=%.4f / gyro: x=%.4f y=%.4f z=%.4f \ndist: left=%.4f right=%.4f\n", 
+        //     robot->mpu_buff.x_accel,
+        //     robot->mpu_buff.y_accel,
+        //     robot->mpu_buff.z_accel,
+        //     robot->mpu_buff.x_rot,
+        //     robot->mpu_buff.y_rot,
+        //     robot->mpu_buff.z_rot,
+        //     robot->front_dist[0],
+        //     robot->front_dist[1]
+        // );
 
         wait_real(&timeNow, 200);
     }
@@ -156,8 +156,7 @@ void* RobotDog::control_thread(void* param) {
             pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
             while (is_running && !robot->mode_flag) {
-                printf("joystick loop\n");
-                printf("x:%f y:%f\n", buffer.x, buffer.y);
+                printf("joystick: x:%f y:%f\n", buffer.x, buffer.y);
                 if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) <= 0) {
                     perror("[RaspAxes] recvfrom");
                     continue;
