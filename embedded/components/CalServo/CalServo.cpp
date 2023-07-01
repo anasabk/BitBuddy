@@ -109,3 +109,7 @@ void CalServo::sweep_offset(int offset, int dur_ms) {
 int CalServo::getChannel() {
     return channel;
 }
+
+int CalServo::get_last_deg() {
+    return last_deg;
+}

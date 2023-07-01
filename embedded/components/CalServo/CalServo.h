@@ -28,6 +28,8 @@ public:
 
     int getChannel();
 
+    int get_last_deg();
+
 private:
     int channel;
     PCA9685* controller;
