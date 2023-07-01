@@ -158,8 +158,8 @@ void* RobotDog::control_thread(void* param) {
                     continue;
                 }
 
-                speed = buffer.y * 40;
-                rot = -buffer.x * M_PI/16;
+                speed = buffer.y * 50;
+                rot = -buffer.x * M_PI/12;
             }
 
             move_flag = false;
@@ -360,6 +360,8 @@ void* RobotDog::HCSR04_thread(void* args) {
     while (is_running) {
         robot->front_dist[0] = robot->hc_sr04[0].get_distance();
         robot->front_dist[1] = robot->hc_sr04[1].get_distance();
+
+        printf("dist: %lf %lf\n", robot->front_dist[0], robot->front_dist[1]);
 
         // Add dt_ns to current time
         timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds

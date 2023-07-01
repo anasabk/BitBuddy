@@ -449,18 +449,18 @@ void* Body::move_thread(void *param) {
         // Position the leg
         body->leg_buf[leg_num][2] = 50;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
-        body->legs[leg_num].move(temp_vector, 150);
-        wait_real(&timeNow, 200);
+        body->legs[leg_num].move(temp_vector, 100);
+        wait_real(&timeNow, 150);
 
         body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-30) - new_pose_buf[leg_num][0];
         body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
-        body->legs[leg_num].move(temp_vector, 150);
-        wait_real(&timeNow, 200);
+        body->legs[leg_num].move(temp_vector, 100);
+        wait_real(&timeNow, 150);
 
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
-        body->legs[leg_num].move(temp_vector, 150);
+        body->legs[leg_num].move(temp_vector, 100);
         wait_real(&timeNow, 250);
 
 
@@ -469,18 +469,18 @@ void* Body::move_thread(void *param) {
         // Position the leg
         body->leg_buf[leg_num][2] = 50;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
-        body->legs[leg_num].move(temp_vector, 150);
-        wait_real(&timeNow, 200);
+        body->legs[leg_num].move(temp_vector, 100);
+        wait_real(&timeNow, 150);
 
         body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-30) - new_pose_buf[leg_num][0];
         body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
-        body->legs[leg_num].move(temp_vector, 150);
-        wait_real(&timeNow, 200);
+        body->legs[leg_num].move(temp_vector, 100);
+        wait_real(&timeNow, 150);
 
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
-        body->legs[leg_num].move(temp_vector, 150);
+        body->legs[leg_num].move(temp_vector, 100);
         wait_real(&timeNow, 250);
 
 
