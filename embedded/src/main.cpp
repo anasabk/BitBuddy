@@ -89,47 +89,47 @@ extern "C" int main() {
 	// RobotDog robot(1, MPU6050_DEF_I2C_ADDRESS, 1, 0x40, 1, 0x27);
 	// robot.run();
 	
-    PCA9685 pca(1, 0x40);
-	/** 
-	 * \verbatim
-	 * 		Numbers of servo channels
-	 * 			   of each leg
-	 * 				 | Top | Mid | Low |
-	 * 				 |  0  |  1  |  2  |
-	 * --------------|-----|-----|-----|
-	 * Front Right 0 |	6  |  7	 |	8  |
-	 * Front Left  1 |	9  |  10 |	11 |
-	 * Back Right  2 |	3  |  4	 |	5  |
-	 * Back Left   3 |	0  |  1	 |	2  |
-	 * \endverbatim
-	 */
-	CalServo servo[12] {
-		// Top, Mid, and Low motors for each leg
-		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
-		CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
-		CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
-		CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
-	};
-
-	// Leg legs[4] {
-	// 	Leg(&servo[0],  -4, &servo[1], 2.443508, &servo[2], -8, 55, 110, 130, false, false),
-	// 	Leg(&servo[3],  10, &servo[4], -3.443508, &servo[5], 0, 55, 110, 130, true, false),
-	// 	Leg(&servo[6],   0, &servo[7], -4.042452, &servo[8], 13.594, 55, 110, 130, true, true),
-	// 	Leg(&servo[9], 8, &servo[10], 5.957548, &servo[11], 14.594, 55, 110, 130, false, true),
+    // PCA9685 pca(1, 0x40);
+	// /** 
+	//  * \verbatim
+	//  * 		Numbers of servo channels
+	//  * 			   of each leg
+	//  * 				 | Top | Mid | Low |
+	//  * 				 |  0  |  1  |  2  |
+	//  * --------------|-----|-----|-----|
+	//  * Front Right 0 |	6  |  7	 |	8  |
+	//  * Front Left  1 |	9  |  10 |	11 |
+	//  * Back Right  2 |	3  |  4	 |	5  |
+	//  * Back Left   3 |	0  |  1	 |	2  |
+	//  * \endverbatim
+	//  */
+	// CalServo servo[12] {
+	// 	// Top, Mid, and Low motors for each leg
+	// 	CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
+	// 	CalServo(&pca, 3), CalServo(&pca, 4), CalServo(&pca, 5),	// Back Right
+	// 	CalServo(&pca, 6), CalServo(&pca, 7), CalServo(&pca, 8),	// Front Right 
+	// 	CalServo(&pca, 9), CalServo(&pca, 10), CalServo(&pca, 11)	// Front Left
 	// };
 
-	// servos_g = servo;
-	// legs_g = legs;
+	// // Leg legs[4] {
+	// // 	Leg(&servo[0],  -4, &servo[1], 2.443508, &servo[2], -8, 55, 110, 130, false, false),
+	// // 	Leg(&servo[3],  10, &servo[4], -3.443508, &servo[5], 0, 55, 110, 130, true, false),
+	// // 	Leg(&servo[6],   0, &servo[7], -4.042452, &servo[8], 13.594, 55, 110, 130, true, true),
+	// // 	Leg(&servo[9], 8, &servo[10], 5.957548, &servo[11], 14.594, 55, 110, 130, false, true),
+	// // };
 
-    pca.set_pwm_freq(50);
-	usleep(1000000);
+	// // servos_g = servo;
+	// // legs_g = legs;
 
-	printf("Calibrating ...\n");
+    // pca.set_pwm_freq(50);
+	// usleep(1000000);
 
-	for(int i = 0; i < 12; i++)
-		servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+	// printf("Calibrating ...\n");
 
-	printf("Moving ...\nStanding ...\n");
+	// for(int i = 0; i < 12; i++)
+	// 	servo[i].refresh_fitter(pwm_list, degree_list[servo[i].getChannel()], 20);
+
+	// printf("Moving ...\nStanding ...\n");
 
 	// pthread_t temp;
 	// for(int i = 0; i < 12; i++) {
@@ -291,11 +291,8 @@ extern "C" int main() {
 	}
 
 	HC_SR04 sensor(27, 17);
-	LCD lcd(1, 0x27);
 
 	while(1) {
-		lcd.setPosition(0, 0);
-		lcd.printf("%.3f\n", sensor.get_distance());
 		printf("distance = %f\n", sensor.get_distance());
 		usleep(1000000);
 	}
