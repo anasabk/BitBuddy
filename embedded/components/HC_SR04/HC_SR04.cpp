@@ -31,10 +31,10 @@ float HC_SR04::get_distance() {
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &time_send, nullptr);
     gpioWrite(trig, PI_LOW);
 
-    while(gpioRead(echo) == PI_LOW);
-    clock_gettime(CLOCK_MONOTONIC, &time_send);
-    while(gpioRead(echo) == PI_HIGH);
-    clock_gettime(CLOCK_MONOTONIC, &time_rec);
+    while(gpioRead(echo) == PI_LOW)
+        clock_gettime(CLOCK_MONOTONIC, &time_send);
+    while(gpioRead(echo) == PI_HIGH)
+        clock_gettime(CLOCK_MONOTONIC, &time_rec);
 
     double dur_ms = (time_rec.tv_nsec - time_send.tv_nsec) / 1000000.0;
     double result = (dur_ms * SPEED_OF_SOUND) / 2.0;
