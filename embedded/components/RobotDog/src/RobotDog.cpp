@@ -200,8 +200,8 @@ void RobotDog::run() {
 
     int fd = -1;
     struct {
-        symb symbol;
-        bool state;
+        symb symbol = 0;
+        bool state = 0;
     } buffer;
 
     while(!term_flag) {
@@ -228,7 +228,7 @@ void RobotDog::run() {
 
         is_connected = 1;
         while(recv(fd, &buffer, sizeof(buffer), 0) > 0 && is_connected) {
-            printf("%s %d\n", buffer.symbol, buffer.state);
+            printf("%d %d\n", buffer.symbol, buffer.state);
             switch (buffer.symbol) {
             case POSE:
                 if(is_running) {
