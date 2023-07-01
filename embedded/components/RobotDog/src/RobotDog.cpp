@@ -63,20 +63,19 @@ void* RobotDog::telem_thread(void *param) {
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
     while (is_running) {
-        printf("telemetry loop\n");
         sendto(fd, robot->front_dist, sizeof(robot->front_dist), 0, (struct sockaddr*)&addr, sizeof(addr));
         sendto(fd, &robot->mpu_buff, sizeof(robot->mpu_buff), 0, (struct sockaddr*)&addr, sizeof(addr));
 
-        // printf("accel: x=%.4f y=%.4f z=%.4f / gyro: x=%.4f y=%.4f z=%.4f \ndist: left=%.4f right=%.4f\n", 
-        //     robot->mpu_buff.x_accel,
-        //     robot->mpu_buff.y_accel,
-        //     robot->mpu_buff.z_accel,
-        //     robot->mpu_buff.x_rot,
-        //     robot->mpu_buff.y_rot,
-        //     robot->mpu_buff.z_rot,
-        //     robot->front_dist[0],
-        //     robot->front_dist[1]
-        // );
+        printf("accel: x=%.4f y=%.4f z=%.4f / gyro: x=%.4f y=%.4f z=%.4f \ndist: left=%.4f right=%.4f\n", 
+            robot->mpu_buff.x_accel,
+            robot->mpu_buff.y_accel,
+            robot->mpu_buff.z_accel,
+            robot->mpu_buff.x_rot,
+            robot->mpu_buff.y_rot,
+            robot->mpu_buff.z_rot,
+            robot->front_dist[0],
+            robot->front_dist[1]
+        );
 
         wait_real(&timeNow, 200);
     }
@@ -374,7 +373,7 @@ void* RobotDog::HCSR04_thread(void* args) {
         robot->front_dist[0] = robot->hc_sr04[0].get_distance();
         robot->front_dist[1] = robot->hc_sr04[1].get_distance();
 
-        printf("dist: %lf %lf\n", robot->front_dist[0], robot->front_dist[1]);
+        // printf("dist: %lf %lf\n", robot->front_dist[0], robot->front_dist[1]);
 
         wait_real(&timeNow, dt_ms);
     }
