@@ -207,6 +207,7 @@ void* Leg::servo_thread(void* param) {
         pthread_mutex_lock(mut);
         *cond_count -= 1;
         pthread_mutex_unlock(mut);
+        pthread_cond_broadcast(gate);
     }
 
     printf("Exitting servo thread\n");
