@@ -402,7 +402,7 @@ void* Body::move_thread(void *param) {
     const double r_leen_off = -35.0;
     const double f_leen_off =  15.0;
     const double b_leen_off = -15.0;
-    double drift_offset = 2;
+    double drift_offset = 3;
 
     double new_pose_buf[4][3];
     double temp[4][4];
@@ -429,7 +429,7 @@ void* Body::move_thread(void *param) {
 
         if(leg_num == -1) leg_num = 0;
 
-        // Get the new pose of the legs
+        // Update the new pose of the legs
         body->get_pose(
             0, -*rot_rad, 0, 
             -*speed, 0, 140, 
@@ -461,7 +461,7 @@ void* Body::move_thread(void *param) {
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
         body->legs[leg_num].move(temp_vector, 100);
-        wait_real(&timeNow, 250);
+        wait_real(&timeNow, 200);
 
 
         leg_num = -(leg_num - 3);
@@ -481,7 +481,7 @@ void* Body::move_thread(void *param) {
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
         body->legs[leg_num].move(temp_vector, 100);
-        wait_real(&timeNow, 250);
+        wait_real(&timeNow, 200);
 
 
         // Go forward
