@@ -30,8 +30,6 @@ private:
     QLabel *rotLabel;
     QLabel *tempLabel;
 
-    std::array<QLabel *, 9> labels;
-
     int sockFd = -1;
     std::thread clientThread;
     std::atomic<bool> isClientRunning = true;
