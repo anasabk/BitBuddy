@@ -9,6 +9,7 @@ namespace constants
     constexpr int uiCameraPort = 8083;
     constexpr int objDetPort = 8084;
     constexpr int uiObjDetPort = 8085;
+    constexpr int telemetryPort = 8086;
 
     constexpr int maxUdpBuffer = 65507;
     constexpr int targetFps = 30;

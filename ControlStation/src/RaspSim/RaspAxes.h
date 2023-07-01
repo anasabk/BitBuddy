@@ -41,7 +41,8 @@ private:
         float x, y;
     };
 
-    void runClient() {
+    void runClient()
+    {
         if ((sockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
             perror("[RaspAxes] socket");
             return ;

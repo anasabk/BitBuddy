@@ -15,7 +15,6 @@ Console::Console(QWidget *parent) :
     });
 
     setStyleSheet("border: 1px solid #202020");
-    setFixedWidth(500);
     setReadOnly(true);
 
     QTextBlockFormat blockFormat = textCursor().blockFormat();
