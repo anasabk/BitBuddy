@@ -200,7 +200,7 @@ void RobotDog::run() {
 
     int fd = -1;
     struct {
-        symb symbol = 0;
+        symb symbol = UNKNOWN;
         bool state = 0;
     } buffer;
 
