@@ -187,6 +187,10 @@ void RobotDog::run() {
 
     pthread_t telem_thread_id;
 
+    term_flag = 0;
+    mode_flag = 0;
+    is_running = 0;
+
 	struct sigaction int_act;
 	int_act.sa_handler = sigint_handler;
 	sigaction(SIGINT, &int_act, nullptr);
