@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <thread>
+#include <fcntl.h>
 
 class RaspSwitch
 {
@@ -53,11 +54,23 @@ private:
             return;
         }
 
-        if (connect(sockFd, (struct sockaddr *)&desktopAddress, sizeof(desktopAddress)) == -1 && errno != EINPROGRESS)
+        while (connect(sockFd, (struct sockaddr *)&desktopAddress, sizeof(desktopAddress)) == -1)
         {
-            perror("[RaspSwitch] connect");
-            return;
+            if (errno != EINPROGRESS && errno != ECONNREFUSED)
+            {
+                perror("[RaspSwitch] connect");
+                return;
+            }
+
+            if (!isRunning.load())
+                return;
         }
+
+        int flags = fcntl(sockFd, F_GETFL);
+        if (flags == -1)
+            perror("[RaspSwitch] fcntl 1");
+        if (fcntl(sockFd, F_SETFL, flags | O_NONBLOCK) == -1)
+            perror("[RaspSwitch] fcntl 2");
 
         while(isRunning.load())
         {

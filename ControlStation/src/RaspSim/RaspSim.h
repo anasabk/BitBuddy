@@ -4,6 +4,7 @@
 #include "RaspCam.h"
 #include "RaspAxes.h"
 #include "RaspSwitch.h"
+#include "RaspTelemetry.h"
 
 #include <thread>
 
@@ -42,6 +43,7 @@ private:
             RaspCam raspCam;
             RaspAxes raspAxes;
             RaspSwitch raspSwitch;
+            RaspTelemetry raspTelemetry;
 
             if (!testReconnection)
             {

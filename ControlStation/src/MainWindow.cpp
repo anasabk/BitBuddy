@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "Console.h"
+#include "TelemetryViewer.h"
 
 #include <QScrollBar>
 #include <QKeyEvent>
@@ -16,6 +17,7 @@ void MainWindow::init()
     QGroupBox *objDetVBox = new QGroupBox(HBox1);
     Console *console = new Console(HBox2);
     joystick = new Joystick(200, HBox2);
+    TelemetryViewer *telemetryViewer = new TelemetryViewer(HBox2);
     QGroupBox *switchesVBox = new QGroupBox(HBox2);
 
     QVBoxLayout *VBoxLayout = new QVBoxLayout(this);
@@ -42,12 +44,16 @@ void MainWindow::init()
     HBox1Layout->addWidget(cameraVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
     HBox1Layout->addWidget(objDetVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
 
-    HBox2Layout->addWidget(console);
+    HBox2Layout->addWidget(console, Qt::AlignVCenter);
+    console->setFixedWidth(500);
     HBox2Layout->addItem(new QSpacerItem(100, 0));
-    HBox2Layout->addWidget(joystick);
+    HBox2Layout->addWidget(joystick, Qt::AlignVCenter);
+    HBox2Layout->addItem(new QSpacerItem(50, 0));
+    HBox2Layout->addWidget(switchesVBox, Qt::AlignVCenter);
     HBox2Layout->addItem(new QSpacerItem(100, 0));
-    HBox2Layout->addWidget(switchesVBox);
-    HBox2Layout->setContentsMargins(0, 40, 200, 40);
+    HBox2Layout->addWidget(telemetryViewer, Qt::AlignVCenter);
+    telemetryViewer->setFixedSize(300, 160);
+    HBox2Layout->setContentsMargins(30, 40, 0, 40);
 
     cameraVBoxLayout->addWidget(cameraLabel);
     cameraLabel->setStyleSheet("color: #e0e0e0");

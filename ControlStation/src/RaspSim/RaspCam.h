@@ -36,7 +36,8 @@ private:
     std::thread serverThread;
     std::atomic<bool> isRunning = true;
 
-    void runServer() {
+    void runServer()
+    {
         cv::VideoCapture cap(0);
 
         if (!cap.isOpened())
