@@ -290,7 +290,7 @@ extern "C" int main() {
 		exit(-1);
 	}
 
-	HC_SR04 sensor(5, 6);
+	HC_SR04 sensor(27, 17);
 
 	while(1) {
 		printf("distance = %f\n", sensor.get_distance());
