@@ -199,9 +199,11 @@ void RobotDog::run() {
     addr.sin_addr.s_addr = inet_addr("192.168.43.165");
 
     int fd = -1;
-    CS_msg_s buffer = {"\0\0\0\0\0\0\0\0", false};
-    symb temp_symb;
-    char *args[2];
+    struct {
+        symb symbol;
+        bool state;
+    } buffer;
+
     while(!term_flag) {
         fd = socket(AF_INET, SOCK_STREAM, 0);
         if(fd < 0) {
@@ -225,9 +227,9 @@ void RobotDog::run() {
             printf("Connected to the server\n");
 
         is_connected = 1;
-        while(recv(fd, &buffer, sizeof(CS_msg_s), 0) > 0 && is_connected) {
-            printf("%s %d\n", buffer.name, buffer.state);
-            switch (get_symb(buffer.name)) {
+        while(recv(fd, &buffer, sizeof(buffer), 0) > 0 && is_connected) {
+            printf("%s %d\n", buffer.symbol, buffer.state);
+            switch (buffer.symbol) {
             case POSE:
                 if(is_running) {
                     if(buffer.state)

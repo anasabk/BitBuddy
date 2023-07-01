@@ -82,15 +82,8 @@ private:
     enum symb {
         UNKNOWN = -1,
         ONOFF,
-        ON,
-        OFF,
-        POSE,
-        STAND,
-        SIT,
         MODE,
-        MAN,
-        AUTO,
-        CENTER
+        POSE
     };
 
     struct CS_msg_s {
