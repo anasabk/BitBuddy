@@ -228,25 +228,25 @@ extern "C" int main() {
 	// 	legs[3].move_offset(-25, 0, 0);
 	// }
 
-	for(int i =0; i < 12; i++) {
-		servo[i].set_degree(90);
-	}
+	// for(int i =0; i < 12; i++) {
+	// 	servo[i].set_degree(90);
+	// }
 
 
-	uint8_t dest_servo = 0;
-	int dest_degree = 0;
-    while(true) {
-		scanf("%d %d", &dest_servo, &dest_degree);
-		for(int i = 0; i < 12; i++){
-			printf("%d %d %d\n", i, servo[i].getChannel());
-			if(servo[i].getChannel() == dest_servo) {
-				servo[i].set_degree(dest_degree);
-				break;
-			}
-		}
-    }
+	// uint8_t dest_servo = 0;
+	// int dest_degree = 0;
+    // while(true) {
+	// 	scanf("%d %d", &dest_servo, &dest_degree);
+	// 	for(int i = 0; i < 12; i++){
+	// 		printf("%d %d %d\n", i, servo[i].getChannel());
+	// 		if(servo[i].getChannel() == dest_servo) {
+	// 			servo[i].set_degree(dest_degree);
+	// 			break;
+	// 		}
+	// 	}
+    // }
 
-	return 0;
+	// return 0;
 
 
 	// if (gpioInitialise() < 0) {
@@ -285,23 +285,23 @@ extern "C" int main() {
 	// return 0;
 
 
-	// if (gpioInitialise() < 0) {
-	// 	printf("Failure...");
-	// 	exit(-1);
-	// }
+	if (gpioInitialise() < 0) {
+		printf("Failure...");
+		exit(-1);
+	}
 
-	// HC_SR04 sensor(27, 17);
-	// LCD lcd(1, 0x27);
+	HC_SR04 sensor(27, 17);
+	LCD lcd(1, 0x27);
 
-	// while(1) {
-	// 	lcd.setPosition(0, 0);
-	// 	lcd.printf("%.3f\n", sensor.get_distance());
-	// 	printf("distance = %f\n", sensor.get_distance());
-	// 	usleep(1000000);
-	// }
+	while(1) {
+		lcd.setPosition(0, 0);
+		lcd.printf("%.3f\n", sensor.get_distance());
+		printf("distance = %f\n", sensor.get_distance());
+		usleep(1000000);
+	}
 
-	// gpioTerminate();
-	// return 0;
+	gpioTerminate();
+	return 0;
 	
 
 	// if (gpioInitialise() < 0) {
