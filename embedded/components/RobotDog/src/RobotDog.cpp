@@ -227,7 +227,9 @@ void RobotDog::run() {
             printf("Connected to the server\n");
 
         is_connected = 1;
-        while(recv(fd, &buffer, sizeof(buffer), 0) > 0 && is_connected) {
+        while(is_connected) {
+            recv(fd, &buffer.symbol, sizeof(buffer.symbol), 0);
+            recv(fd, &buffer.state, sizeof(buffer.state), 0);
             printf("%d %d\n", buffer.symbol, buffer.state);
             switch (buffer.symbol) {
             case POSE:
