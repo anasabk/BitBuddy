@@ -7,19 +7,6 @@
 #include <cstring>
 
 
-const char* RobotDog::symb_str[] = {
-    "ONOFF",
-    "ON",
-    "OFF",
-    "POSE",
-    "STAND",
-    "SIT",
-    "MODE",
-    "MAN",
-    "AUTO",
-    "CENTER"
-};
-
 // Tells weither the tcp connection is there
 sig_atomic_t is_connected;
 
@@ -29,6 +16,14 @@ sig_atomic_t is_running;
 // Marks the termination to the main loop
 sig_atomic_t term_flag;
 
+
+void wait_real(struct timespec *timeNow, long ms) {
+    timeNow->tv_nsec += ms * 1000000;
+    while (timeNow->tv_nsec >= 1000000000L) {
+        timeNow->tv_nsec -= 1000000000L;
+        timeNow->tv_sec++;}
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, timeNow, nullptr);
+}
 
 RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
     : pca(pca_bus, pca_addr, 50), lcd(lcd_bus, lcd_addr), hc_sr04{HC_SR04(27, 17), HC_SR04(5, 6)}, mpu6050(mpu_bus, mpu_addr),
@@ -56,20 +51,46 @@ RobotDog::~RobotDog() {
 
 }
 
-void* read_thread(void *param) {
-    MPU6050::MPU6050_data_t *buf = (MPU6050::MPU6050_data_t*)param;
-    while(is_running) {
-        printf("accel: x=%.4lf y=%.4lf z=%.4lf / gyro: x=%.4lf y=%.4lf z=%.4lf \n", 
-            buf->x_accel,
-            buf->y_accel,
-            buf->z_accel,
-            buf->x_rot,
-            buf->y_rot,
-            buf->z_rot
-        );
-        sleep(1);
+void* RobotDog::telem_thread(void *param) {
+    printf("Entered telemetry thread\n");
+    RobotDog *robot = (RobotDog*)param;
+
+    // Telemetry socket
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(8086);
+    addr.sin_addr.s_addr = inet_addr("192.168.43.165");
+
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if(fd < 0)  {
+        perror("telemetry socket creation failed");
+        return NULL;
     }
 
+    struct timespec timeNow;
+    clock_gettime(CLOCK_MONOTONIC, &timeNow);
+    while (is_running) {
+        printf("telemetry loop\n");
+        sendto(fd, robot->front_dist, sizeof(robot->front_dist), 0, (struct sockaddr*)&addr, sizeof(addr));
+        sendto(fd, &robot->mpu_buff, sizeof(robot->mpu_buff), 0, (struct sockaddr*)&addr, sizeof(addr));
+
+        // printf("accel: x=%.4f y=%.4f z=%.4f / gyro: x=%.4f y=%.4f z=%.4f \ndist: left=%.4f right=%.4f\n", 
+        //     robot->mpu_buff.x_accel,
+        //     robot->mpu_buff.y_accel,
+        //     robot->mpu_buff.z_accel,
+        //     robot->mpu_buff.x_rot,
+        //     robot->mpu_buff.y_rot,
+        //     robot->mpu_buff.z_rot,
+        //     robot->front_dist[0],
+        //     robot->front_dist[1]
+        // );
+
+        wait_real(&timeNow, 200);
+    }
+
+    close(fd);
+
+    printf("exiting telemetry thread\n");
     pthread_exit(NULL);
 }
 
@@ -81,14 +102,6 @@ void sigint_handler(int sig) {
     is_connected = 0;
     is_running = 0;
     term_flag = 1;
-}
-
-enum RobotDog::symb RobotDog::get_symb(const char *str) {
-    for(int i = 0; i < 10; i++)
-        if(strcmp(str, symb_str[i]) == 0)
-            return (enum RobotDog::symb)i;
-
-    return UNKNOWN;
 }
 
 void* RobotDog::control_thread(void* param) {
@@ -179,11 +192,7 @@ void RobotDog::run() {
     lcd.setPosition(0, 1);
     lcd.printf("I am dug");
 
-    pthread_t temp;
-
-    term_flag = 0;
-    mode_flag = 0;
-    is_running = 0;
+    pthread_t telem_thread_id;
 
 	struct sigaction int_act;
 	int_act.sa_handler = sigint_handler;
@@ -205,6 +214,8 @@ void RobotDog::run() {
     } buffer;
 
     while(!term_flag) {
+        mode_flag = 0;
+
         fd = socket(AF_INET, SOCK_STREAM, 0);
         if(fd < 0) {
             perror("socket creation failed");
@@ -230,7 +241,8 @@ void RobotDog::run() {
         while(is_connected) {
             recv(fd, &buffer.symbol, sizeof(buffer.symbol), 0);
             recv(fd, &buffer.state, sizeof(buffer.state), 0);
-            printf("%d %d\n", buffer.symbol, buffer.state);
+            printf("switch command: %d %d\n", buffer.symbol, buffer.state);
+
             switch (buffer.symbol) {
             case POSE:
                 if(is_running) {
@@ -270,7 +282,7 @@ void RobotDog::run() {
                     pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
                     pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
                     pthread_create(&control_thread_id, NULL, control_thread, (void*)this);
-                    pthread_create(&temp, NULL, read_thread, (void*)(&this->mpu_buff));
+                    pthread_create(&telem_thread_id, NULL, telem_thread, (void*)this);
 
                 } else if(!buffer.state && is_running) {
                     is_running = 0;
@@ -278,7 +290,7 @@ void RobotDog::run() {
                     pthread_join(mpu_thread_id, NULL);
                     pthread_join(hcsr04_thread_id, NULL);
                     pthread_join(control_thread_id, NULL);
-                    pthread_join(temp, NULL);
+                    pthread_join(telem_thread_id, NULL);
                     main_body.sit_down();
                     sleep(2);
                 }
@@ -289,18 +301,18 @@ void RobotDog::run() {
             }
         }
 
-        close(fd);
-    }
+        if(is_running) {
+            is_running = 0;
+            sleep(1);
+            pthread_join(mpu_thread_id, NULL);
+            pthread_join(hcsr04_thread_id, NULL);
+            pthread_join(control_thread_id, NULL);
+            pthread_join(telem_thread_id, NULL);
+            main_body.sit_down();
+            sleep(2);
+        }
 
-    if(is_running) {
-        is_running = 0;
-        sleep(1);
-        pthread_join(mpu_thread_id, NULL);
-        pthread_join(hcsr04_thread_id, NULL);
-        pthread_join(control_thread_id, NULL);
-        pthread_join(temp, NULL);
-        main_body.sit_down();
-        sleep(2);
+        close(fd);
     }
 
     return;
@@ -359,7 +371,7 @@ void* RobotDog::HCSR04_thread(void* args) {
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
-    long dt_ns = 1000000000L / HC_SR04_SAMPLE_FREQ_HZ;
+    long dt_ms = 1000L / HC_SR04_SAMPLE_FREQ_HZ;
 
     while (is_running) {
         robot->front_dist[0] = robot->hc_sr04[0].get_distance();
@@ -367,17 +379,7 @@ void* RobotDog::HCSR04_thread(void* args) {
 
         printf("dist: %lf %lf\n", robot->front_dist[0], robot->front_dist[1]);
 
-        // Add dt_ns to current time
-        timeNow.tv_nsec += dt_ns; // dt_ns in nanoseconds
-
-        // Handle overflow
-        while (timeNow.tv_nsec >= 1000000000L) {
-            timeNow.tv_nsec -= 1000000000L;
-            timeNow.tv_sec++;
-        }
-
-        // Sleep until the next dt_ns point
-        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+        wait_real(&timeNow, dt_ms);
     }
 
     printf("Exiting HC-SR04 thread.\n");

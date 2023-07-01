@@ -30,7 +30,6 @@ public:
 
     void run();
 
-
 private:
     PCA9685 pca;
     LCD lcd;
@@ -45,7 +44,7 @@ private:
     Body main_body;
 
     MPU6050::MPU6050_data_t mpu_buff;
-    double front_dist[2];
+    float front_dist[2];
 
     int switch_server_fd;
     int js_server_fd;
@@ -78,6 +77,7 @@ private:
     static void* mpu6050_thread(void* args);
     static void* HCSR04_thread(void*);
     static void* control_thread(void *param);
+    static void* telem_thread(void *param);
 
     enum symb {
         UNKNOWN = -1,
@@ -86,18 +86,9 @@ private:
         POSE
     };
 
-    struct CS_msg_s {
-        const char name[9];
-        bool state;
-    };
-
     struct Axes {
         float x, y;
     };
-    
-    const static char *symb_str[10];
-
-    enum symb get_symb(const char* str);
 };
 
 
