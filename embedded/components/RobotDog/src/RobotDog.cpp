@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <cstring>
+#include "common.h"
 
 
 // Tells weither the tcp connection is there
@@ -16,14 +17,6 @@ sig_atomic_t is_running;
 // Marks the termination to the main loop
 sig_atomic_t term_flag;
 
-
-void wait_real(struct timespec *timeNow, long ms) {
-    timeNow->tv_nsec += ms * 1000000;
-    while (timeNow->tv_nsec >= 1000000000L) {
-        timeNow->tv_nsec -= 1000000000L;
-        timeNow->tv_sec++;}
-    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, timeNow, nullptr);
-}
 
 RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
     : pca(pca_bus, pca_addr, 50), lcd(lcd_bus, lcd_addr), hc_sr04{HC_SR04(27, 17), HC_SR04(5, 6)}, mpu6050(mpu_bus, mpu_addr),
