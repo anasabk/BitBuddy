@@ -170,16 +170,10 @@ void* Leg::servo_thread(void* param) {
         
         long dt_ms = *speed_buf / 20;
 
-        int dir[3] {
-            theta_buf[0] - servos[0]->get_last_deg() > 0 ? 1 : -1,
-            theta_buf[1] - servos[1]->get_last_deg() > 0 ? 1 : -1,
-            theta_buf[2] - servos[2]->get_last_deg() > 0 ? 1 : -1
-        };
-        
         int dtheta[3] = {
-            dir[0]*(theta_buf[0] - servos[0]->get_last_deg()) / 20,
-            dir[1]*(theta_buf[1] - servos[1]->get_last_deg()) / 20,
-            dir[2]*(theta_buf[2] - servos[2]->get_last_deg()) / 20
+            (theta_buf[0] - servos[0]->get_last_deg()) / 20,
+            (theta_buf[1] - servos[1]->get_last_deg()) / 20,
+            (theta_buf[2] - servos[2]->get_last_deg()) / 20
         };
         
         for(int i = 0; i < 20; i++) {
