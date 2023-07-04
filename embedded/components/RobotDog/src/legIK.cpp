@@ -168,15 +168,15 @@ void* Leg::servo_thread(void* param) {
         // servo->sweep(*theta_buf, *speed_buf);
         // sem_post(lock_sem);
         
-        long dt_ms = *speed_buf / 20;
+        long dt_ms = *speed_buf / 10;
 
         int dtheta[3] = {
-            (theta_buf[0] - servos[0]->get_last_deg()) / 20,
-            (theta_buf[1] - servos[1]->get_last_deg()) / 20,
-            (theta_buf[2] - servos[2]->get_last_deg()) / 20
+            (theta_buf[0] - servos[0]->get_last_deg()) / 10,
+            (theta_buf[1] - servos[1]->get_last_deg()) / 10,
+            (theta_buf[2] - servos[2]->get_last_deg()) / 10
         };
         
-        for(int i = 0; i < 20; i++) {
+        for(int i = 0; i < 10; i++) {
             servos[0]->set_degree_off(dtheta[0]);
             servos[1]->set_degree_off(dtheta[1]);
             servos[2]->set_degree_off(dtheta[2]);
