@@ -4,6 +4,8 @@
 #include <time.h>
 
 
-void wait_real(struct timespec *timeNow, long ms);
+void wait_real_dl(struct timespec *timeNow, long ms);
+
+void wait_real(long ms);
 
 #endif

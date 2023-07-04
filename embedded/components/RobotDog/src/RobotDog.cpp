@@ -77,7 +77,7 @@ void* RobotDog::telem_thread(void *param) {
         //     robot->front_dist[1]
         // );
 
-        wait_real(&timeNow, 200);
+        wait_real_dl(&timeNow, 200);
     }
 
     close(fd);
@@ -332,7 +332,7 @@ void* RobotDog::mpu6050_thread(void* args) {
 
     while (is_running) {
     	robot->mpu6050.read_data(&robot->mpu_buff);
-        wait_real(&timeNow, dt_ms);
+        wait_real_dl(&timeNow, dt_ms);
     }
 
     printf("Exiting MPU6050 thread.\n");
@@ -361,7 +361,7 @@ void* RobotDog::HCSR04_thread(void* args) {
         robot->front_dist[0] = robot->hc_sr04[0].get_distance();
         robot->front_dist[1] = robot->hc_sr04[1].get_distance();
 
-        wait_real(&timeNow, dt_ms);
+        wait_real_dl(&timeNow, dt_ms);
     }
 
     printf("Exiting HC-SR04 thread.\n");
