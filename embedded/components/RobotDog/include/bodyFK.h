@@ -89,6 +89,7 @@ public:
 private:
     CalServo *servos[12];
     Leg legs[4];
+    pthread_mutex_t leg_mut[4];
     double len_mm;
     double width_mm;
 

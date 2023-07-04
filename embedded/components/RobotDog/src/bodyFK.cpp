@@ -8,10 +8,10 @@ Body::Body(
     double len_mm, 
     double width_mm) 
     : legs {
-        Leg(&servos[0], 4, &servos[1], -5, &servos[2], 1, 55, 110, 130, false, false),
-        Leg(&servos[3],-10, &servos[4], -3, &servos[5], -7, 55, 110, 130,  true, false),
-        Leg(&servos[6], 0, &servos[7], -2, &servos[8], -3, 55, 110, 130,  true, true),
-        Leg(&servos[9], 8, &servos[10], 6, &servos[11],5, 55, 110, 130, false, true),
+        Leg(&servos[0],  4, &servos[1], -5, &servos[2], 1, 55, 110, 130, false, false, &leg_mut[0]),
+        Leg(&servos[3],-10, &servos[4], -3, &servos[5],-7, 55, 110, 130,  true, false, &leg_mut[1]),
+        Leg(&servos[6],  0, &servos[7], -2, &servos[8],-3, 55, 110, 130,  true, true, &leg_mut[2]),
+        Leg(&servos[9],  8, &servos[10], 6, &servos[11],5, 55, 110, 130, false, true, &leg_mut[3]),
     }
 {
     for (int i = 0; i < 12; i++)
@@ -26,6 +26,11 @@ Body::Body(
     this->last_x_mm = 0;
     this->last_y_mm = 0;
     this->last_z_mm = 0;
+
+    this->leg_mut[0] = PTHREAD_MUTEX_INITIALIZER;
+    this->leg_mut[1] = PTHREAD_MUTEX_INITIALIZER;
+    this->leg_mut[2] = PTHREAD_MUTEX_INITIALIZER;
+    this->leg_mut[3] = PTHREAD_MUTEX_INITIALIZER;
 
     pose_buf[RIGHTBACK][0]  = 0, pose_buf[RIGHTBACK][1]  = 0, pose_buf[RIGHTBACK][2]  = -70;
     pose_buf[RIGHTFRONT][0] = 0, pose_buf[RIGHTFRONT][1] = 0, pose_buf[RIGHTFRONT][2] = -70;
@@ -289,6 +294,9 @@ void Body::pose(
     // printf("lb : %lf, %lf, %lf\n", lb[0], lb[1], lb[2]);
     // printf("lf : %lf, %lf, %lf\n", lf[0], lf[1], lf[2]);
 
+    for(int i = 0; i < 4; i++)
+        pthread_mutex_lock(&leg_mut[i]);
+        
     legs[RIGHTBACK].move(rb);
     legs[RIGHTFRONT].move(rf);
     legs[LEFTBACK].move(lb);
@@ -343,24 +351,27 @@ void Body::move_forward(double rot_rad, double dist, int step_num) {
             legs[i].is_right() ? l_leen_off : r_leen_off, 
             140
         );
-        wait_real(&timeNow, 250);
+        wait_real(250);
 
         // Position the leg
         leg_buf[i][2] = 50;
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_vector);
+        pthread_mutex_lock(&leg_mut[i]);
         legs[i].move(temp_vector);
-        wait_real(&timeNow, 250);
+        wait_real(250);
 
         leg_buf[i][0] = (legs[i].is_front() ? 15 :-30) + dist/step_num * 2 - turn_buf[i][0];
         leg_buf[i][1] = (legs[i].is_right() ?-55 : 55) - turn_buf[i][1];
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_vector);
+        pthread_mutex_lock(&leg_mut[i]);
         legs[i].move(temp_vector);
-        wait_real(&timeNow, 250);
+        wait_real(250);
 
         leg_buf[i][2] = 0;
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_vector);
+        pthread_mutex_lock(&leg_mut[i]);
         legs[i].move(temp_vector);
-        wait_real(&timeNow, 250);
+        wait_real(250);
         
         // Go forward
         leg_buf[LEFTBACK][0]   -= dist/step_num + drift_offset - turn_buf[LEFTBACK][0];
@@ -379,7 +390,7 @@ void Body::move_forward(double rot_rad, double dist, int step_num) {
             legs[i].is_right() ? l_leen_off : r_leen_off, 
             140
         );
-        wait_real(&timeNow, 250);
+        wait_real(250);
 
         steps_gone++;
     }
@@ -414,7 +425,7 @@ void* Body::move_thread(void *param) {
             pause_counter = 0;
 
         if(pause_counter >= 2){
-            wait_real(&timeNow, 100);
+            wait_real(100);
             continue;
         }
 
@@ -436,25 +447,24 @@ void* Body::move_thread(void *param) {
 
         // Leen to the opposite side
         body->pose(0, 0, 0, 0, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
-        wait_real(&timeNow, 250);
 
 
         // Position the leg
         body->leg_buf[leg_num][2] = 50;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
+        pthread_mutex_lock(&body->leg_mut[leg_num]);
         body->legs[leg_num].move(temp_vector, 100);
-        wait_real(&timeNow, 150);
 
         body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-30) - new_pose_buf[leg_num][0];
         body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
+        pthread_mutex_lock(&body->leg_mut[leg_num]);
         body->legs[leg_num].move(temp_vector, 100);
-        wait_real(&timeNow, 150);
 
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
+        pthread_mutex_lock(&body->leg_mut[leg_num]);
         body->legs[leg_num].move(temp_vector, 100);
-        wait_real(&timeNow, 200);
 
 
         if(leg_num > 1) {
@@ -484,26 +494,26 @@ void Body::recover() {
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     sit_down();
-    wait_real(&time, 999);
+    wait_real(999);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     legs[LEFTBACK].move_d(90, 180, 0, 700);
     legs[RIGHTBACK].move_d(90, 0, 180, 700);
     legs[RIGHTFRONT].move_d(90, 0, 180, 700);
     legs[LEFTFRONT].move_d(90, 180, 0, 700);
-    wait_real(&time, 999);
+    wait_real(999);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     legs[LEFTBACK].move_d(150, 180, 0, 700);
     legs[LEFTFRONT].move_d(30, 180, 0, 700);
-    wait_real(&time, 999);
+    wait_real(999);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     legs[LEFTBACK].move_d(30, 180, 0, 700);
     legs[LEFTFRONT].move_d(150, 180, 0, 700);
-    wait_real(&time, 999);
+    wait_real(999);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     sit_down();
-    wait_real(&time, 999);
+    wait_real(999);
 }
