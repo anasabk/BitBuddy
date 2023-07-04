@@ -18,7 +18,8 @@ public:
         double l1, 
         double l2, 
         bool is_right,
-        bool is_front
+        bool is_front,
+        pthread_mutex_t *body_sem
     );
 
     ~Leg();
@@ -42,8 +43,8 @@ public:
 
 private:
     CalServo *servos[3];
-    pthread_t servo_thread_id[3];
-    sem_t lock_count;
+    pthread_t servo_thread_id;
+    pthread_mutex_t *body_sem;
     int theta_buf[3];
     int speed_buf;
     int offsets[3];
@@ -65,19 +66,19 @@ private:
     struct servo_param {
         const int *theta_buf;
         const int *speed_buf;
-        CalServo *servo;
-        sem_t *lock_sem;
+        CalServo **servos;
+        pthread_mutex_t *body_sem;
 
         servo_param(
             const int *theta_buf,
             const int *speed_buf,
-            CalServo *servo,
-            sem_t *lock_sem) 
+            CalServo **servos,
+            pthread_mutex_t *body_sem) 
         {
             this->speed_buf = speed_buf;
-            this->servo = servo;
+            this->servos = servos;
             this->theta_buf = theta_buf;
-            this->lock_sem = lock_sem;
+            this->body_sem = body_sem;
         }
     };
 

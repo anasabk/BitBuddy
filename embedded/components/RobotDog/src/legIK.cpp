@@ -1,4 +1,5 @@
 #include "legIK.h"
+#include "common.h"
 #include <pthread.h>
 #include <signal.h>
 
@@ -14,7 +15,8 @@ Leg::Leg(
     double l1, 
     double l2, 
     bool is_right_flag,
-    bool is_front_flag)
+    bool is_front_flag,
+    pthread_mutex_t *body_sem)
 {
     servos[0] = hip;
     servos[1] = shoulder;
@@ -37,41 +39,27 @@ Leg::Leg(
     this->is_right_flag = is_right_flag;
     this->is_front_flag = is_front_flag;
 
-    sem_init(&lock_count, 0, 3);
+    this->body_sem = body_sem;
 
     pthread_create(
-        servo_thread_id, 
+        &servo_thread_id, 
         NULL, 
         servo_thread, 
-        new struct servo_param(&theta_buf[0], &speed_buf, servos[0], &lock_count)
-    );
-
-    pthread_create(
-        &servo_thread_id[1], 
-        NULL, 
-        servo_thread, 
-        new struct servo_param(&theta_buf[1], &speed_buf, servos[1], &lock_count)
-    );
-
-    pthread_create(
-        &servo_thread_id[2], 
-        NULL, 
-        servo_thread, 
-        new struct servo_param(&theta_buf[2], &speed_buf, servos[2], &lock_count)
+        new struct servo_param(theta_buf, &speed_buf, servos, body_sem)
     );
 }
 
 Leg::~Leg() {
     printf("destroying leg\n");
     
-    pthread_kill(servo_thread_id[0], SIGTERM);
-    pthread_kill(servo_thread_id[1], SIGTERM);
-    pthread_kill(servo_thread_id[2], SIGTERM);
-    pthread_join(servo_thread_id[0], NULL);
-    pthread_join(servo_thread_id[1], NULL);
-    pthread_join(servo_thread_id[2], NULL);
+    pthread_kill(servo_thread_id, SIGTERM);
+    // pthread_kill(servo_thread_id[1], SIGTERM);
+    // pthread_kill(servo_thread_id[2], SIGTERM);
+    pthread_join(servo_thread_id, NULL);
+    // pthread_join(servo_thread_id[1], NULL);
+    // pthread_join(servo_thread_id[2], NULL);
 
-    sem_destroy(&lock_count);
+    // sem_destroy(&lock_count);
     printf("leg destroyted successfully\n");
 }
 
@@ -132,16 +120,10 @@ void Leg::get_degree_offset(const double (&offset)[3], int (&thetas)[3]) {
 }
 
 void Leg::move(double x_mm, double y_mm, double z_mm, int speed_ms) {
-    // sem_wait(&lock_count);
-    // sem_wait(&lock_count);
-    // sem_wait(&lock_count);
-
     get_degree(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     speed_buf = speed_ms;
 
-    pthread_kill(servo_thread_id[0], SIGCONT);
-    pthread_kill(servo_thread_id[1], SIGCONT);
-    pthread_kill(servo_thread_id[2], SIGCONT);
+    pthread_kill(servo_thread_id, SIGCONT);
 }
 
 void Leg::move(const double (&dest)[3], int speed_ms) {
@@ -149,16 +131,10 @@ void Leg::move(const double (&dest)[3], int speed_ms) {
 }
 
 void Leg::move_offset(double x_mm, double y_mm, double z_mm, int speed_ms) {
-    sem_wait(&lock_count);
-    sem_wait(&lock_count);
-    sem_wait(&lock_count);
-
     get_degree_offset(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     speed_buf = speed_ms;
 
-    pthread_kill(servo_thread_id[0], SIGCONT);
-    pthread_kill(servo_thread_id[1], SIGCONT);
-    pthread_kill(servo_thread_id[2], SIGCONT);
+    pthread_kill(servo_thread_id, SIGCONT);
 }
 
 void Leg::move_offset(const double (&offset)[3], int speed_ms) {
@@ -166,26 +142,20 @@ void Leg::move_offset(const double (&offset)[3], int speed_ms) {
 }
 
 void Leg::move_d(double theta1, double theta2, double theta3, int speed_ms) {
-    sem_wait(&lock_count);
-    sem_wait(&lock_count);
-    sem_wait(&lock_count);
-
     theta_buf[0] = theta1;
     theta_buf[1] = theta2;
     theta_buf[2] = theta3;
     speed_buf = speed_ms;
 
-    pthread_kill(servo_thread_id[0], SIGCONT);
-    pthread_kill(servo_thread_id[1], SIGCONT);
-    pthread_kill(servo_thread_id[2], SIGCONT);
+    pthread_kill(servo_thread_id, SIGCONT);
 }
 
 void* Leg::servo_thread(void* param) {
     printf("Entered servo thread\n");
     const int *theta_buf = ((struct servo_param*)param)->theta_buf;
     const int *speed_buf = ((struct servo_param*)param)->speed_buf;
-    CalServo *servo = ((struct servo_param*)param)->servo;
-    sem_t *lock_sem = ((struct servo_param*)param)->lock_sem;
+    CalServo **servos = ((struct servo_param*)param)->servos;
+    pthread_mutex_t *body_sem = ((struct servo_param*)param)->body_sem;
 
     sigset_t set;
     sigemptyset(&set);
@@ -195,12 +165,38 @@ void* Leg::servo_thread(void* param) {
 
     int sig;
     while(sigwait(&set, &sig) == 0 && sig != SIGTERM) {
-        servo->sweep(*theta_buf, *speed_buf);
+        // servo->sweep(*theta_buf, *speed_buf);
         // sem_post(lock_sem);
+        
+        long dt_ms = *speed_buf / 20;
+
+        int dir[3] {
+            theta_buf[0] - servos[0]->get_last_deg() > 0 ? 1 : -1,
+            theta_buf[1] - servos[1]->get_last_deg() > 0 ? 1 : -1,
+            theta_buf[2] - servos[2]->get_last_deg() > 0 ? 1 : -1
+        };
+        
+        int dtheta[3] = {
+            dir[0]*(theta_buf[0] - servos[0]->get_last_deg()) / 20,
+            dir[1]*(theta_buf[1] - servos[1]->get_last_deg()) / 20,
+            dir[2]*(theta_buf[2] - servos[2]->get_last_deg()) / 20
+        };
+        
+        for(int i = 0; i < 20; i++) {
+            servos[0]->set_degree_off(dtheta[0]);
+            servos[1]->set_degree_off(dtheta[1]);
+            servos[2]->set_degree_off(dtheta[2]);
+
+            wait_real(dt_ms);
+        }
+
+        pthread_mutex_unlock(body_sem);
     }
 
     printf("Exitting servo thread\n");
-    servo->set_PWM(0);
+    servos[0]->set_PWM(0);
+    servos[1]->set_PWM(0);
+    servos[2]->set_PWM(0);
     delete(param);
     pthread_exit(NULL);
 }
