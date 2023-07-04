@@ -50,6 +50,12 @@ void CalServo::set_degree(int degree) {
     last_deg = degree;
 }
 
+void CalServo::set_degree_off(int offset) {
+    int pwm_us = fitter_a + fitter_b * (last_deg + offset);
+    controller->set_pwm_us(channel, pwm_us);
+    last_deg += offset;
+}
+
 void CalServo::sweep(int start, int dest, int dur_ms) {
     if(start == dest) {
         set_degree(start);
