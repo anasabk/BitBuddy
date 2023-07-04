@@ -328,22 +328,11 @@ void* RobotDog::mpu6050_thread(void* args) {
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
-    long dt_ns = 1000000000L / MPU6050_SAMPLE_FREQ_HZ;
+    long dt_ms = 1000L / MPU6050_SAMPLE_FREQ_HZ;
 
     while (is_running) {
     	robot->mpu6050.read_data(&robot->mpu_buff);
-
-        // Add 10ms to current time
-        timeNow.tv_nsec += dt_ns; // 10 ms in nanoseconds
-
-        // Handle overflow
-        while (timeNow.tv_nsec >= 1000000000L) {
-            timeNow.tv_nsec -= 1000000000L;
-            timeNow.tv_sec++;
-        }
-
-        // Sleep until the next 10ms point
-        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeNow, nullptr);
+        wait_real(&timeNow, dt_ms);
     }
 
     printf("Exiting MPU6050 thread.\n");
@@ -371,8 +360,6 @@ void* RobotDog::HCSR04_thread(void* args) {
     while (is_running) {
         robot->front_dist[0] = robot->hc_sr04[0].get_distance();
         robot->front_dist[1] = robot->hc_sr04[1].get_distance();
-
-        // printf("dist: %lf %lf\n", robot->front_dist[0], robot->front_dist[1]);
 
         wait_real(&timeNow, dt_ms);
     }
