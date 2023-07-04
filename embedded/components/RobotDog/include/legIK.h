@@ -3,7 +3,7 @@
 
 
 #include "CalServo.h"
-
+#include <semaphore.h>
 
 class Leg {
 public:
@@ -43,15 +43,12 @@ public:
 private:
     CalServo *servos[3];
     pthread_t servo_thread_id[3];
-    int cond_count;
-    pthread_cond_t buf_gate;
-    pthread_mutex_t buf_mut;
+    sem_t lock_count;
     int theta_buf[3];
     int speed_buf;
     int offsets[3];
     double last_pos[3];
     double hip_l, l1, l2;
-    bool running;
 
     /**
      * @note Right == true
@@ -69,27 +66,18 @@ private:
         const int *theta_buf;
         const int *speed_buf;
         CalServo *servo;
-        pthread_cond_t *buf_gate;
-        pthread_mutex_t *buf_mut;
-        int *cond_count;
-        bool *running;
+        sem_t *lock_sem;
 
         servo_param(
             const int *theta_buf,
             const int *speed_buf,
             CalServo *servo,
-            pthread_cond_t *buf_gate,
-            pthread_mutex_t *buf_mut,
-            int *cond_count,
-            bool *running) 
+            sem_t *lock_sem) 
         {
             this->speed_buf = speed_buf;
             this->servo = servo;
             this->theta_buf = theta_buf;
-            this->buf_gate = buf_gate;
-            this->buf_mut = buf_mut;
-            this->running = running;
-            this->cond_count = cond_count;
+            this->lock_sem = lock_sem;
         }
     };
 
