@@ -132,9 +132,9 @@ void Leg::get_degree_offset(const double (&offset)[3], int (&thetas)[3]) {
 }
 
 void Leg::move(double x_mm, double y_mm, double z_mm, int speed_ms) {
-    sem_wait(&lock_count);
-    sem_wait(&lock_count);
-    sem_wait(&lock_count);
+    // sem_wait(&lock_count);
+    // sem_wait(&lock_count);
+    // sem_wait(&lock_count);
 
     get_degree(x_mm ,y_mm, z_mm, &theta_buf[0], &theta_buf[1], &theta_buf[2]);
     speed_buf = speed_ms;
@@ -196,7 +196,7 @@ void* Leg::servo_thread(void* param) {
     int sig;
     while(sigwait(&set, &sig) == 0 && sig != SIGTERM) {
         servo->sweep(*theta_buf, *speed_buf);
-        sem_post(lock_sem);
+        // sem_post(lock_sem);
     }
 
     printf("Exitting servo thread\n");
