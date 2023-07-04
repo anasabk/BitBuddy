@@ -187,7 +187,6 @@ void* Leg::servo_thread(void* param) {
     CalServo *servo = ((struct servo_param*)param)->servo;
     sem_t *lock_sem = ((struct servo_param*)param)->lock_sem;
 
-    int sig;
     sigset_t set;
     sigemptyset(&set);
     sigaddset(&set, SIGCONT);
