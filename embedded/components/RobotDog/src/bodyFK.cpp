@@ -402,8 +402,8 @@ void* Body::move_thread(void *param) {
     const bool *run_flag = ((Body::move_param*)param)->run_flag;
     Body* body = ((Body::move_param*)param)->body;
 
-    const double l_leen_off =  45.0;
-    const double r_leen_off = -45.0;
+    const double l_leen_off =  35.0;
+    const double r_leen_off = -35.0;
     const double f_leen_off =  15.0;
     const double b_leen_off = -15.0;
     double drift_offset = 3;
