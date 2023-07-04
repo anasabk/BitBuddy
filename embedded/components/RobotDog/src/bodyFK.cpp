@@ -454,20 +454,17 @@ void* Body::move_thread(void *param) {
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
         pthread_mutex_lock(&body->leg_mut[leg_num]);
         body->legs[leg_num].move(temp_vector, 100);
-        wait_real(100);
 
         body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-30) - new_pose_buf[leg_num][0];
         body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
         pthread_mutex_lock(&body->leg_mut[leg_num]);
         body->legs[leg_num].move(temp_vector, 100);
-        wait_real(100);
 
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
         pthread_mutex_lock(&body->leg_mut[leg_num]);
         body->legs[leg_num].move(temp_vector, 100);
-        wait_real(100);
 
 
         if(leg_num > 1) {
