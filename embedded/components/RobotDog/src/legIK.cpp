@@ -37,7 +37,7 @@ Leg::Leg(
     this->is_right_flag = is_right_flag;
     this->is_front_flag = is_front_flag;
 
-    sem_init(&lock_count, 0, 0);
+    sem_init(&lock_count, 0, 3);
 
     pthread_create(
         servo_thread_id, 
