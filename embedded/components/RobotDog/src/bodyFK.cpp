@@ -43,32 +43,6 @@ Body::~Body() {
     
 }
 
-template<size_t a_col, size_t b_col>
-void matrix_mult(
-    const double *a, 
-    const double *b, 
-    double *buf) 
-{
-    for(int i = 0; i < b_col; i++) {
-        for(int j = 0; j < b_col; j++) {
-            buf[j][i] = 0;
-            for(int k = 0; k < a_col; k++)
-                buf[j][i] += a[j][k] * b[k][i];
-        }
-    }
-}
-
-template<size_t row, size_t col>
-void matrix_sum(
-    const double **a, 
-    const double **b, 
-    double **buf) 
-{
-    for(int i = 0; i < row; i++)
-        for(int j = 0; j < col; j++)
-            buf[i][j] = a[i][j] + b[i][j];
-}
-
 template<size_t len>
 void vector_sum(
     const double *a, 
