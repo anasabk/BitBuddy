@@ -2,6 +2,7 @@
 #include "common.h"
 #include <cmath>
 #include <eigen3/Eigen/Eigen>
+#include <iostream>
 
 
 Body::Body(
@@ -97,58 +98,64 @@ void Body::get_pose(
         return;
     }
 
-    Eigen::MatrixXd Rx = (Eigen::Matrix4d() << 
+    Eigen::Matrix4d Rx = (Eigen::Matrix4d() << 
         1,         0,         0, 0, 
         0, cos(roll),-sin(roll), 0,
         0, sin(roll), cos(roll), 0,
         0,         0,         0, 1
     ).finished(); 
+    std::cout << "Rx: " << Rx << std::endl;
 
-    Eigen::MatrixXd Ry = (Eigen::Matrix4d() << 
+    Eigen::Matrix4d Ry = (Eigen::Matrix4d() << 
          cos(pitch), 0, sin(pitch), 0, 
                   0, 1,          0, 0,
         -sin(pitch), 0, cos(pitch), 0,
                   0, 0,          0, 1
     ).finished();
+    std::cout << "Ry: " << Ry << std::endl;
 
-    Eigen::MatrixXd Rz = (Eigen::Matrix4d() << 
+    Eigen::Matrix4d Rz = (Eigen::Matrix4d() << 
         cos(yaw),-sin(yaw), 0, 0, 
         sin(yaw), cos(yaw), 0, 0,
                 0,       0, 1, 0,
                 0,       0, 0, 1
     ).finished();
+    std::cout << "Rz: " << Rz << std::endl;
 
-    Eigen::MatrixXd Rxyz = Rx * Ry * Rz;
+    Eigen::Matrix4d Rxyz = Rx * Ry * Rz;
+    std::cout << "Rxyz: " << Rxyz << std::endl;
 
-    Eigen::MatrixXd T = (Eigen::Matrix4d() << 
+    Eigen::Matrix4d T = (Eigen::Matrix4d() << 
         0, 0, 0, x_mm,
         0, 0, 0, y_mm,
         0, 0, 0, z_mm,
         0, 0, 0,    0
     ).finished();
+    std::cout << "T: " << Rxyz << std::endl;
 
     T *= Rxyz;
+    std::cout << "T * Rxyz: " << Rxyz << std::endl;
 
 
-    Eigen::MatrixXd temp = (Eigen::Matrix4d() << 
+    Eigen::Matrix4d temp = (Eigen::Matrix4d() << 
          cos(M_PI/2), 0, sin(M_PI/2),  -len_mm/2,
         -sin(M_PI/2), 1, cos(M_PI/2),-width_mm/2,
                    0, 0,           1,          0,
                    0, 0,           0,          1
     ).finished();
-    Eigen::MatrixXd Trb = T * temp;
+    Eigen::Matrix4d Trb = T * temp;
 
 
     temp(0, 3) *= -1;
-    Eigen::MatrixXd Trf = T * temp;
+    Eigen::Matrix4d Trf = T * temp;
 
 
     temp(1, 3) *= -1;
-    Eigen::MatrixXd Tlf = T * temp;
+    Eigen::Matrix4d Tlf = T * temp;
 
     
     temp(0, 3) *= -1;
-    Eigen::MatrixXd Tlb = T * temp;
+    Eigen::Matrix4d Tlb = T * temp;
 
 
     rb[0] = Trb(0, 3) + 92.5;
