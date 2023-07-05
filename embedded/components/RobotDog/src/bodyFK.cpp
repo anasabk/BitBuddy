@@ -97,30 +97,30 @@ void Body::get_pose(
         return;
     }
 
-    Eigen::Matrix4d Rx {
+    Eigen::MatrixXd Rx {
         {1,         0,         0, 0}, 
         {0, cos(roll),-sin(roll), 0},
         {0, sin(roll), cos(roll), 0},
         {0,         0,         0, 1}
     };
 
-    Eigen::Matrix4d Ry {
+    Eigen::MatrixXd Ry {
         { cos(pitch), 0, sin(pitch), 0}, 
         {          0, 1,          0, 0},
         {-sin(pitch), 0, cos(pitch), 0},
         {          0, 0,          0, 1}
     };
 
-    Eigen::Matrix4d Rz {
+    Eigen::MatrixXd Rz {
         {cos(yaw),-sin(yaw), 0, 0}, 
         {sin(yaw), cos(yaw), 0, 0},
         {        0,       0, 1, 0},
         {        0,       0, 0, 1}
     };
 
-    Eigen::Matrix4d Rxyz = Rx * Ry * Rz;
+    Eigen::MatrixXd Rxyz = Rx * Ry * Rz;
 
-    Eigen::Matrix4d T {
+    Eigen::MatrixXd T {
         {0, 0, 0, x_mm},
         {0, 0, 0, y_mm},
         {0, 0, 0, z_mm},
@@ -130,25 +130,25 @@ void Body::get_pose(
     T *= Rxyz;
 
 
-    Eigen::Matrix4d temp {
+    Eigen::MatrixXd temp {
         { cos(M_PI/2), 0, sin(M_PI/2),  -len_mm/2},
         {-sin(M_PI/2), 1, cos(M_PI/2),-width_mm/2},
         {           0, 0,           1,          0},
         {           0, 0,           0,          1}
     };
-    Eigen::Matrix4d Trb = T * temp;
+    Eigen::MatrixXd Trb = T * temp;
 
 
     temp(0, 3) *= -1;
-    Eigen::Matrix4d Trf = T * temp;
+    Eigen::MatrixXd Trf = T * temp;
 
 
     temp(1, 3) *= -1;
-    Eigen::Matrix4d Tlf = T * temp;
+    Eigen::MatrixXd Tlf = T * temp;
 
     
     temp(0, 3) *= -1;
-    Eigen::Matrix4d Tlb = T * temp;
+    Eigen::MatrixXd Tlb = T * temp;
 
 
     rb[0] = Trb(0, 3) + 92.5;
