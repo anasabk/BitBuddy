@@ -133,7 +133,7 @@ void Body::get_pose(
     ).finished();
     std::cout << "T: " << Rxyz << std::endl;
 
-    T *= Rxyz;
+    T += Rxyz;
     std::cout << "T * Rxyz: " << Rxyz << std::endl;
 
 
