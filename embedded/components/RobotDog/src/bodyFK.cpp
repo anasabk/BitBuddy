@@ -244,8 +244,8 @@ void Body::pose(
     printf("final buffer:\n");
     double temp_buf[3];
     for(int i = 0; i < 4; i++) {
-        printf("%d : %lf, %lf, %lf\n", i, pose_buf[i][0], pose_buf[i][1], pose_buf[i][2]);
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_buf);
+        printf("%d : %lf, %lf, %lf\n", i, temp_buf[0], temp_buf[1], temp_buf[2]);
         legs[i].get_degrees(temp_buf, &servo_buf[i*3]);
     }
 
