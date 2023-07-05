@@ -114,9 +114,9 @@ void* RobotDog::control_thread(void* param) {
         if(robot->mode_flag == true) {
             printf("Entered auto mode\n");
             while (is_running && robot->mode_flag) {
-                if(robot->sensor_data.mpu_buff.x_accel < 0) {
+                if(robot->sensor_data.mpu_buff.z_accel < 0) {
                     int i = 0;
-                    while (robot->sensor_data.mpu_buff.x_accel < 0.2 && i < 2) {
+                    while (robot->sensor_data.mpu_buff.z_accel < 0.2 && i < 2) {
                         i++;
                         sleep(1);
                     }
