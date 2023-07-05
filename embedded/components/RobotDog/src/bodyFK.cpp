@@ -104,7 +104,7 @@ void Body::get_pose(
         0, sin(roll), cos(roll), 0,
         0,         0,         0, 1
     ).finished(); 
-    std::cout << "Rx: " << Rx << std::endl;
+    // std::cout << "Rx: " << Rx << std::endl;
 
     Eigen::Matrix4d Ry = (Eigen::Matrix4d() << 
          cos(pitch), 0, sin(pitch), 0, 
@@ -112,7 +112,7 @@ void Body::get_pose(
         -sin(pitch), 0, cos(pitch), 0,
                   0, 0,          0, 1
     ).finished();
-    std::cout << "Ry: " << Ry << std::endl;
+    // std::cout << "Ry: " << Ry << std::endl;
 
     Eigen::Matrix4d Rz = (Eigen::Matrix4d() << 
         cos(yaw),-sin(yaw), 0, 0, 
@@ -120,10 +120,10 @@ void Body::get_pose(
                 0,       0, 1, 0,
                 0,       0, 0, 1
     ).finished();
-    std::cout << "Rz: " << Rz << std::endl;
+    // std::cout << "Rz: " << Rz << std::endl;
 
     Eigen::Matrix4d Rxyz = Rx * Ry * Rz;
-    std::cout << "Rxyz: " << Rxyz << std::endl;
+    // std::cout << "Rxyz: " << Rxyz << std::endl;
 
     Eigen::Matrix4d T = (Eigen::Matrix4d() << 
         0, 0, 0, x_mm,
@@ -131,10 +131,10 @@ void Body::get_pose(
         0, 0, 0, z_mm,
         0, 0, 0,    0
     ).finished();
-    std::cout << "T: " << Rxyz << std::endl;
+    // std::cout << "T: " << Rxyz << std::endl;
 
     T += Rxyz;
-    std::cout << "T * Rxyz: " << Rxyz << std::endl;
+    // std::cout << "T * Rxyz: " << Rxyz << std::endl;
 
 
     Eigen::Matrix4d temp = (Eigen::Matrix4d() << 
@@ -325,18 +325,18 @@ void* Body::move_thread(void *param) {
         body->leg_buf[leg_num][2] = 50 - new_pose_buf[leg_num][2];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
-        // body->move(150);
+        body->move(150);
 
         body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0];
         body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
-        // body->move(150);
+        body->move(150);
 
         body->leg_buf[leg_num][2] = 0 - new_pose_buf[leg_num][2];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
-        // body->move(150);
+        body->move(150);
 
 
         if(leg_num > 1) {
@@ -394,8 +394,8 @@ void Body::move(long dur) {
 
     long dt_ms = dur / 15;
     for(int i = 0; i < 15; i++) {
-        // for(int j = 0; j < 12; j++)
-        //     servos[j]->set_degree_off(dtheta[i]);
+        for(int j = 0; j < 12; j++)
+            servos[j]->set_degree_off(dtheta[i]);
 
         wait_real(dt_ms);
     }
