@@ -313,6 +313,12 @@ void* Body::move_thread(void *param) {
             new_pose_buf[LEFTFRONT]
         );
 
+        printf("leg buffer:\n");
+        printf("rb : %lf, %lf, %lf\n", body->leg_buf[RIGHTBACK][0], body->leg_buf[RIGHTBACK][1], body->leg_buf[RIGHTBACK][2]);
+        printf("rf : %lf, %lf, %lf\n", body->leg_buf[RIGHTFRONT][0], body->leg_buf[RIGHTFRONT][1], body->leg_buf[RIGHTFRONT][2]);
+        printf("lb : %lf, %lf, %lf\n", body->leg_buf[LEFTBACK][0], body->leg_buf[LEFTBACK][1], body->leg_buf[LEFTBACK][2]);
+        printf("lf : %lf, %lf, %lf\n", body->leg_buf[LEFTFRONT][0], body->leg_buf[LEFTFRONT][1], body->leg_buf[LEFTFRONT][2]);
+
 
         // Leen to the opposite side
         body->pose(0, 0, 0, body->legs[leg_num].is_front() ? f_leen_off : b_leen_off, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
