@@ -43,8 +43,10 @@ private:
     CalServo servos[12];
     Body main_body;
 
-    MPU6050::MPU6050_data_t mpu_buff;
-    float front_dist[2];
+    struct {
+        MPU6050::MPU6050_data_t mpu_buff;
+        float front_dist[2];
+    } sensor_data;
 
     int switch_server_fd;
     int js_server_fd;

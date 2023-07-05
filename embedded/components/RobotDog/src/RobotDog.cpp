@@ -63,8 +63,7 @@ void* RobotDog::telem_thread(void *param) {
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
     while (is_running) {
-        sendto(fd, robot->front_dist, sizeof(robot->front_dist), 0, (struct sockaddr*)&addr, sizeof(addr));
-        sendto(fd, &robot->mpu_buff, sizeof(robot->mpu_buff), 0, (struct sockaddr*)&addr, sizeof(addr));
+        sendto(fd, &robot->sensor_data, sizeof(robot->sensor_data), 0, (struct sockaddr*)&addr, sizeof(addr));
 
         // printf("accel: x=%.4f y=%.4f z=%.4f / gyro: x=%.4f y=%.4f z=%.4f \ndist: left=%.4f right=%.4f\n", 
         //     robot->mpu_buff.x_accel,
@@ -131,9 +130,9 @@ void* RobotDog::control_thread(void* param) {
         if(robot->mode_flag == true) {
             printf("Entered auto mode\n");
             while (is_running && robot->mode_flag) {
-                if(robot->mpu_buff.x_accel < 0) {
+                if(robot->sensor_data.mpu_buff.x_accel < 0) {
                     int i = 0;
-                    while (robot->mpu_buff.x_accel < 0.2 && i < 2) {
+                    while (robot->sensor_data.mpu_buff.x_accel < 0.2 && i < 2) {
                         i++;
                         sleep(1);
                     }
@@ -331,7 +330,7 @@ void* RobotDog::mpu6050_thread(void* args) {
     long dt_ms = 1000L / MPU6050_SAMPLE_FREQ_HZ;
 
     while (is_running) {
-    	robot->mpu6050.read_data(&robot->mpu_buff);
+    	robot->mpu6050.read_data(&robot->sensor_data.mpu_buff);
         wait_real_dl(&timeNow, dt_ms);
     }
 
@@ -358,8 +357,8 @@ void* RobotDog::HCSR04_thread(void* args) {
     long dt_ms = 1000L / HC_SR04_SAMPLE_FREQ_HZ;
 
     while (is_running) {
-        robot->front_dist[0] = robot->hc_sr04[0].get_distance();
-        robot->front_dist[1] = robot->hc_sr04[1].get_distance();
+        robot->sensor_data.front_dist[0] = robot->hc_sr04[0].get_distance();
+        robot->sensor_data.front_dist[1] = robot->hc_sr04[1].get_distance();
 
         wait_real_dl(&timeNow, dt_ms);
     }
