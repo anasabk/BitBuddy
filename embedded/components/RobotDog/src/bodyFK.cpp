@@ -222,31 +222,27 @@ void Body::pose(
     last_y_mm   = y_mm;
     last_z_mm   = z_mm;
 
+    printf("leg buffer:\n");
+    printf("rb : %lf, %lf, %lf\n", leg_buf[RIGHTBACK][0], leg_buf[RIGHTBACK][1], leg_buf[RIGHTBACK][2]);
+    printf("rf : %lf, %lf, %lf\n", leg_buf[RIGHTFRONT][0], leg_buf[RIGHTFRONT][1], leg_buf[RIGHTFRONT][2]);
+    printf("lb : %lf, %lf, %lf\n", leg_buf[LEFTBACK][0], leg_buf[LEFTBACK][1], leg_buf[LEFTBACK][2]);
+    printf("lf : %lf, %lf, %lf\n", leg_buf[LEFTFRONT][0], leg_buf[LEFTFRONT][1], leg_buf[LEFTFRONT][2]);
+
+    printf("pose buffer:\n");
+    printf("rb : %lf, %lf, %lf\n", pose_buf[RIGHTBACK][0], pose_buf[RIGHTBACK][1], pose_buf[RIGHTBACK][2]);
+    printf("rf : %lf, %lf, %lf\n", pose_buf[RIGHTFRONT][0], pose_buf[RIGHTFRONT][1], pose_buf[RIGHTFRONT][2]);
+    printf("lb : %lf, %lf, %lf\n", pose_buf[LEFTBACK][0], pose_buf[LEFTBACK][1], pose_buf[LEFTBACK][2]);
+    printf("lf : %lf, %lf, %lf\n", pose_buf[LEFTFRONT][0], pose_buf[LEFTFRONT][1], pose_buf[LEFTFRONT][2]);
+
+    printf("final buffer:\n");
     double temp_buf[3];
     for(int i = 0; i < 4; i++) {
+        printf("%d : %lf, %lf, %lf\n", i, pose_buf[i][0], pose_buf[i][1], pose_buf[i][2]);
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_buf);
         legs[i].get_degrees(temp_buf, &servo_buf[i*3]);
     }
 
-    // printf("leg buffer:\n");
-    // printf("rb : %lf, %lf, %lf\n", leg_buf[RIGHTBACK][0], leg_buf[RIGHTBACK][1], leg_buf[RIGHTBACK][2]);
-    // printf("rf : %lf, %lf, %lf\n", leg_buf[RIGHTFRONT][0], leg_buf[RIGHTFRONT][1], leg_buf[RIGHTFRONT][2]);
-    // printf("lb : %lf, %lf, %lf\n", leg_buf[LEFTBACK][0], leg_buf[LEFTBACK][1], leg_buf[LEFTBACK][2]);
-    // printf("lf : %lf, %lf, %lf\n", leg_buf[LEFTFRONT][0], leg_buf[LEFTFRONT][1], leg_buf[LEFTFRONT][2]);
-
-    // printf("pose buffer:\n");
-    // printf("rb : %lf, %lf, %lf\n", pose_buf[RIGHTBACK][0], pose_buf[RIGHTBACK][1], pose_buf[RIGHTBACK][2]);
-    // printf("rf : %lf, %lf, %lf\n", pose_buf[RIGHTFRONT][0], pose_buf[RIGHTFRONT][1], pose_buf[RIGHTFRONT][2]);
-    // printf("lb : %lf, %lf, %lf\n", pose_buf[LEFTBACK][0], pose_buf[LEFTBACK][1], pose_buf[LEFTBACK][2]);
-    // printf("lf : %lf, %lf, %lf\n", pose_buf[LEFTFRONT][0], pose_buf[LEFTFRONT][1], pose_buf[LEFTFRONT][2]);
-
-    // printf("new values:\n");
-    // printf("rb : %lf, %lf, %lf\n", rb[0], rb[1], rb[2]);
-    // printf("rf : %lf, %lf, %lf\n", rf[0], rf[1], rf[2]);
-    // printf("lb : %lf, %lf, %lf\n", lb[0], lb[1], lb[2]);
-    // printf("lf : %lf, %lf, %lf\n", lf[0], lf[1], lf[2]);
-
-    move(100);
+    move(150);
 }
 
 void Body::sit_down() {
@@ -313,13 +309,7 @@ void* Body::move_thread(void *param) {
             new_pose_buf[LEFTFRONT]
         );
 
-        printf("leg buffer:\n");
-        printf("rb : %lf, %lf, %lf\n", body->leg_buf[RIGHTBACK][0], body->leg_buf[RIGHTBACK][1], body->leg_buf[RIGHTBACK][2]);
-        printf("rf : %lf, %lf, %lf\n", body->leg_buf[RIGHTFRONT][0], body->leg_buf[RIGHTFRONT][1], body->leg_buf[RIGHTFRONT][2]);
-        printf("lb : %lf, %lf, %lf\n", body->leg_buf[LEFTBACK][0], body->leg_buf[LEFTBACK][1], body->leg_buf[LEFTBACK][2]);
-        printf("lf : %lf, %lf, %lf\n", body->leg_buf[LEFTFRONT][0], body->leg_buf[LEFTFRONT][1], body->leg_buf[LEFTFRONT][2]);
-
-
+        
         // Leen to the opposite side
         body->pose(0, 0, 0, body->legs[leg_num].is_front() ? f_leen_off : b_leen_off, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
 
@@ -391,15 +381,14 @@ void Body::recover() {
 }
 
 void Body::move(long dur) {
-    long dt_ms = dur / 15;
     int dtheta[12];
-
     for(int i = 0; i < 12; i++)
         dtheta[i] = (servo_buf[i] - servos[i]->get_last_deg()) / 15;
-    
+
+    long dt_ms = dur / 15;
     for(int i = 0; i < 15; i++) {
-        for(int j = 0; j < 12; j++)
-            servos[j]->set_degree_off(dtheta[i]);
+        // for(int j = 0; j < 12; j++)
+        //     servos[j]->set_degree_off(dtheta[i]);
 
         wait_real(dt_ms);
     }
