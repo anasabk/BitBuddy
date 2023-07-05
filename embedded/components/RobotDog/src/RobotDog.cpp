@@ -33,11 +33,6 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
     
     is_running = true;
-
-    MPU6050::MPU6050_data_t offsets = {
-        0.0306, 0.0120, 0.0211, 0, 0.7868, -0.8433, -0.7314
-    };
-    mpu6050.set_offsets(&offsets);
 }
 
 RobotDog::~RobotDog() {
@@ -64,17 +59,6 @@ void* RobotDog::telem_thread(void *param) {
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
     while (is_running) {
         sendto(fd, &robot->sensor_data, sizeof(robot->sensor_data), 0, (struct sockaddr*)&addr, sizeof(addr));
-
-        // printf("accel: x=%.4f y=%.4f z=%.4f / gyro: x=%.4f y=%.4f z=%.4f \ndist: left=%.4f right=%.4f\n", 
-        //     robot->mpu_buff.x_accel,
-        //     robot->mpu_buff.y_accel,
-        //     robot->mpu_buff.z_accel,
-        //     robot->mpu_buff.x_rot,
-        //     robot->mpu_buff.y_rot,
-        //     robot->mpu_buff.z_rot,
-        //     robot->front_dist[0],
-        //     robot->front_dist[1]
-        // );
 
         wait_real_dl(&timeNow, 200);
     }
@@ -322,6 +306,8 @@ void* RobotDog::mpu6050_thread(void* args) {
         std::cerr << "sched_setscheduler error!" << std::endl;
         return NULL;
     }
+
+    robot->mpu6050.calibrate();
 
     // Get current time
     struct timespec timeNow;
