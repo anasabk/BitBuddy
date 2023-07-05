@@ -114,3 +114,7 @@ void MPU6050::set_offsets(MPU6050_data_t *offsets) {
     if(offsets != NULL)
         this->cal_offsets = *offsets;
 }
+
+void MPU6050::get_offsets(MPU6050_data_t *buf) {
+    *buf = cal_offsets;
+}
