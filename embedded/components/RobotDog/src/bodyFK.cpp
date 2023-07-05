@@ -97,45 +97,45 @@ void Body::get_pose(
         return;
     }
 
-    Eigen::MatrixXd Rx {
-        {1,         0,         0, 0}, 
-        {0, cos(roll),-sin(roll), 0},
-        {0, sin(roll), cos(roll), 0},
-        {0,         0,         0, 1}
-    };
+    Eigen::MatrixXd Rx = (Eigen::Matrix4d() << 
+        1,         0,         0, 0, 
+        0, cos(roll),-sin(roll), 0,
+        0, sin(roll), cos(roll), 0,
+        0,         0,         0, 1
+    ).finished(); 
 
-    Eigen::MatrixXd Ry {
-        { cos(pitch), 0, sin(pitch), 0}, 
-        {          0, 1,          0, 0},
-        {-sin(pitch), 0, cos(pitch), 0},
-        {          0, 0,          0, 1}
-    };
+    Eigen::MatrixXd Ry = (Eigen::Matrix4d() << 
+         cos(pitch), 0, sin(pitch), 0, 
+                  0, 1,          0, 0,
+        -sin(pitch), 0, cos(pitch), 0,
+                  0, 0,          0, 1
+    ).finished();
 
-    Eigen::MatrixXd Rz {
-        {cos(yaw),-sin(yaw), 0, 0}, 
-        {sin(yaw), cos(yaw), 0, 0},
-        {        0,       0, 1, 0},
-        {        0,       0, 0, 1}
-    };
+    Eigen::MatrixXd Rz = (Eigen::Matrix4d() << 
+        cos(yaw),-sin(yaw), 0, 0, 
+        sin(yaw), cos(yaw), 0, 0,
+                0,       0, 1, 0,
+                0,       0, 0, 1
+    ).finished();
 
     Eigen::MatrixXd Rxyz = Rx * Ry * Rz;
 
-    Eigen::MatrixXd T {
-        {0, 0, 0, x_mm},
-        {0, 0, 0, y_mm},
-        {0, 0, 0, z_mm},
-        {0, 0, 0,    0}
-    };
+    Eigen::MatrixXd T = (Eigen::Matrix4d() << 
+        0, 0, 0, x_mm,
+        0, 0, 0, y_mm,
+        0, 0, 0, z_mm,
+        0, 0, 0,    0
+    ).finished();
 
     T *= Rxyz;
 
 
-    Eigen::MatrixXd temp {
-        { cos(M_PI/2), 0, sin(M_PI/2),  -len_mm/2},
-        {-sin(M_PI/2), 1, cos(M_PI/2),-width_mm/2},
-        {           0, 0,           1,          0},
-        {           0, 0,           0,          1}
-    };
+    Eigen::MatrixXd temp = (Eigen::Matrix4d() << 
+         cos(M_PI/2), 0, sin(M_PI/2),  -len_mm/2,
+        -sin(M_PI/2), 1, cos(M_PI/2),-width_mm/2,
+                   0, 0,           1,          0,
+                   0, 0,           0,          1
+    ).finished();
     Eigen::MatrixXd Trb = T * temp;
 
 
