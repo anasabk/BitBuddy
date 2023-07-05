@@ -1,6 +1,7 @@
 #include "bodyFK.h"
 #include "common.h"
 #include <cmath>
+#include <eigen3/Eigen/Eigen>
 
 
 Body::Body(
@@ -8,10 +9,10 @@ Body::Body(
     double len_mm, 
     double width_mm) 
     : legs {
-        Leg(&servos[0],  4, &servos[1], -5, &servos[2], 1, 55, 110, 130, false, false, &leg_mut[0]),
-        Leg(&servos[3],-10, &servos[4], -3, &servos[5],-7, 55, 110, 130,  true, false, &leg_mut[1]),
-        Leg(&servos[6],  0, &servos[7], -2, &servos[8],-3, 55, 110, 130,  true, true, &leg_mut[2]),
-        Leg(&servos[9],  8, &servos[10], 6, &servos[11],5, 55, 110, 130, false, true, &leg_mut[3]),
+        LegIK(  4,-5, 1, 55, 110, 130, false, false),
+        LegIK(-10,-3,-7, 55, 110, 130,  true, false),
+        LegIK(  0,-2,-3, 55, 110, 130,  true, true),
+        LegIK(  8, 6, 5, 55, 110, 130, false, true),
     }
 {
     for (int i = 0; i < 12; i++)
@@ -26,11 +27,6 @@ Body::Body(
     this->last_x_mm = 0;
     this->last_y_mm = 0;
     this->last_z_mm = 0;
-
-    this->leg_mut[0] = PTHREAD_MUTEX_INITIALIZER;
-    this->leg_mut[1] = PTHREAD_MUTEX_INITIALIZER;
-    this->leg_mut[2] = PTHREAD_MUTEX_INITIALIZER;
-    this->leg_mut[3] = PTHREAD_MUTEX_INITIALIZER;
 
     pose_buf[RIGHTBACK][0]  = 0, pose_buf[RIGHTBACK][1]  = 0, pose_buf[RIGHTBACK][2]  = -70;
     pose_buf[RIGHTFRONT][0] = 0, pose_buf[RIGHTFRONT][1] = 0, pose_buf[RIGHTFRONT][2] = -70;
@@ -49,9 +45,9 @@ Body::~Body() {
 
 template<size_t a_col, size_t b_col>
 void matrix_mult(
-    const double (&a)[b_col][a_col], 
-    const double (&b)[b_col][a_col], 
-    double (&buf)[b_col][a_col]) 
+    const double *a, 
+    const double *b, 
+    double *buf) 
 {
     for(int i = 0; i < b_col; i++) {
         for(int j = 0; j < b_col; j++) {
@@ -64,9 +60,9 @@ void matrix_mult(
 
 template<size_t row, size_t col>
 void matrix_sum(
-    const double (&a)[row][col], 
-    const double (&b)[row][col], 
-    double (&buf)[row][col]) 
+    const double **a, 
+    const double **b, 
+    double **buf) 
 {
     for(int i = 0; i < row; i++)
         for(int j = 0; j < col; j++)
@@ -75,9 +71,9 @@ void matrix_sum(
 
 template<size_t len>
 void vector_sum(
-    const double (&a)[len], 
-    const double (&b)[len], 
-    double (&buf)[len])
+    const double *a, 
+    const double *b, 
+    double *buf)
 {
     for(int i = 0; i < len; i++)
         buf[i] = a[i] + b[i];
@@ -85,9 +81,9 @@ void vector_sum(
 
 template<size_t len>
 void vector_sub(
-    const double (&a)[len], 
-    const double (&b)[len], 
-    double (&buf)[len])
+    const double *a, 
+    const double *b, 
+    double *buf)
 {
     for(int i = 0; i < len; i++)
         buf[i] = a[i] - b[i];
@@ -117,7 +113,6 @@ void Body::get_pose(
     double x_mm, 
     double y_mm, 
     double z_mm,
-    double (&Tm)[4][4],
     double (&rb)[3],
     double (&rf)[3],
     double (&lb)[3],
@@ -128,82 +123,72 @@ void Body::get_pose(
         return;
     }
 
-    double Rx[4][4] = {
+    Eigen::Matrix4d Rx ({
         {1,         0,         0, 0}, 
         {0, cos(roll),-sin(roll), 0},
         {0, sin(roll), cos(roll), 0},
         {0,         0,         0, 1}
-    };
+    });
 
-    double Ry[4][4] = {
+    Eigen::Matrix4d Ry ({
         { cos(pitch), 0, sin(pitch), 0}, 
         {          0, 1,          0, 0},
         {-sin(pitch), 0, cos(pitch), 0},
         {          0, 0,          0, 1}
-    };
+    });
 
-    double Rz[4][4] = {
+    Eigen::Matrix4d Rz ({
         {cos(yaw),-sin(yaw), 0, 0}, 
         {sin(yaw), cos(yaw), 0, 0},
         {        0,       0, 1, 0},
         {        0,       0, 0, 1}
-    };
+    });
 
-    double Rxy[4][4];
-    double Rxyz[4][4];
+    Eigen::Matrix4d Rxyz = Rx * Ry * Rz;
 
-    matrix_mult<4, 4>(Rx, Ry, Rxy);
-    matrix_mult<4, 4>(Rxy, Rz, Rxyz);
-
-    double T[][4] = {
+    Eigen::Matrix4d T ({
         {0, 0, 0, x_mm},
         {0, 0, 0, y_mm},
         {0, 0, 0, z_mm},
         {0, 0, 0,    0}
-    };
-    matrix_sum<4, 4>(T, Rxyz, Tm);
+    });
+
+    T *= Rxyz;
 
 
-    double temp[4][4] = {
+    Eigen::Matrix4d temp ({
         { cos(M_PI/2), 0, sin(M_PI/2),  -len_mm/2},
         {-sin(M_PI/2), 1, cos(M_PI/2),-width_mm/2},
         {           0, 0,           1,          0},
         {           0, 0,           0,          1}
-    };
-    double Trb[4][4];
-    matrix_mult<4, 4>(Tm, temp, Trb);
+    });
+    Eigen::Matrix4d Trb = T * temp;
 
 
-    temp[0][3] *= -1;
-    double Trf[4][4];
-    matrix_mult<4, 4>(Tm, temp, Trf);
+    temp(0, 3) *= -1;
+    Eigen::Matrix4d Trf = T * temp;
 
 
-    temp[1][3] *= -1;
-    double Tlf[4][4];
-    matrix_mult<4, 4>(Tm, temp, Tlf);
+    temp(1, 3) *= -1;
+    Eigen::Matrix4d Tlf = T * temp;
 
     
-    temp[0][3] *= -1;
-    double Tlb[4][4];
-    matrix_mult<4, 4>(Tm, temp, Tlb);
+    temp(0, 3) *= -1;
+    Eigen::Matrix4d Tlb = T * temp;
 
 
-    rb[0] = Trb[0][3] + 92.5;
-    rb[1] = Trb[1][3] + 38.75;
-    rb[2] = Trb[2][3];
-
-    rf[0] = Trf[0][3] - 92.5;
-    rf[1] = Trf[1][3] + 38.75;
-    rf[2] = Trf[2][3];
-
-    lb[0] = Tlb[0][3] + 92.5;
-    lb[1] = Tlb[1][3] - 38.75;
-    lb[2] = Tlb[2][3];
-
-    lf[0] = Tlf[0][3] - 92.5;
-    lf[1] = Tlf[1][3] - 38.75;
-    lf[2] = Tlf[2][3];
+    rb[0] = Trb(0, 3) + 92.5;
+    rb[1] = Trb(1, 3) + 38.75;
+    rb[2] = Trb(2, 3);
+    rf[0] = Trf(0, 3) - 92.5;
+    rf[1] = Trf(1, 3) + 38.75;
+    rf[2] = Trf(2, 3);
+    lb[0] = Tlb(0, 3) + 92.5;
+    lb[1] = Tlb(1, 3) - 38.75;
+    lb[2] = Tlb(2, 3);
+    lf[0] = Tlf(0, 3) - 92.5;
+    lf[1] = Tlf(1, 3) - 38.75;
+    lf[2] = Tlf(2, 3);
 }
 
 /**
@@ -230,7 +215,6 @@ void Body::get_pose_offset(
     double x_mm, 
     double y_mm, 
     double z_mm,
-    double (&Tm)[4][4],
     double (&rb)[3],
     double (&rf)[3],
     double (&lb)[3],
@@ -243,7 +227,7 @@ void Body::get_pose_offset(
         last_x_mm + x_mm, 
         last_y_mm + y_mm, 
         last_z_mm + z_mm,
-        Tm, rb, rf, lb, lf
+        rb, rf, lb, lf
     );  
 }
 
@@ -255,9 +239,7 @@ void Body::pose(
     double y_mm, 
     double z_mm) 
 {
-    double Tm[4][4];
-
-    get_pose(roll, yaw, pitch, x_mm, y_mm, z_mm, Tm, pose_buf[RIGHTBACK], pose_buf[RIGHTFRONT], pose_buf[LEFTBACK], pose_buf[LEFTFRONT]);
+    get_pose(roll, yaw, pitch, x_mm, y_mm, z_mm, pose_buf[RIGHTBACK], pose_buf[RIGHTFRONT], pose_buf[LEFTBACK], pose_buf[LEFTFRONT]);
 
     last_pitch  = pitch;
     last_roll   = roll;
@@ -266,15 +248,11 @@ void Body::pose(
     last_y_mm   = y_mm;
     last_z_mm   = z_mm;
 
-    double rb[3];
-    double rf[3];
-    double lb[3];
-    double lf[3];
-
-    vector_sub<3>(leg_buf[RIGHTBACK], pose_buf[RIGHTBACK], rb);
-    vector_sub<3>(leg_buf[RIGHTFRONT], pose_buf[RIGHTFRONT], rf);
-    vector_sub<3>(leg_buf[LEFTBACK], pose_buf[LEFTBACK], lb);
-    vector_sub<3>(leg_buf[LEFTFRONT], pose_buf[LEFTFRONT], lf);
+    double temp_buf[3];
+    for(int i = 0; i < 4; i++) {
+        vector_sub<3>(leg_buf[i], pose_buf[i], temp_buf);
+        legs[i].get_degrees(temp_buf, &servo_buf[i*3]);
+    }
 
     // printf("leg buffer:\n");
     // printf("rb : %lf, %lf, %lf\n", leg_buf[RIGHTBACK][0], leg_buf[RIGHTBACK][1], leg_buf[RIGHTBACK][2]);
@@ -294,13 +272,7 @@ void Body::pose(
     // printf("lb : %lf, %lf, %lf\n", lb[0], lb[1], lb[2]);
     // printf("lf : %lf, %lf, %lf\n", lf[0], lf[1], lf[2]);
 
-    for(int i = 0; i < 4; i++)
-        pthread_mutex_lock(&leg_mut[i]);
-        
-    legs[RIGHTBACK].move(rb);
-    legs[RIGHTFRONT].move(rf);
-    legs[LEFTBACK].move(lb);
-    legs[LEFTFRONT].move(lf);
+    move(100);
 }
 
 void Body::sit_down() {
@@ -321,102 +293,26 @@ void Body::stand_up() {
     pose(0, 0, 0, 0, 0, 140);
 }
 
-void Body::move_forward(double rot_rad, double dist, int step_num) {
-    if(dist/step_num > 40.0) dist = step_num*40.0;
-
-    const double l_leen_off =  20.0;
-    const double r_leen_off = -50.0;
-    const double f_leen_off =  15.0;
-    const double b_leen_off = -15.0;
-    double drift_offset = 2;
-
-    double turn_buf[4][3];
-    double temp[4][4];
-    get_pose(0, -rot_rad/(double)step_num, 0, 0, 0, 140, temp, turn_buf[RIGHTBACK], turn_buf[RIGHTFRONT], turn_buf[LEFTBACK], turn_buf[LEFTFRONT]);
-
-    struct timespec timeNow;
-    clock_gettime(CLOCK_MONOTONIC, &timeNow);
-
-    int steps_gone = 0;
-    double temp_vector[3];
-    for(int i = 3; steps_gone < step_num; i -= 2) {
-        if(i < 0) i = -i + 1;
-
-        // Leen to the right back
-        pose(
-            0, 
-            0, 
-            0, 
-            legs[i].is_front() ? b_leen_off : f_leen_off, 
-            legs[i].is_right() ? l_leen_off : r_leen_off, 
-            140
-        );
-        wait_real(250);
-
-        // Position the leg
-        leg_buf[i][2] = 50;
-        vector_sub<3>(leg_buf[i], pose_buf[i], temp_vector);
-        pthread_mutex_lock(&leg_mut[i]);
-        legs[i].move(temp_vector);
-        wait_real(250);
-
-        leg_buf[i][0] = (legs[i].is_front() ? 15 :-50) + dist/step_num * 2 - turn_buf[i][0];
-        leg_buf[i][1] = (legs[i].is_right() ?-55 : 55) - turn_buf[i][1];
-        vector_sub<3>(leg_buf[i], pose_buf[i], temp_vector);
-        pthread_mutex_lock(&leg_mut[i]);
-        legs[i].move(temp_vector);
-        wait_real(250);
-
-        leg_buf[i][2] = 0;
-        vector_sub<3>(leg_buf[i], pose_buf[i], temp_vector);
-        pthread_mutex_lock(&leg_mut[i]);
-        legs[i].move(temp_vector);
-        wait_real(250);
-        
-        // Go forward
-        leg_buf[LEFTBACK][0]   -= dist/step_num + drift_offset - turn_buf[LEFTBACK][0];
-        leg_buf[RIGHTBACK][0]  -= dist/step_num - drift_offset - turn_buf[RIGHTBACK][0];
-        leg_buf[RIGHTFRONT][0] -= dist/step_num - drift_offset - turn_buf[RIGHTFRONT][0];
-        leg_buf[LEFTFRONT][0]  -= dist/step_num + drift_offset - turn_buf[LEFTFRONT][0];
-        leg_buf[LEFTBACK][1]   += turn_buf[LEFTBACK][1];
-        leg_buf[RIGHTBACK][1]  += turn_buf[RIGHTBACK][1];
-        leg_buf[RIGHTFRONT][1] += turn_buf[RIGHTFRONT][1];
-        leg_buf[LEFTFRONT][1]  += turn_buf[LEFTFRONT][1];
-        pose(
-            0, 
-            0, 
-            0, 
-            legs[i].is_front() ? b_leen_off : f_leen_off, 
-            legs[i].is_right() ? l_leen_off : r_leen_off, 
-            140
-        );
-        wait_real(250);
-
-        steps_gone++;
-    }
-}
-
 void* Body::move_thread(void *param) {
     const float *rot_rad = ((Body::move_param*)param)->rot;
     const float *speed = ((Body::move_param*)param)->speed;
     const bool *run_flag = ((Body::move_param*)param)->run_flag;
     Body* body = ((Body::move_param*)param)->body;
 
-    const double l_leen_off =  25.0;
+    const double l_leen_off =  35.0;
     const double r_leen_off = -35.0;
     const double f_leen_off =  15.0;
     const double b_leen_off = -15.0;
     double drift_offset = 3;
 
     double new_pose_buf[4][3];
-    double temp[4][4];
 
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
 
-    double temp_vector[3];
     int leg_num = 0;
     int pause_counter = 0;
+    double temp_v[3];
     while(*run_flag) {
         printf("%f %f %d\n", fabs(*speed), fabs(*rot_rad), pause_counter);
         if((fabs(*speed) + fabs(*rot_rad)) < 0.0001) {
@@ -436,8 +332,7 @@ void* Body::move_thread(void *param) {
         // Update the new pose of the legs
         body->get_pose(
             0, -*rot_rad, 0, 
-            -*speed, 0, 140, 
-            temp, 
+            -*speed, 0, 140,
             new_pose_buf[RIGHTBACK], 
             new_pose_buf[RIGHTFRONT], 
             new_pose_buf[LEFTBACK], 
@@ -450,21 +345,21 @@ void* Body::move_thread(void *param) {
 
 
         // Position the leg
-        body->leg_buf[leg_num][2] = 50;
-        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
-        pthread_mutex_lock(&body->leg_mut[leg_num]);
-        body->legs[leg_num].move(temp_vector, 100);
+        body->leg_buf[leg_num][2] = 50 - new_pose_buf[leg_num][2];
+        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
+        body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
+        body->move(150);
 
         body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0];
         body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
-        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
-        pthread_mutex_lock(&body->leg_mut[leg_num]);
-        body->legs[leg_num].move(temp_vector, 100);
+        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
+        body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
+        body->move(150);
 
-        body->leg_buf[leg_num][2] = 0;
-        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_vector);
-        pthread_mutex_lock(&body->leg_mut[leg_num]);
-        body->legs[leg_num].move(temp_vector, 100);
+        body->leg_buf[leg_num][2] = 0 - new_pose_buf[leg_num][2];
+        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
+        body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
+        body->move(150);
 
 
         if(leg_num > 1) {
@@ -494,26 +389,38 @@ void Body::recover() {
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     sit_down();
-    wait_real(999);
+    wait_real(1000);
 
-    clock_gettime(CLOCK_MONOTONIC, &time);
-    legs[LEFTBACK].move_d(90, 180, 0, 700);
-    legs[RIGHTBACK].move_d(90, 0, 180, 700);
-    legs[RIGHTFRONT].move_d(90, 0, 180, 700);
-    legs[LEFTFRONT].move_d(90, 180, 0, 700);
-    wait_real(999);
+    servo_buf[0] = 90, servo_buf[1]  =180, servo_buf[2]  =180;
+    servo_buf[3] = 90, servo_buf[4]  =  0, servo_buf[5]  =  0;
+    servo_buf[6] = 90, servo_buf[7]  =  0, servo_buf[8]  =  0;
+    servo_buf[9] = 90, servo_buf[10] =180, servo_buf[11] =180;
+    move(1000);
 
-    clock_gettime(CLOCK_MONOTONIC, &time);
-    legs[LEFTBACK].move_d(150, 180, 0, 700);
-    legs[LEFTFRONT].move_d(30, 180, 0, 700);
-    wait_real(999);
+    servo_buf[0] =150, servo_buf[1]  =180, servo_buf[2]  = 0;
+    servo_buf[9] = 30, servo_buf[10] =180, servo_buf[11] = 0;
+    move(1000);
 
-    clock_gettime(CLOCK_MONOTONIC, &time);
-    legs[LEFTBACK].move_d(30, 180, 0, 700);
-    legs[LEFTFRONT].move_d(150, 180, 0, 700);
-    wait_real(999);
+    servo_buf[0] = 30, servo_buf[1]  =180, servo_buf[2]  = 0;
+    servo_buf[9] =150, servo_buf[10] =180, servo_buf[11] = 0;
+    move(1000);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     sit_down();
-    wait_real(999);
+    wait_real(1000);
+}
+
+void Body::move(long dur) {
+    long dt_ms = dur / 15;
+    int dtheta[12];
+
+    for(int i = 0; i < 12; i++)
+        dtheta[i] = (servo_buf[i] - servos[i]->get_last_deg()) / 15;
+    
+    for(int i = 0; i < 15; i++) {
+        for(int j = 0; j < 12; j++)
+            servos[j]->set_degree_off(dtheta[i]);
+
+        wait_real(dt_ms);
+    }
 }

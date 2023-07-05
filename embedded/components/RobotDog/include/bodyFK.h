@@ -34,7 +34,6 @@ public:
         double x_mm, 
         double y_mm, 
         double z_mm,
-        double (&Tm)[4][4],
         double (&rb)[3],
         double (&rf)[3],
         double (&lb)[3],
@@ -48,7 +47,6 @@ public:
         double x_mm, 
         double y_mm, 
         double z_mm,
-        double (&Tm)[4][4],
         double (&rb)[3],
         double (&rf)[3],
         double (&lb)[3],
@@ -88,8 +86,8 @@ public:
 
 private:
     CalServo *servos[12];
-    Leg legs[4];
-    pthread_mutex_t leg_mut[4];
+    pthread_t servo_thread_id;
+    LegIK legs[4];
     double len_mm;
     double width_mm;
 
@@ -102,6 +100,9 @@ private:
 
     double leg_buf[4][3];
     double pose_buf[4][3];
+    int servo_buf[12];
+
+    void move(long dur);
 };
 
 
