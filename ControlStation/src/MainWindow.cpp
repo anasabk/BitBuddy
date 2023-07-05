@@ -96,11 +96,6 @@ MainWindow::~MainWindow()
     std::cout << "[MainWindow] Done." << std::endl;
 }
 
-void MainWindow::resizeEvent(QResizeEvent *event)
-{
-    setSizes();
-}
-
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     emit keyPressed(event);

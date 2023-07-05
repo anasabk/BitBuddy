@@ -44,7 +44,7 @@ signals:
     void keyReleased(QKeyEvent *event);
 
 protected:
-    void resizeEvent(QResizeEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override { setSizes(); };
 
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
