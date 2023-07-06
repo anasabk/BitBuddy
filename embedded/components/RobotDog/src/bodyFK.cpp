@@ -308,6 +308,7 @@ void* Body::move_thread(void *param) {
             pause_counter = 0;
 
         if(pause_counter >= 2){
+            printf("wait\n");
             wait_real(300);
             continue;
         }
