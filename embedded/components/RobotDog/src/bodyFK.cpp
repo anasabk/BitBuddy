@@ -407,7 +407,7 @@ void Body::move(long dur) {
     int servo_num;
     for(int i = 0; i < 15; i++) {
         for(servo_num = 0; servo_num < 12; servo_num++)
-            printf("servo %d, %d degrees\n", servos[servo_num]->getChannel(), dtheta[servo_num]);
+            printf("servo %d, %d %d degrees\n", servos[servo_num]->getChannel(), servo_buf[servo_num], dtheta[servo_num]);
         //     servos[servo_num]->set_degree_off(dtheta[servo_num]);
 
         wait_real(dt_ms);
