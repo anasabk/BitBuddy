@@ -302,7 +302,7 @@ void* Body::move_thread(void *param) {
     double temp_v[3];
     float prev[2];
     while(*run_flag) {
-        if(*speed < 0.0001 || *speed > -0.0001 || *rot_rad < 0.0001 || *rot_rad > -0.0001) {
+        if(*speed < 0.0001 && *speed > -0.0001 && *rot_rad < 0.0001 && *rot_rad > -0.0001) {
             if(pause_counter < 2) pause_counter++;
         } else
             pause_counter = 0;
