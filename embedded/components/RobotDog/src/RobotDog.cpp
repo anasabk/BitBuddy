@@ -160,7 +160,7 @@ void* RobotDog::control_thread(void* param) {
                     continue;
                 }
 
-                speed = buffer.y * 50;
+                speed = buffer.y * 60;
                 rot = -buffer.x * M_PI/12;
             }
 
