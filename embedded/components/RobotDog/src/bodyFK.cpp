@@ -105,7 +105,7 @@ void Body::get_pose(
         0, sin(roll), cos(roll), 0,
         0,         0,         0, 1
     ).finished(); 
-    std::cout << "Rx: " << Rx << std::endl;
+    // std::cout << "Rx: " << Rx << std::endl;
 
     Eigen::Matrix4d Ry = (Eigen::Matrix4d() << 
          cos(pitch), 0, sin(pitch), 0, 
@@ -113,7 +113,7 @@ void Body::get_pose(
         -sin(pitch), 0, cos(pitch), 0,
                   0, 0,          0, 1
     ).finished();
-    std::cout << "Ry: " << Ry << std::endl;
+    // std::cout << "Ry: " << Ry << std::endl;
 
     Eigen::Matrix4d Rz = (Eigen::Matrix4d() << 
         cos(yaw),-sin(yaw), 0, 0, 
@@ -121,10 +121,10 @@ void Body::get_pose(
                 0,       0, 1, 0,
                 0,       0, 0, 1
     ).finished();
-    std::cout << "Rz: " << Rz << std::endl;
+    // std::cout << "Rz: " << Rz << std::endl;
 
     Eigen::Matrix4d Rxyz = Rx * Ry * Rz;
-    std::cout << "Rxyz: " << Rxyz << std::endl;
+    // std::cout << "Rxyz: " << Rxyz << std::endl;
 
     Eigen::Matrix4d T = (Eigen::Matrix4d() << 
         0, 0, 0, x_mm,
@@ -132,10 +132,10 @@ void Body::get_pose(
         0, 0, 0, z_mm,
         0, 0, 0,    0
     ).finished();
-    std::cout << "T: " << Rxyz << std::endl;
+    // std::cout << "T: " << Rxyz << std::endl;
 
     T += Rxyz;
-    std::cout << "T * Rxyz: " << Rxyz << std::endl;
+    // std::cout << "T * Rxyz: " << Rxyz << std::endl;
 
 
     Eigen::Matrix4d temp = (Eigen::Matrix4d() << 
@@ -230,25 +230,25 @@ void Body::pose(
     last_y_mm   = y_mm;
     last_z_mm   = z_mm;
 
-    printf("leg buffer:\n");
-    printf("rb : %lf, %lf, %lf\n", leg_buf[RIGHTBACK][0], leg_buf[RIGHTBACK][1], leg_buf[RIGHTBACK][2]);
-    printf("rf : %lf, %lf, %lf\n", leg_buf[RIGHTFRONT][0], leg_buf[RIGHTFRONT][1], leg_buf[RIGHTFRONT][2]);
-    printf("lb : %lf, %lf, %lf\n", leg_buf[LEFTBACK][0], leg_buf[LEFTBACK][1], leg_buf[LEFTBACK][2]);
-    printf("lf : %lf, %lf, %lf\n", leg_buf[LEFTFRONT][0], leg_buf[LEFTFRONT][1], leg_buf[LEFTFRONT][2]);
+    // printf("leg buffer:\n");
+    // printf("rb : %lf, %lf, %lf\n", leg_buf[RIGHTBACK][0], leg_buf[RIGHTBACK][1], leg_buf[RIGHTBACK][2]);
+    // printf("rf : %lf, %lf, %lf\n", leg_buf[RIGHTFRONT][0], leg_buf[RIGHTFRONT][1], leg_buf[RIGHTFRONT][2]);
+    // printf("lb : %lf, %lf, %lf\n", leg_buf[LEFTBACK][0], leg_buf[LEFTBACK][1], leg_buf[LEFTBACK][2]);
+    // printf("lf : %lf, %lf, %lf\n", leg_buf[LEFTFRONT][0], leg_buf[LEFTFRONT][1], leg_buf[LEFTFRONT][2]);
 
-    printf("pose buffer:\n");
-    printf("rb : %lf, %lf, %lf\n", pose_buf[RIGHTBACK][0], pose_buf[RIGHTBACK][1], pose_buf[RIGHTBACK][2]);
-    printf("rf : %lf, %lf, %lf\n", pose_buf[RIGHTFRONT][0], pose_buf[RIGHTFRONT][1], pose_buf[RIGHTFRONT][2]);
-    printf("lb : %lf, %lf, %lf\n", pose_buf[LEFTBACK][0], pose_buf[LEFTBACK][1], pose_buf[LEFTBACK][2]);
-    printf("lf : %lf, %lf, %lf\n", pose_buf[LEFTFRONT][0], pose_buf[LEFTFRONT][1], pose_buf[LEFTFRONT][2]);
+    // printf("pose buffer:\n");
+    // printf("rb : %lf, %lf, %lf\n", pose_buf[RIGHTBACK][0], pose_buf[RIGHTBACK][1], pose_buf[RIGHTBACK][2]);
+    // printf("rf : %lf, %lf, %lf\n", pose_buf[RIGHTFRONT][0], pose_buf[RIGHTFRONT][1], pose_buf[RIGHTFRONT][2]);
+    // printf("lb : %lf, %lf, %lf\n", pose_buf[LEFTBACK][0], pose_buf[LEFTBACK][1], pose_buf[LEFTBACK][2]);
+    // printf("lf : %lf, %lf, %lf\n", pose_buf[LEFTFRONT][0], pose_buf[LEFTFRONT][1], pose_buf[LEFTFRONT][2]);
 
     printf("final buffer:\n");
     double temp_buf[3];
     for(int i = 0; i < 4; i++) {
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_buf);
-        printf("%d : %lf, %lf, %lf /", i, temp_buf[0], temp_buf[1], temp_buf[2]);
+        // printf("%d : %lf, %lf, %lf /", i, temp_buf[0], temp_buf[1], temp_buf[2]);
         legs[i].get_angles(temp_buf, &servo_buf[i*3]);
-        printf(" %f, %f, %f\n", servo_buf[i*3], servo_buf[i*3 + 1], servo_buf[i*3 + 2]);
+        // printf(" %f, %f, %f\n", servo_buf[i*3], servo_buf[i*3 + 1], servo_buf[i*3 + 2]);
     }
 
     move(150);
@@ -338,16 +338,16 @@ void* Body::move_thread(void *param) {
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         temp_v[2] = 50 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        body->move(150);
+        // body->move(150);
 
         temp_v[0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0] - body->pose_buf[leg_num][0];
         temp_v[1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1] - body->pose_buf[leg_num][1];
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        body->move(150);
+        // body->move(150);
 
         temp_v[2] = 0 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        body->move(150);
+        // body->move(150);
 
 
         if(leg_num > 1) {
@@ -408,7 +408,7 @@ void Body::move(long dur) {
     float dtheta[12];
     for(int i = 0; i < 12; i++) {
         dtheta[i] = (servo_buf[i] - servos[i]->get_last_rad()) / dt_ms;
-        printf("servo %d, %f %f degrees\n", servos[i]->getChannel(), servo_buf[i], dtheta[i]);
+        // printf("servo %d, %f %f degrees\n", servos[i]->getChannel(), servo_buf[i], dtheta[i]);
     }
 
     int servo_num;
