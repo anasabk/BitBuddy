@@ -100,7 +100,7 @@ private:
 
     double leg_buf[4][3];
     double pose_buf[4][3];
-    int servo_buf[12];
+    float servo_buf[12];
 
     void move(long dur);
 };

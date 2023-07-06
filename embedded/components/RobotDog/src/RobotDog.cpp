@@ -255,18 +255,18 @@ void RobotDog::run() {
                 if(buffer.state && !is_running) {
                     is_running = 1;
                     
-                    servos[0].set_degree(86);
-                    servos[1].set_degree(128);
-                    servos[2].set_degree(4);
-                    servos[3].set_degree(80);
-                    servos[4].set_degree(61);
-                    servos[5].set_degree(176);
-                    servos[6].set_degree(90);
-                    servos[7].set_degree(119);
-                    servos[8].set_degree(176);
-                    servos[9].set_degree(82);
-                    servos[10].set_degree(69);
-                    servos[11].set_degree(12);
+                    servos[0].set_rad(86*M_PI/180);
+                    servos[1].set_rad(128*M_PI/180);
+                    servos[2].set_rad(4*M_PI/180);
+                    servos[3].set_rad(80*M_PI/180);
+                    servos[4].set_rad(61*M_PI/180);
+                    servos[5].set_rad(176*M_PI/180);
+                    servos[6].set_rad(90*M_PI/180);
+                    servos[7].set_rad(119*M_PI/180);
+                    servos[8].set_rad(176*M_PI/180);
+                    servos[9].set_rad(82*M_PI/180);
+                    servos[10].set_rad(69*M_PI/180);
+                    servos[11].set_rad(12*M_PI/180);
 
                     sleep(2);
                     main_body.sit_down();

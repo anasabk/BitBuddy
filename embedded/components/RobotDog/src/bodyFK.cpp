@@ -246,7 +246,7 @@ void Body::pose(
     for(int i = 0; i < 4; i++) {
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_buf);
         printf("%d : %lf, %lf, %lf /", i, temp_buf[0], temp_buf[1], temp_buf[2]);
-        legs[i].get_degrees(temp_buf, &servo_buf[i*3]);
+        legs[i].get_angles(temp_buf, &servo_buf[i*3]);
         printf(" %d, %d, %d\n", servo_buf[i*3], servo_buf[i*3 + 1], servo_buf[i*3 + 2]);
     }
 
@@ -334,16 +334,16 @@ void* Body::move_thread(void *param) {
         // Position the leg
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         temp_v[2] = 50 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
-        body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
+        body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
         // body->move(150);
 
         temp_v[0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0] - body->pose_buf[leg_num][0];
         temp_v[1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1] - body->pose_buf[leg_num][1];
-        body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
+        body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
         // body->move(150);
 
         temp_v[2] = 0 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
-        body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
+        body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
         // body->move(150);
 
 
@@ -379,18 +379,18 @@ void Body::recover() {
     sit_down();
     wait_real(1000);
 
-    servo_buf[0] = 90, servo_buf[1]  =180, servo_buf[2]  =180;
-    servo_buf[3] = 90, servo_buf[4]  =  0, servo_buf[5]  =  0;
-    servo_buf[6] = 90, servo_buf[7]  =  0, servo_buf[8]  =  0;
-    servo_buf[9] = 90, servo_buf[10] =180, servo_buf[11] =180;
+    servo_buf[0] = M_PI/2, servo_buf[1]  = M_PI, servo_buf[2]  = M_PI;
+    servo_buf[3] = M_PI/2, servo_buf[4]  =    0, servo_buf[5]  =    0;
+    servo_buf[6] = M_PI/2, servo_buf[7]  =    0, servo_buf[8]  =    0;
+    servo_buf[9] = M_PI/2, servo_buf[10] = M_PI, servo_buf[11] = M_PI;
     move(1000);
 
-    servo_buf[0] =150, servo_buf[1]  =180, servo_buf[2]  = 0;
-    servo_buf[9] = 30, servo_buf[10] =180, servo_buf[11] = 0;
+    servo_buf[0] = 150*M_PI/180, servo_buf[1]  = M_PI, servo_buf[2]  = 0;
+    servo_buf[9] =       M_PI/6, servo_buf[10] = M_PI, servo_buf[11] = 0;
     move(1000);
 
-    servo_buf[0] = 30, servo_buf[1]  =180, servo_buf[2]  = 0;
-    servo_buf[9] =150, servo_buf[10] =180, servo_buf[11] = 0;
+    servo_buf[0] =       M_PI/6, servo_buf[1]  = M_PI, servo_buf[2]  = 0;
+    servo_buf[9] = 150*M_PI/180, servo_buf[10] = M_PI, servo_buf[11] = 0;
     move(1000);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
@@ -399,16 +399,17 @@ void Body::recover() {
 }
 
 void Body::move(long dur) {
-    int dtheta[12];
+    int dt_ms = sqrt(dur);
+    
+    float dtheta[12];
     for(int i = 0; i < 12; i++)
-        dtheta[i] = (servo_buf[i] - servos[i]->get_last_deg()) / 15;
+        dtheta[i] = (servo_buf[i] - servos[i]->get_last_rad()) / dt_ms;
 
-    long dt_ms = dur / 15;
     int servo_num;
-    for(int i = 0; i < 15; i++) {
+    for(int i = 0; i < dt_ms; i++) {
         for(servo_num = 0; servo_num < 12; servo_num++)
             printf("servo %d, %d %d degrees\n", servos[servo_num]->getChannel(), servo_buf[servo_num], dtheta[servo_num]);
-        //     servos[servo_num]->set_degree_off(dtheta[servo_num]);
+        //     servos[servo_num]->set_rad_off(dtheta[servo_num]);
 
         wait_real(dt_ms);
     }

@@ -20,14 +20,14 @@ public:
 
     ~LegIK();
 
-    void get_degrees(const double *dest, int *thetas);
-    void get_degrees(double x_mm, double y_mm, double z_mm, int *theta1, int *theta2, int *theta3);
+    void get_angles(const double *dest, float *thetas);
+    void get_angles(double x_mm, double y_mm, double z_mm, float *theta1, float *theta2, float *theta3);
 
     bool is_right();
     bool is_front();
 
 private:
-    int offsets[3];
+    float offsets[3];
     double hip_l, l1, l2;
 
     /**
