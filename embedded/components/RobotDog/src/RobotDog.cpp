@@ -310,6 +310,17 @@ void RobotDog::run() {
         close(fd);
     }
 
+    if(is_running) {
+        is_running = 0;
+        sleep(1);
+        pthread_join(mpu_thread_id, NULL);
+        pthread_join(hcsr04_thread_id, NULL);
+        pthread_join(control_thread_id, NULL);
+        pthread_join(telem_thread_id, NULL);
+        main_body.sit_down();
+        sleep(2);
+    }
+
     return;
 }
 
@@ -323,7 +334,7 @@ void* RobotDog::mpu6050_thread(void* args) {
         std::cerr << "sched_setscheduler error!" << std::endl;
         return NULL;
     }
-    
+
     // Get current time
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
