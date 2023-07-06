@@ -273,6 +273,7 @@ void Body::stand_up() {
 }
 
 void* Body::move_thread(void *param) {
+    printf("Entering movement thread\n");
     const float *rot_rad = ((Body::move_param*)param)->rot;
     const float *speed = ((Body::move_param*)param)->speed;
     const bool *run_flag = ((Body::move_param*)param)->run_flag;
@@ -370,6 +371,7 @@ void* Body::move_thread(void *param) {
         prev[1] = *rot_rad;
     }
 
+    printf("Exiting movement thread\n");
     pthread_exit(NULL);
 }
 
