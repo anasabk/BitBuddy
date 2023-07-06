@@ -402,13 +402,14 @@ void Body::move(long dur) {
     int dt_ms = sqrt(dur);
     
     float dtheta[12];
-    for(int i = 0; i < 12; i++)
+    for(int i = 0; i < 12; i++) {
         dtheta[i] = (servo_buf[i] - servos[i]->get_last_rad()) / dt_ms;
+        printf("servo %d, %f %f degrees\n", servos[i]->getChannel(), servo_buf[i], dtheta[i]);
+    }
 
     int servo_num;
     for(int i = 0; i < dt_ms; i++) {
-        for(servo_num = 0; servo_num < 12; servo_num++)
-            printf("servo %d, %f %f degrees\n", servos[servo_num]->getChannel(), servo_buf[servo_num], dtheta[servo_num]);
+        // for(servo_num = 0; servo_num < 12; servo_num++)
         //     servos[servo_num]->set_rad_off(dtheta[servo_num]);
 
         wait_real(dt_ms);
