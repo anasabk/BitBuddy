@@ -3,6 +3,7 @@
 #include <cmath>
 #include <eigen3/Eigen/Eigen>
 #include <iostream>
+#include <signal.h>
 
 
 Body::Body(
@@ -273,6 +274,8 @@ void Body::stand_up() {
 }
 
 void* Body::move_thread(void *param) {
+    sigignore(SIGINT);
+
     printf("Entering movement thread\n");
     const float *rot_rad = ((Body::move_param*)param)->rot;
     const float *speed = ((Body::move_param*)param)->speed;

@@ -40,6 +40,8 @@ RobotDog::~RobotDog() {
 }
 
 void* RobotDog::telem_thread(void *param) {
+    sigignore(SIGINT);
+
     printf("Entered telemetry thread\n");
     RobotDog *robot = (RobotDog*)param;
 
@@ -87,6 +89,8 @@ void sigint_handler(int sig) {
 }
 
 void* RobotDog::control_thread(void* param) {
+    sigignore(SIGINT);
+
     RobotDog *robot = (RobotDog*)param;
 
     struct sched_param sched;
@@ -234,8 +238,11 @@ void RobotDog::run() {
 
         is_connected = 1;
         while(is_connected) {
-            recv(fd, &buffer.symbol, sizeof(buffer.symbol), 0);
-            recv(fd, &buffer.state, sizeof(buffer.state), 0);
+            if(recv(fd, &buffer, 5, 0) < 0) {
+                is_connected = 0;
+                continue;
+            }
+
             printf("switch command: %d %d\n", buffer.symbol, buffer.state);
 
             switch (buffer.symbol) {
@@ -325,6 +332,8 @@ void RobotDog::run() {
 }
 
 void* RobotDog::mpu6050_thread(void* args) {
+    sigignore(SIGINT);
+
     printf("Entrering MPU6050 thread.\n");
     RobotDog *robot = (RobotDog*)args;
 
@@ -352,6 +361,7 @@ void* RobotDog::mpu6050_thread(void* args) {
 }
 
 void* RobotDog::HCSR04_thread(void* args) {
+    sigignore(SIGINT);
     printf("Entering HC-SR04 thread.\n");
     RobotDog *robot = (RobotDog*)args;
 
