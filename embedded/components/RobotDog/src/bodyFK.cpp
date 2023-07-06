@@ -247,7 +247,7 @@ void Body::pose(
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_buf);
         printf("%d : %lf, %lf, %lf /", i, temp_buf[0], temp_buf[1], temp_buf[2]);
         legs[i].get_angles(temp_buf, &servo_buf[i*3]);
-        printf(" %d, %d, %d\n", servo_buf[i*3], servo_buf[i*3 + 1], servo_buf[i*3 + 2]);
+        printf(" %f, %f, %f\n", servo_buf[i*3], servo_buf[i*3 + 1], servo_buf[i*3 + 2]);
     }
 
     move(150);
@@ -408,7 +408,7 @@ void Body::move(long dur) {
     int servo_num;
     for(int i = 0; i < dt_ms; i++) {
         for(servo_num = 0; servo_num < 12; servo_num++)
-            printf("servo %d, %d %d degrees\n", servos[servo_num]->getChannel(), servo_buf[servo_num], dtheta[servo_num]);
+            printf("servo %d, %f %f degrees\n", servos[servo_num]->getChannel(), servo_buf[servo_num], dtheta[servo_num]);
         //     servos[servo_num]->set_rad_off(dtheta[servo_num]);
 
         wait_real(dt_ms);
