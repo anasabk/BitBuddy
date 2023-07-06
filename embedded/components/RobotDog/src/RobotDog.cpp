@@ -140,6 +140,7 @@ void* RobotDog::control_thread(void* param) {
                 sleep(3);
             }
             printf("exitting auto mode\n");
+            wait_real(500);
 
         } else {
             printf("Entered manual mode\n");

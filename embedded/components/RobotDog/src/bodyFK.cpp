@@ -287,7 +287,7 @@ void* Body::move_thread(void *param) {
     const double r_leen_off = -35.0;
     const double f_leen_off =  15.0;
     const double b_leen_off = -15.0;
-    double drift_offset = 3;
+    double drift_offset = 0;
 
     double new_pose_buf[4][3];
 
@@ -297,15 +297,15 @@ void* Body::move_thread(void *param) {
     int leg_num = 0;
     int pause_counter = 0;
     double temp_v[3];
+    float prev[2];
     while(*run_flag) {
-        printf("%f %f %d\n", fabs(*speed), fabs(*rot_rad), pause_counter);
-        if((fabs(*speed) + fabs(*rot_rad)) < 0.0001) {
+        if(*speed < 0.0001 || *speed > -0.0001 || *rot_rad < 0.0001 || *rot_rad > -0.0001) {
             if(pause_counter < 2) pause_counter++;
         } else
             pause_counter = 0;
 
         if(pause_counter >= 2){
-            wait_real(100);
+            wait_real(300);
             continue;
         }
 
@@ -313,15 +313,17 @@ void* Body::move_thread(void *param) {
 
         if(leg_num == -1) leg_num = 0;
 
-        // Update the new pose of the legs
-        body->get_pose(
-            0, -*rot_rad, 0, 
-            -*speed, 0, 140,
-            new_pose_buf[RIGHTBACK], 
-            new_pose_buf[RIGHTFRONT], 
-            new_pose_buf[LEFTBACK], 
-            new_pose_buf[LEFTFRONT]
-        );
+        // Update the new pose of the legs, only when necessary
+        if(prev[0] != *speed || prev[1] != *rot_rad) {
+            body->get_pose(
+                0, -*rot_rad, 0, 
+                -*speed, 0, 140,
+                new_pose_buf[RIGHTBACK], 
+                new_pose_buf[RIGHTFRONT], 
+                new_pose_buf[LEFTBACK], 
+                new_pose_buf[LEFTFRONT]
+            );
+        }
 
 
         // Leen to the opposite side
@@ -329,29 +331,27 @@ void* Body::move_thread(void *param) {
 
 
         // Position the leg
-        body->leg_buf[leg_num][2] = 50 - new_pose_buf[leg_num][2];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
+        temp_v[2] = 50 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
         body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
         // body->move(150);
 
-        body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0];
-        body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
-        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
+        temp_v[0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0] - body->pose_buf[leg_num][0];
+        temp_v[1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1] - body->pose_buf[leg_num][1];
         body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
         // body->move(150);
 
-        body->leg_buf[leg_num][2] = 0 - new_pose_buf[leg_num][2];
-        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
+        temp_v[2] = 0 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
         body->legs[leg_num].get_degrees(temp_v, &body->servo_buf[leg_num*3]);
         // body->move(150);
 
 
         if(leg_num > 1) {
             // Go forward
-            body->leg_buf[LEFTBACK][0]   -= + drift_offset - new_pose_buf[LEFTBACK][0];
-            body->leg_buf[RIGHTBACK][0]  -= - drift_offset - new_pose_buf[RIGHTBACK][0];
-            body->leg_buf[RIGHTFRONT][0] -= - drift_offset - new_pose_buf[RIGHTFRONT][0];
-            body->leg_buf[LEFTFRONT][0]  -= + drift_offset - new_pose_buf[LEFTFRONT][0];
+            body->leg_buf[LEFTBACK][0]   += new_pose_buf[LEFTBACK][0] - drift_offset;
+            body->leg_buf[RIGHTBACK][0]  += new_pose_buf[RIGHTBACK][0] + drift_offset;
+            body->leg_buf[RIGHTFRONT][0] += new_pose_buf[RIGHTFRONT][0] + drift_offset;
+            body->leg_buf[LEFTFRONT][0]  += new_pose_buf[LEFTFRONT][0] - drift_offset;
             body->leg_buf[LEFTBACK][1]   += new_pose_buf[LEFTBACK][1];
             body->leg_buf[RIGHTBACK][1]  += new_pose_buf[RIGHTBACK][1];
             body->leg_buf[RIGHTFRONT][1] += new_pose_buf[RIGHTFRONT][1];
@@ -363,6 +363,9 @@ void* Body::move_thread(void *param) {
         } else {
             leg_num = -(leg_num - 3);
         }
+
+        prev[0] = *speed;
+        prev[1] = *rot_rad;
     }
 
     pthread_exit(NULL);
@@ -400,9 +403,11 @@ void Body::move(long dur) {
         dtheta[i] = (servo_buf[i] - servos[i]->get_last_deg()) / 15;
 
     long dt_ms = dur / 15;
+    int servo_num;
     for(int i = 0; i < 15; i++) {
-        // for(int j = 0; j < 12; j++)
-        //     servos[j]->set_degree_off(dtheta[i]);
+        for(servo_num = 0; servo_num < 12; servo_num++)
+            printf("servo %d, %d degrees\n", servos[servo_num]->getChannel(), dtheta[servo_num]);
+        //     servos[servo_num]->set_degree_off(dtheta[servo_num]);
 
         wait_real(dt_ms);
     }

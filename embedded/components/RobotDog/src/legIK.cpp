@@ -35,7 +35,8 @@ void LegIK::get_degrees(double x_mm, double y_mm, double z_mm, int *theta1, int 
     
     if (foot_to_shoulder_sq < (l1*l1 + l2*l2 - 2*l1*l2*cos(35/180*M_PI)) || 
         foot_to_shoulder_sq > pow(l1+l2, 2)) {
-        printf("Length of %lfmm from foot to shoulder is not possible, aborting ...\n", foot_to_shoulder_sq);
+        printf("%c%c: ", is_right() ? 'r' : 'l', is_front() ? 'f' : 'b');
+        printf("Length of %lfmm is not possible, aborting ...\n", foot_to_shoulder_sq);
         return;
     }
     
@@ -51,6 +52,7 @@ void LegIK::get_degrees(double x_mm, double y_mm, double z_mm, int *theta1, int 
     if (degrees[0] > 180 || degrees[0] < 0 ||
         degrees[1] > 180 || degrees[1] < 0 ||
         degrees[2] > 180 || degrees[2] < 0) {
+        printf("%c%c: ", is_right() ? 'r' : 'l', is_front() ? 'f' : 'b');
         printf("Out of reach, aborting ...\n");
     }
 
