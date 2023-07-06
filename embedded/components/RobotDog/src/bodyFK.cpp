@@ -245,8 +245,9 @@ void Body::pose(
     double temp_buf[3];
     for(int i = 0; i < 4; i++) {
         vector_sub<3>(leg_buf[i], pose_buf[i], temp_buf);
-        printf("%d : %lf, %lf, %lf\n", i, temp_buf[0], temp_buf[1], temp_buf[2]);
+        printf("%d : %lf, %lf, %lf /", i, temp_buf[0], temp_buf[1], temp_buf[2]);
         legs[i].get_degrees(temp_buf, &servo_buf[i*3]);
+        printf(" %d, %d, %d\n", servo_buf[i*3], servo_buf[i*3 + 1], servo_buf[i*3 + 2]);
     }
 
     move(150);
