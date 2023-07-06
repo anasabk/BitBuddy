@@ -6,11 +6,10 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-Camera::Camera(uint16_t port, bool convertToRGB, QWidget *parent) :
+Camera::Camera(std::string name, uint16_t port, QWidget *parent) :
     QLabel(parent),
-    port(port),
-    convertToRGB(convertToRGB),
-    aspectRatio(0.0f)
+    name(name),
+    port(port)
 {
     setScaledContents(true);
 
@@ -21,7 +20,7 @@ Camera::Camera(uint16_t port, bool convertToRGB, QWidget *parent) :
 
 Camera::~Camera()
 {
-    std::cout << "[Camera] Cleaning up..." << std::endl;
+    cout("Cleaning up...");
 
     isClientRunning.store(false);
     clientThread.join();
@@ -29,17 +28,17 @@ Camera::~Camera()
     if (sockFd != -1)
     {
         if (::close(sockFd) == -1)
-            perror("[Camera] close");
+            perror("close");
     }
 
-    std::cout << "[Camera] Done." << std::endl;
+    cout("Done.");
 }
 
 void Camera::runClient()
 {
     if ((sockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
-        perror("[Camera] socket");
+        perror("socket");
         return;
     }
 
@@ -50,13 +49,13 @@ void Camera::runClient()
 
     if (bind(sockFd, (struct sockaddr *)&clientAddress, sizeof(clientAddress)) == -1)
     {
-        perror("[Camera] bind");
+        perror("bind");
         return;
     }
 
     struct timeval optval = {0, 100000};
     if (setsockopt(sockFd, SOL_SOCKET, SO_RCVTIMEO, &optval, sizeof(optval)) == -1)
-        perror("[Camera] setsockopt");
+        perror("setsockopt");
 
     while (isClientRunning.load())
     {
@@ -66,7 +65,7 @@ void Camera::runClient()
         if (bytesReceived == -1)
         {
             if (errno != EAGAIN && errno != EWOULDBLOCK)
-                perror("[Camera] recvfrom");
+                perror("recvfrom");
 
             continue;
         }
@@ -75,12 +74,11 @@ void Camera::runClient()
         cv::Mat frame = cv::imdecode(rawData, cv::IMREAD_COLOR);
         if (frame.empty())
         {
-            std::cerr << "[Camera] Decoded frame is empty." << std::endl;
+            cerr("Decoded frame is empty.");
             continue;
         }
 
-        if (convertToRGB)
-            cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+        processFrame(frame);
 
         setPixmap(QPixmap::fromImage(QImage(frame.data, frame.cols, frame.rows, QImage::Format_RGB888)));
 

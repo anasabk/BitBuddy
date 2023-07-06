@@ -6,9 +6,8 @@ namespace constants
     constexpr int switchPort = 8080;
     constexpr int joystickPort = 8081;
     constexpr int desktopCamPort = 8082;
-    constexpr int uiCameraPort = 8083;
+    constexpr int cameraPort = 8083;
     constexpr int objDetPort = 8084;
-    constexpr int uiObjDetPort = 8085;
     constexpr int telemetryPort = 8086;
 
     constexpr int maxUdpBuffer = 65507;

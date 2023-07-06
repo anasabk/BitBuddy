@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "Camera.h"
+#include "ObjectDetection.h"
 #include "Joystick.h"
 #include "Switch.h"
 #include "DesktopCam.h"
@@ -17,8 +18,6 @@ class MainWindow : public QGroupBox
     Q_OBJECT
 
 public:
-    ~MainWindow();
-
     MainWindow(const MainWindow &) = delete;
     void operator=(const MainWindow &) = delete;
 
@@ -51,13 +50,10 @@ protected:
 
 private:
     Camera *camera;
-    Camera *objDet;
+    ObjectDetection *objDet;
     Joystick *joystick;
 
     DesktopCam desktopCam;
-
-    pid_t objDetPid;
-    void startObjDetProcess();
 
 private slots:
     void setSizes();

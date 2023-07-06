@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "Console.h"
 #include "TelemetryViewer.h"
+#include "constants.h"
 
 #include <QScrollBar>
 #include <QKeyEvent>
@@ -9,8 +10,6 @@
 
 void MainWindow::init()
 {
-    startObjDetProcess();
-
     QGroupBox *HBox1 = new QGroupBox(this);
     QGroupBox *HBox2 = new QGroupBox(this);
     QGroupBox *cameraVBox = new QGroupBox(HBox1);
@@ -28,10 +27,10 @@ void MainWindow::init()
     QVBoxLayout *switchesVBoxLayout = new QVBoxLayout(switchesVBox);
 
     QLabel *cameraLabel = new QLabel("Camera", cameraVBox);
-    camera = new Camera(8083, true, cameraVBox);
+    camera = new Camera("Camera", constants::cameraPort, cameraVBox);
 
     QLabel *objDetLabel = new QLabel("Object Detection", objDetVBox);
-    objDet = new Camera(8085, false, objDetVBox);
+    objDet = new ObjectDetection("Object Detection", constants::objDetPort, objDetVBox);
 
     connect(camera, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
     connect(objDet, &Camera::aspectRatioChanged, this, &MainWindow::setSizes);
@@ -81,21 +80,6 @@ void MainWindow::init()
     showMaximized();
 }
 
-MainWindow::~MainWindow()
-{
-    std::cout << "[MainWindow] Cleaning up..." << std::endl;
-
-    if (objDetPid != -1)
-    {
-        if (kill(objDetPid, SIGKILL) == -1)
-            perror("[MainWindow] kill");
-        if (wait(NULL) == -1)
-            perror("[MainWindow] wait");
-    }
-
-    std::cout << "[MainWindow] Done." << std::endl;
-}
-
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     emit keyPressed(event);
@@ -106,24 +90,6 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
     emit keyReleased(event);
     QGroupBox::keyReleaseEvent(event);
-}
-
-void MainWindow::startObjDetProcess()
-{
-    objDetPid = fork();
-
-    if (objDetPid == -1)
-    {
-        perror("[MainWindow] fork");
-        return;
-    }
-
-    if (objDetPid == 0)
-    {
-        execlp("python3", "python3", "yolo.py", (char*)NULL);
-        perror("[MainWindow] execlp");
-        _exit(127);
-    }
 }
 
 void MainWindow::setSizes()
