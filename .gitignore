@@ -1,3 +1,4 @@
 embedded/out/build/*
 build
 .vscode
+build-ControlStation-Desktop_Qt_6_5_1_GCC_64bit-Debug
