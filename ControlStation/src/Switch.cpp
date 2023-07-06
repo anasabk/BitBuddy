@@ -121,15 +121,14 @@ void Switch::toggle()
     {
         bool changedState = !state;
 
-        if (write(Switch::clientFd.load(), &type, sizeof(type)) == -1)
-        {
-            perror("[Switch] write 1");
-            return;
-        }
+        struct {
+            Type type;
+            bool state;
+        } buf = {type, changedState};
 
-        if (write(Switch::clientFd.load(), &changedState, sizeof(changedState)) == -1)
+        if (write(Switch::clientFd.load(), &buf, sizeof(buf)) == -1)
         {
-            perror("[Switch] write 2");
+            perror("[Switch] write");
             return;
         }
 
