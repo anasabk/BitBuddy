@@ -274,7 +274,11 @@ void Body::stand_up() {
 }
 
 void* Body::move_thread(void *param) {
-    sigignore(SIGINT);
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     printf("Entering movement thread\n");
     const float *rot_rad = ((Body::move_param*)param)->rot;
@@ -334,7 +338,7 @@ void* Body::move_thread(void *param) {
 
 
         // Leen to the opposite side
-        body->pose(0, 0, 0, body->legs[leg_num].is_front() ? f_leen_off : b_leen_off, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
+        body->pose(0, 0, 0, body->legs[leg_num].is_front() ? b_leen_off : f_leen_off, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
 
 
         // Position the leg

@@ -40,7 +40,11 @@ RobotDog::~RobotDog() {
 }
 
 void* RobotDog::telem_thread(void *param) {
-    sigignore(SIGINT);
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     printf("Entered telemetry thread\n");
     RobotDog *robot = (RobotDog*)param;
@@ -89,7 +93,11 @@ void sigint_handler(int sig) {
 }
 
 void* RobotDog::control_thread(void* param) {
-    sigignore(SIGINT);
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     RobotDog *robot = (RobotDog*)param;
 
@@ -165,7 +173,7 @@ void* RobotDog::control_thread(void* param) {
                 }
 
                 speed = buffer.y * 60;
-                rot = -buffer.x * M_PI/12;
+                rot = -buffer.x * M_PI/8;
             }
 
             move_flag = false;
@@ -184,6 +192,19 @@ void RobotDog::run() {
     lcd.printf("Hello world");
     lcd.setPosition(0, 1);
     lcd.printf("I am dug");
+
+    servos[0].set_rad(86*M_PI/180);
+    servos[1].set_rad(128*M_PI/180);
+    servos[2].set_rad(4*M_PI/180);
+    servos[3].set_rad(80*M_PI/180);
+    servos[4].set_rad(61*M_PI/180);
+    servos[5].set_rad(176*M_PI/180);
+    servos[6].set_rad(90*M_PI/180);
+    servos[7].set_rad(119*M_PI/180);
+    servos[8].set_rad(176*M_PI/180);
+    servos[9].set_rad(82*M_PI/180);
+    servos[10].set_rad(69*M_PI/180);
+    servos[11].set_rad(12*M_PI/180);
 
     pthread_t telem_thread_id;
 
@@ -259,19 +280,6 @@ void RobotDog::run() {
             case ONOFF:
                 if(buffer.state && !is_running) {
                     is_running = 1;
-                    
-                    servos[0].set_rad(86*M_PI/180);
-                    servos[1].set_rad(128*M_PI/180);
-                    servos[2].set_rad(4*M_PI/180);
-                    servos[3].set_rad(80*M_PI/180);
-                    servos[4].set_rad(61*M_PI/180);
-                    servos[5].set_rad(176*M_PI/180);
-                    servos[6].set_rad(90*M_PI/180);
-                    servos[7].set_rad(119*M_PI/180);
-                    servos[8].set_rad(176*M_PI/180);
-                    servos[9].set_rad(82*M_PI/180);
-                    servos[10].set_rad(69*M_PI/180);
-                    servos[11].set_rad(12*M_PI/180);
 
                     sleep(2);
                     main_body.sit_down();
@@ -328,7 +336,11 @@ void RobotDog::run() {
 }
 
 void* RobotDog::mpu6050_thread(void* args) {
-    sigignore(SIGINT);
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     printf("Entrering MPU6050 thread.\n");
     RobotDog *robot = (RobotDog*)args;
@@ -357,7 +369,12 @@ void* RobotDog::mpu6050_thread(void* args) {
 }
 
 void* RobotDog::HCSR04_thread(void* args) {
-    sigignore(SIGINT);
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
+
     printf("Entering HC-SR04 thread.\n");
     RobotDog *robot = (RobotDog*)args;
 
