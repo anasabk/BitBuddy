@@ -14,7 +14,8 @@ Body::Body(
         LegIK(-10,-3,-7, 55, 110, 130,  true, false),
         LegIK(  0,-2,-3, 55, 110, 130,  true, true),
         LegIK(  8, 6, 5, 55, 110, 130, false, true),
-    }
+    },
+    servo_buf {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 {
     for (int i = 0; i < 12; i++)
         this->servos[i] = &servos[i];
