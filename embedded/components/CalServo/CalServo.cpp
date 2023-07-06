@@ -75,6 +75,7 @@ void CalServo::set_PWM(int pwm_us) {
 
 void CalServo::set_rad(float rad) {
     int pwm_us = fitter_a + fitter_b * rad;
+    printf("servo %d %dus\n", pwm_us);
     controller->set_pwm_us(channel, pwm_us);
     last_rad = rad;
 }
