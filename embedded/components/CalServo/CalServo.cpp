@@ -65,8 +65,6 @@ void CalServo::refresh_fitter(const int* pwm_list, const int* deg_list, int data
         fitter_a = (float) ((sumY * sumXSquare - sumX * sumXY) / (data_len * sumXSquare - sumX * sumX));
         fitter_b = (float) ((data_len * sumXY - sumX * sumY) / (data_len * sumXSquare - sumX * sumX));
     }
-
-    printf("fitted: a=%lf, b=%lf\n", fitter_a, fitter_b);
 }
 
 void CalServo::set_PWM(int pwm_us) {
@@ -75,7 +73,6 @@ void CalServo::set_PWM(int pwm_us) {
 
 void CalServo::set_rad(float rad) {
     int pwm_us = fitter_a + fitter_b * rad;
-    printf("servo %d %dus\n", channel, pwm_us);
     controller->set_pwm_us(channel, pwm_us);
     last_rad = rad;
 }
