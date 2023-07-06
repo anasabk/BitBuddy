@@ -200,6 +200,8 @@ void RobotDog::run() {
     addr.sin_port = htons(8080);
     addr.sin_addr.s_addr = inet_addr("192.168.43.165");
 
+    mpu6050.calibrate();
+
     int fd = -1;
     struct {
         symb symbol = UNKNOWN;
@@ -321,9 +323,7 @@ void* RobotDog::mpu6050_thread(void* args) {
         std::cerr << "sched_setscheduler error!" << std::endl;
         return NULL;
     }
-
-    robot->mpu6050.calibrate();
-
+    
     // Get current time
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
