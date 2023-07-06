@@ -157,7 +157,7 @@ bool Switch::eventFilter(QObject *object, QEvent *event)
             setCursor(Qt::PointingHandCursor);
         else if (event->type() == QEvent::HoverLeave)
             setCursor(Qt::ArrowCursor);
-        else if (event->type() == QEvent::MouseButtonRelease &&  isEnabled())
+        else if (event->type() == QEvent::MouseButtonRelease && isEnabled())
             toggle();
     }
 
