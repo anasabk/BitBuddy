@@ -335,31 +335,31 @@ void* Body::move_thread(void *param) {
 
 
         // Position the leg
-        vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
-        temp_v[2] = 50 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
-        body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        // body->move(150);
+        // vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
+        // temp_v[2] = 50 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
+        // body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
+        // // body->move(150);
 
-        temp_v[0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0] - body->pose_buf[leg_num][0];
-        temp_v[1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1] - body->pose_buf[leg_num][1];
-        body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        // body->move(150);
+        // temp_v[0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0] - body->pose_buf[leg_num][0];
+        // temp_v[1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1] - body->pose_buf[leg_num][1];
+        // body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
+        // // body->move(150);
 
-        temp_v[2] = 0 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
-        body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        // body->move(150);
+        // temp_v[2] = 0 - new_pose_buf[leg_num][2] - body->pose_buf[leg_num][2];
+        // body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
+        // // body->move(150);
 
 
         if(leg_num > 1) {
             // Go forward
-            body->leg_buf[LEFTBACK][0]   += new_pose_buf[LEFTBACK][0] - drift_offset;
-            body->leg_buf[RIGHTBACK][0]  += new_pose_buf[RIGHTBACK][0] + drift_offset;
-            body->leg_buf[RIGHTFRONT][0] += new_pose_buf[RIGHTFRONT][0] + drift_offset;
-            body->leg_buf[LEFTFRONT][0]  += new_pose_buf[LEFTFRONT][0] - drift_offset;
-            body->leg_buf[LEFTBACK][1]   += new_pose_buf[LEFTBACK][1];
-            body->leg_buf[RIGHTBACK][1]  += new_pose_buf[RIGHTBACK][1];
-            body->leg_buf[RIGHTFRONT][1] += new_pose_buf[RIGHTFRONT][1];
-            body->leg_buf[LEFTFRONT][1]  += new_pose_buf[LEFTFRONT][1];
+            // body->leg_buf[LEFTBACK][0]   += new_pose_buf[LEFTBACK][0] - drift_offset;
+            // body->leg_buf[RIGHTBACK][0]  += new_pose_buf[RIGHTBACK][0] + drift_offset;
+            // body->leg_buf[RIGHTFRONT][0] += new_pose_buf[RIGHTFRONT][0] + drift_offset;
+            // body->leg_buf[LEFTFRONT][0]  += new_pose_buf[LEFTFRONT][0] - drift_offset;
+            // body->leg_buf[LEFTBACK][1]   += new_pose_buf[LEFTBACK][1];
+            // body->leg_buf[RIGHTBACK][1]  += new_pose_buf[RIGHTBACK][1];
+            // body->leg_buf[RIGHTFRONT][1] += new_pose_buf[RIGHTFRONT][1];
+            // body->leg_buf[LEFTFRONT][1]  += new_pose_buf[LEFTFRONT][1];
 
             // Go to the next leg pair
             leg_num -= 2;
