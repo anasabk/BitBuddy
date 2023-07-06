@@ -238,11 +238,7 @@ void RobotDog::run() {
 
         is_connected = 1;
         while(is_connected) {
-            if(recv(fd, &buffer, 5, 0) < 0) {
-                is_connected = 0;
-                continue;
-            }
-
+            recv(fd, &buffer, sizeof(buffer.symbol) + sizeof(buffer.state), 0);
             printf("switch command: %d %d\n", buffer.symbol, buffer.state);
 
             switch (buffer.symbol) {
