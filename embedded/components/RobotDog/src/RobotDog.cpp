@@ -43,6 +43,13 @@ void* RobotDog::telem_thread(void *param) {
     printf("Entered telemetry thread\n");
     RobotDog *robot = (RobotDog*)param;
 
+	struct sched_param sched;
+    sched.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &sched) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return NULL;
+    }
+
     // Telemetry socket
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -81,6 +88,13 @@ void sigint_handler(int sig) {
 
 void* RobotDog::control_thread(void* param) {
     RobotDog *robot = (RobotDog*)param;
+
+    struct sched_param sched;
+    sched.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &sched) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return NULL;
+    }
 
     // Joystick socket
     struct sockaddr_in addr;

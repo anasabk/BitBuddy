@@ -276,6 +276,13 @@ void* Body::move_thread(void *param) {
     const bool *run_flag = ((Body::move_param*)param)->run_flag;
     Body* body = ((Body::move_param*)param)->body;
 
+    struct sched_param sched;
+    sched.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &sched) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return NULL;
+    }
+
     const double l_leen_off =  35.0;
     const double r_leen_off = -35.0;
     const double f_leen_off =  15.0;
