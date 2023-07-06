@@ -10,10 +10,10 @@ Body::Body(
     double len_mm, 
     double width_mm) 
     : legs {
-        LegIK(  4,-5, 1, 55, 110, 130, false, false),
-        LegIK(-10,-3,-7, 55, 110, 130,  true, false),
-        LegIK(  0,-2,-3, 55, 110, 130,  true, true),
-        LegIK(  8, 6, 5, 55, 110, 130, false, true),
+        LegIK(  4*M_PI/180,-5*M_PI/180, 1*M_PI/180, 55, 110, 130, false, false),
+        LegIK(-10*M_PI/180,-3*M_PI/180,-7*M_PI/180, 55, 110, 130,  true, false),
+        LegIK(  0*M_PI/180,-2*M_PI/180,-3*M_PI/180, 55, 110, 130,  true, true),
+        LegIK(  8*M_PI/180, 6*M_PI/180, 5*M_PI/180, 55, 110, 130, false, true),
     },
     servo_buf {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 {
