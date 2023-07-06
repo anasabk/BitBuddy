@@ -410,8 +410,8 @@ void Body::move(long dur) {
 
     int servo_num;
     for(int i = 0; i < dt_ms; i++) {
-        // for(servo_num = 0; servo_num < 12; servo_num++)
-        //     servos[servo_num]->set_rad_off(dtheta[servo_num]);
+        for(servo_num = 0; servo_num < 12; servo_num++)
+            servos[servo_num]->set_rad_off(dtheta[servo_num]);
 
         wait_real(dt_ms);
     }
