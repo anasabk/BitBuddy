@@ -338,18 +338,18 @@ void* Body::move_thread(void *param) {
         body->leg_buf[leg_num][2] = 50;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        // body->move(150);
+        body->move(150);
 
         body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0];
         body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        // body->move(150);
+        body->move(150);
 
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        // body->move(150);
+        body->move(150);
 
 
         if(leg_num > 1) {
