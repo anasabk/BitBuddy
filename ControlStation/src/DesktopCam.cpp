@@ -39,6 +39,13 @@ void DesktopCam::runServer()
         cv::Mat frame;
         cap.read(frame);
 
+        if (frame.empty())
+        {
+            std::cout << "[DesktopCam] Frame is empty." << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            continue;
+        }
+
         std::vector<uchar> buffer;
         cv::imencode(".jpg", frame, buffer, {cv::IMWRITE_JPEG_QUALITY, 50});
 
