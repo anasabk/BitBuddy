@@ -12,8 +12,7 @@ public:
     ~DesktopCam();
 
 private:
-    int receiverSockFd = -1;  // Socket to receive the video stream from the robot.
-    int senderSockFd = -1;    // Socket to distribute the video stream to local ports.
+    int sockFd = -1;  // Socket to distribute the video stream to local ports.
     std::thread serverThread;
     std::atomic<bool> isServerRunning = true;
     void runServer();

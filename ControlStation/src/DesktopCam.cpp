@@ -15,15 +15,9 @@ DesktopCam::~DesktopCam()
     isServerRunning.store(false);
     serverThread.join();
 
-    if (receiverSockFd != -1)
+    if (sockFd != -1)
     {
-        if (::close(receiverSockFd) == -1)
-            perror("[DesktopCam] close 1");
-    }
-
-    if (senderSockFd != -1)
-    {
-        if (::close(senderSockFd) == -1)
+        if (::close(sockFd) == -1)
             perror("[DesktopCam] close 2");
     }
 
@@ -32,49 +26,25 @@ DesktopCam::~DesktopCam()
 
 void DesktopCam::runServer()
 {
-    if ((receiverSockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-    {
-        perror("[DesktopCam] receiver socket");
-        return;
-    }
+    cv::VideoCapture cap("udp://@:" + std::to_string(constants::desktopCamPort));
 
-    if ((senderSockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    if ((sockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
         perror("[DesktopCam] sender socket");
         return;
     }
 
-    struct sockaddr_in desktopAddress{};
-    desktopAddress.sin_family = AF_INET;
-    desktopAddress.sin_addr.s_addr = INADDR_ANY;
-    desktopAddress.sin_port = htons(constants::desktopCamPort);
-
-    if (bind(receiverSockFd, (struct sockaddr *)&desktopAddress, sizeof(desktopAddress)) == -1)
-    {
-        perror("[DesktopCam] bind");
-        return ;
-    }
-
-    struct timeval optval = {0, 100000};
-    if (setsockopt(receiverSockFd, SOL_SOCKET, SO_RCVTIMEO, &optval, sizeof(optval)) == -1)
-        perror("[DesktopCam] setsockopt");
-
     while (isServerRunning.load())
     {
-        uchar buffer[constants::maxUdpBuffer];
+        cv::Mat frame;
+        cap.read(frame);
 
-        ssize_t bytesReceived = recvfrom(receiverSockFd, buffer, constants::maxUdpBuffer, 0, NULL, NULL);
-        if (bytesReceived == -1)
-        {
-            if (errno != EAGAIN && errno != EWOULDBLOCK)
-                perror("[DesktopCam] recvfrom");
-
-            continue;
-        }
+        std::vector<uchar> buffer;
+        cv::imencode(".jpg", frame, buffer, {cv::IMWRITE_JPEG_QUALITY, 50});
 
         for (sockaddr_in &address : getClientAddresses())
         {
-            if (sendto(senderSockFd, buffer, bytesReceived, 0, (struct sockaddr *)&address, sizeof(address)) == -1)
+            if (sendto(sockFd, buffer.data(), buffer.size(), 0, (struct sockaddr *)&address, sizeof(address)) == -1)
                 perror("[DesktopCam] sendto");
         }
     }
