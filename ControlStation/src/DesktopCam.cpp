@@ -28,6 +28,12 @@ void DesktopCam::runServer()
 {
     cv::VideoCapture cap("udp://@:" + std::to_string(constants::desktopCamPort));
 
+    if (!cap.isOpened())
+    {
+        std::cerr << "[DesktopCam] Camera not opened." << std::endl;
+        return;
+    }
+
     if ((sockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
         perror("[DesktopCam] socket");
@@ -41,8 +47,8 @@ void DesktopCam::runServer()
 
         if (frame.empty())
         {
-            std::cout << "[DesktopCam] Frame is empty." << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::cerr << "[DesktopCam] Frame is empty." << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
 
