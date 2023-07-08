@@ -46,6 +46,8 @@ void DesktopCam::runServer()
             continue;
         }
 
+        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+
         std::vector<uchar> buffer;
         cv::imencode(".jpg", frame, buffer, {cv::IMWRITE_JPEG_QUALITY, 50});
 

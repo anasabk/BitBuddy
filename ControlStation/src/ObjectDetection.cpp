@@ -126,8 +126,6 @@ void ObjectDetection::processFrame(cv::Mat &frame)
 
     auto detections = detect(frame, net, classNames);
 
-    cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-
     frameCount++;
 
     for (int i = 0; i < detections.size(); ++i)

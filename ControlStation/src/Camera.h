@@ -26,7 +26,7 @@ private:
     uint16_t port;             // Port that will receive the video stream from DesktopCam.
     float aspectRatio = 0.0f;  // Aspect ratio of the received video stream. Used for adjusting the camera size on the UI.
 
-    virtual void processFrame(cv::Mat &frame) { cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB); }
+    virtual void processFrame(cv::Mat &frame) {}
 
     int sockFd = -1;
     std::thread clientThread;
