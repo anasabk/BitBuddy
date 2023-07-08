@@ -75,30 +75,16 @@ private:
         while(isRunning.load())
         {
             ssize_t bytesRead;
-            Switch::Type type;
-            bool state;
 
-            while ((bytesRead = read(sockFd, &type, sizeof(type))) == -1)
+            struct {
+                Switch::Type type;
+                bool state;
+            } buf;
+
+            while ((bytesRead = read(sockFd, &buf, sizeof(buf))) == -1)
             {
                 if (errno != EAGAIN && errno != EWOULDBLOCK)
-                    perror("[RaspSwitch] read 1");
-                else
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-                if (!isRunning.load())
-                    return;
-            }
-
-            if (bytesRead == 0)
-            {
-                std::cerr << "[RaspSwitch] Connection closed." << std::endl;
-                return;
-            }
-
-            while ((bytesRead = read(sockFd, &state, sizeof(state))) == -1)
-            {
-                if (errno != EAGAIN && errno != EWOULDBLOCK)
-                    perror("[RaspSwitch] read 2");
+                    perror("[RaspSwitch] read");
                 else
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -113,8 +99,8 @@ private:
             }
 
             std::cout << "[RaspSwitch] Received changed state: "
-                      << Switch::texts[(int)type][0].toStdString() << " "
-                      << Switch::texts[(int)type][1 + state].toStdString() << std::endl;
+                      << Switch::texts[(int)buf.type][0].toStdString() << " "
+                      << Switch::texts[(int)buf.type][1 + buf.state].toStdString() << std::endl;
         }
     }
 };
