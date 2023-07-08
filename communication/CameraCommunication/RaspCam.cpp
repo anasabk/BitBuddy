@@ -7,15 +7,12 @@
 #define TARGET_FPS 30.0
 
 int main() {
-    cv::VideoCapture cap(0);
+    cv::VideoCapture cap(0, cv::CAP_V4L2);
 
     if (!cap.isOpened()) {
         std::cerr << "[RaspCam] Camera not opened." << std::endl;
         return -1;
     }
-
-    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
 
     int sockFd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockFd == -1) {
