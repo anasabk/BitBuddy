@@ -30,7 +30,7 @@ void DesktopCam::runServer()
 
     if ((sockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
-        perror("[DesktopCam] sender socket");
+        perror("[DesktopCam] socket");
         return;
     }
 
