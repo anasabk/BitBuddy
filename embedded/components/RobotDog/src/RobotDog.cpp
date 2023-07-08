@@ -60,7 +60,7 @@ void* RobotDog::telem_thread(void *param) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8086);
-    addr.sin_addr.s_addr = inet_addr("192.168.43.165");
+    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(fd < 0)  {
@@ -112,7 +112,7 @@ void* RobotDog::control_thread(void* param) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8081);
-    addr.sin_addr.s_addr = inet_addr("192.168.43.165");
+    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
 
     robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(robot->js_server_fd < 0)  {
@@ -223,7 +223,7 @@ void RobotDog::run() {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8080);
-    addr.sin_addr.s_addr = inet_addr("192.168.43.165");
+    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
 
     mpu6050.calibrate();
 
