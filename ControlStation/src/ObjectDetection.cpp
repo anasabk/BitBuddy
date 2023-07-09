@@ -5,7 +5,7 @@
 std::vector<std::string> ObjectDetection::loadClassNames()
 {
     std::vector<std::string> classNames;
-    std::ifstream ifs("config_files/classes.txt");
+    std::ifstream ifs("yolo_config/classes.txt");
     std::string line;
 
     while (getline(ifs, line))
@@ -16,7 +16,7 @@ std::vector<std::string> ObjectDetection::loadClassNames()
 
 cv::dnn::Net ObjectDetection::loadNet(bool useCuda)
 {
-    auto net = cv::dnn::readNet("config_files/bestv2.onnx");
+    auto net = cv::dnn::readNet("yolo_config/bestv2.onnx");
 
     if (useCuda)
     {
