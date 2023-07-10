@@ -326,8 +326,7 @@ void* Body::move_thread(void *param) {
 
         // Update the new pose of the legs, only when necessary
         printf("old %f %f\nnew %f %f\n", prev[0], prev[1], *speed, *rot_rad);
-        if ((prev[0] < *speed + 0.0001F && prev[0] > *speed - 0.0001F) || 
-            (prev[1] < *rot_rad + 0.0001F && prev[1] > *rot_rad - 0.0001F)) 
+        if ((prev[0] != *speed) || (prev[1] != *rot_rad)) 
         {
             printf("updating\n");
             body->get_pose(
@@ -338,6 +337,9 @@ void* Body::move_thread(void *param) {
                 new_pose_buf[LEFTBACK], 
                 new_pose_buf[LEFTFRONT]
             );
+
+            prev[0] = *speed;
+            prev[1] = *rot_rad;
         }
 
 
@@ -380,9 +382,6 @@ void* Body::move_thread(void *param) {
         } else {
             leg_num = -(leg_num - 3);
         }
-
-        prev[0] = *speed;
-        prev[1] = *rot_rad;
     }
 
     printf("Exiting movement thread\n");
