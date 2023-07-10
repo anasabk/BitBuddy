@@ -309,7 +309,7 @@ void* Body::move_thread(void *param) {
     double temp_v[3];
     float prev[2];
     while(*run_flag) {
-        if(*speed < 0.0001 && *speed > -0.0001 && *rot_rad < 0.0001 && *rot_rad > -0.0001) {
+        if(*speed < 0.0001F && *speed > -0.0001F && *rot_rad < 0.0001F && *rot_rad > -0.0001F) {
             if(pause_counter < 2) pause_counter++;
         } else
             pause_counter = 0;
@@ -320,12 +320,16 @@ void* Body::move_thread(void *param) {
             continue;
         }
 
-        printf("Performing\n");
+        printf("Performing");
 
         if(leg_num == -1) leg_num = 0;
 
         // Update the new pose of the legs, only when necessary
-        if(prev[0] != *speed || prev[1] != *rot_rad) {
+        printf("old %f %f\nnew %f %f\n", prev[0], prev[1], *speed, *rot_rad);
+        if ((prev[0] < *speed + 0.0001F && prev[0] > *speed - 0.0001F) || 
+            (prev[1] < *rot_rad + 0.0001F && prev[1] > *rot_rad - 0.0001F)) 
+        {
+            printf("updating\n");
             body->get_pose(
                 0, -*rot_rad, 0, 
                 -*speed, 0, 140,
