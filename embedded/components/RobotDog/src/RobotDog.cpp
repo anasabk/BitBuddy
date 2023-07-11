@@ -40,12 +40,6 @@ RobotDog::~RobotDog() {
 }
 
 void* RobotDog::telem_thread(void *param) {
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGINT);
-    sigaddset(&set, SIGPIPE);
-    pthread_sigmask(SIG_BLOCK, &set, NULL);
-
     printf("Entered telemetry thread\n");
     RobotDog *robot = (RobotDog*)param;
 
@@ -60,7 +54,7 @@ void* RobotDog::telem_thread(void *param) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8086);
-    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
+    addr.sin_addr.s_addr = inet_addr("192.168.1.102");
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(fd < 0)  {
@@ -93,12 +87,6 @@ void sigint_handler(int sig) {
 }
 
 void* RobotDog::control_thread(void* param) {
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGINT);
-    sigaddset(&set, SIGPIPE);
-    pthread_sigmask(SIG_BLOCK, &set, NULL);
-
     RobotDog *robot = (RobotDog*)param;
 
     struct sched_param sched;
@@ -112,7 +100,7 @@ void* RobotDog::control_thread(void* param) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8081);
-    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
+    addr.sin_addr.s_addr = inet_addr("192.168.1.102");
 
     robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(robot->js_server_fd < 0)  {
@@ -223,9 +211,14 @@ void RobotDog::run() {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8080);
-    addr.sin_addr.s_addr = inet_addr("192.168.43.174");
+    addr.sin_addr.s_addr = inet_addr("192.168.1.102");
 
     mpu6050.calibrate();
+
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGPIPE);
 
     int fd = -1;
     struct {
@@ -285,20 +278,17 @@ void RobotDog::run() {
                     main_body.sit_down();
                     sleep(3);
 
+                    pthread_sigmask(SIG_BLOCK, &set, NULL);
+
                     pthread_create(&mpu_thread_id, NULL, mpu6050_thread, (void*)this);
                     pthread_create(&hcsr04_thread_id, NULL, HCSR04_thread, (void*)this);
                     pthread_create(&control_thread_id, NULL, control_thread, (void*)this);
                     pthread_create(&telem_thread_id, NULL, telem_thread, (void*)this);
 
+                    pthread_sigmask(SIG_UNBLOCK, &set, NULL);
+
                 } else if(!buffer.state && is_running) {
-                    is_running = 0;
-                    sleep(1);
-                    pthread_join(mpu_thread_id, NULL);
-                    pthread_join(hcsr04_thread_id, NULL);
-                    pthread_join(control_thread_id, NULL);
-                    pthread_join(telem_thread_id, NULL);
-                    main_body.sit_down();
-                    sleep(2);
+                    is_connected = false;
                 }
                 break;
 
@@ -321,6 +311,8 @@ void RobotDog::run() {
         close(fd);
     }
 
+    printf("Exiting\n");
+
     if(is_running) {
         is_running = 0;
         sleep(1);
@@ -328,20 +320,16 @@ void RobotDog::run() {
         pthread_join(hcsr04_thread_id, NULL);
         pthread_join(control_thread_id, NULL);
         pthread_join(telem_thread_id, NULL);
-        main_body.sit_down();
         sleep(2);
     }
+
+    main_body.sit_down();
+    pca.set_all_pwm(0);
 
     return;
 }
 
 void* RobotDog::mpu6050_thread(void* args) {
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGINT);
-    sigaddset(&set, SIGPIPE);
-    pthread_sigmask(SIG_BLOCK, &set, NULL);
-
     printf("Entrering MPU6050 thread.\n");
     RobotDog *robot = (RobotDog*)args;
 
@@ -369,12 +357,6 @@ void* RobotDog::mpu6050_thread(void* args) {
 }
 
 void* RobotDog::HCSR04_thread(void* args) {
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGINT);
-    sigaddset(&set, SIGPIPE);
-    pthread_sigmask(SIG_BLOCK, &set, NULL);
-
     printf("Entering HC-SR04 thread.\n");
     RobotDog *robot = (RobotDog*)args;
 
