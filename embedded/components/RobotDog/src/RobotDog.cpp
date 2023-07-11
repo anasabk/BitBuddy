@@ -324,7 +324,6 @@ void RobotDog::run() {
     }
 
     main_body.sit_down();
-    pca.set_all_pwm(0);
 
     return;
 }
