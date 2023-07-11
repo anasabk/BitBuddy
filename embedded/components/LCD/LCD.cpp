@@ -1,5 +1,4 @@
 #include "LCD.h"
-// #include "pigpio.h"
 
 
 #define LCD_CMD_CLEAR          0x01
