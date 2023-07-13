@@ -377,7 +377,7 @@ void RobotDog::run() {
                     pthread_create(&telem_thread_id, NULL, telem_thread, (void*)this);
 
                     if((video_streamer = fork()) == 0){
-                        execv("/bin/sh", vid_args);
+                        execv(".", vid_args);
                         perror("Could not fork the video streamer");
                         exit(0);
                     }
