@@ -376,8 +376,11 @@ void RobotDog::run() {
                     pthread_create(&control_thread_id, NULL, control_thread, (void*)this);
                     pthread_create(&telem_thread_id, NULL, telem_thread, (void*)this);
 
-                    if((video_streamer = fork()) == 0)
+                    if((video_streamer = fork()) == 0){
                         execv("/bin/libcamera-vid", vid_args);
+                        perror("Could not fork the video streamer");
+                        exit(0);
+                    }
                     
                     pthread_sigmask(SIG_UNBLOCK, &set, NULL);
 
