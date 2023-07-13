@@ -27,10 +27,20 @@
 #include <opencv2/core/core.hpp>
 
 #include <System.h>
+#include <csignal>
 
 using namespace std;
 
+int flag = 1;
+
+void signalHandler(int signum) {
+    flag = 0;
+}
+
+
 int main(int argc, char **argv) {
+    signal(SIGINT, signalHandler);
+
     if(argc != 3)
     {
         cerr << endl << "argc:" << argc << "!= 3"<< endl;
@@ -52,7 +62,7 @@ int main(int argc, char **argv) {
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
-    cv::VideoCapture cap("http://10.1.254.156:4747/video");
+    cv::VideoCapture cap("udp://@:8087");
     // Check if camera opened successfully
     if (!cap.isOpened()) {
         std::cout << "Error opening video stream or file" << endl;
@@ -66,7 +76,8 @@ int main(int argc, char **argv) {
     int nImages = cap.get(cv::CAP_PROP_FRAME_COUNT);
     double fps = cap.get(cv::CAP_PROP_FPS);
     double frame_diff_s = 1./fps;
-    while (1) {
+    double start = chrono::duration_cast<chrono::duration<double, std::milli>>(chrono::system_clock::now().time_since_epoch()).count();
+    while (flag) {
         cv::Mat im,im_track;
         bool success = cap.read(im);
         if (!success) {
@@ -77,7 +88,10 @@ int main(int argc, char **argv) {
             continue;
         }
         im_track = im.clone();
-        double tframe = cap.get(cv::CAP_PROP_POS_MSEC) * 1e-3;
+        
+        double tframe = chrono::duration_cast<chrono::duration<double, std::milli>>(chrono::system_clock::now().time_since_epoch()).count() - start;
+        std::cout << "timestamp: " << tframe << std::endl;
+        time(NULL);
         ++img_id;
 
     #ifdef COMPILEDWITHC11
@@ -112,19 +126,28 @@ int main(int argc, char **argv) {
 
     //    // Stop all threads
     SLAM.Shutdown();
+    std::cout << "shutting down" << std::endl;
 
     // Tracking time statistics
-    sort(vTimesTrack.begin(), vTimesTrack.end());
-    float totaltime = 0;
-    for (auto ni = 0; ni < vTimestamps.size(); ni++) {
-        totaltime += vTimesTrack[ni];
-    }
-    cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
-    cout << "mean tracking time: " << totaltime / nImages << endl;
+    // sort(vTimesTrack.begin(), vTimesTrack.end());
+    // float totaltime = 0;
+    // for (auto ni = 0; ni < vTimestamps.size(); ni++) {
+    //     totaltime += vTimesTrack[ni];
+    // }
+    // cout << "-------" << endl << endl;
+    // cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
+    // cout << "mean tracking time: " << totaltime / nImages << endl;
+
+    // Save 3D points and timestamps of all keyframes they are visible in
+    SLAM.getMap()->GetCurrentMap()->SaveWithTimestamps("kitti_map_pts_and_keyframes.txt");
+    std::cout << "kitti_map_pts_and_keyframes written" << std::endl;
+    // Save 3D points as obj file
+    SLAM.getMap()->GetCurrentMap()->Save("kitti_map_pts_out.obj");
+    std::cout << "kitti_map_pts_out written" << std::endl;
 
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+    std::cout << "KeyFrameTrajectory written" << std::endl;
 
     return 0;
 }
