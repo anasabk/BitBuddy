@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <cstring>
+#include <sys/wait.h>
 #include "common.h"
 
 
@@ -53,8 +54,8 @@ void* RobotDog::telem_thread(void *param) {
     // Telemetry socket
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(8086);
-    addr.sin_addr.s_addr = inet_addr("192.168.1.102");
+    addr.sin_port = htons(TELEM_PORT);
+    addr.sin_addr.s_addr = inet_addr(CONTROLSTATION_IP_ADDR);
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(fd < 0)  {
@@ -99,8 +100,8 @@ void* RobotDog::control_thread(void* param) {
     // Joystick socket
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(8081);
-    addr.sin_addr.s_addr = inet_addr("192.168.1.102");
+    addr.sin_port = htons(JOYSTICK_PORT);
+    addr.sin_addr.s_addr = inet_addr(CONTROLSTATION_IP_ADDR);
 
     robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(robot->js_server_fd < 0)  {
@@ -300,8 +301,8 @@ void RobotDog::run() {
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(8080);
-    addr.sin_addr.s_addr = inet_addr("192.168.1.102");
+    addr.sin_port = htons(SWITCH_PORT);
+    addr.sin_addr.s_addr = inet_addr(CONTROLSTATION_IP_ADDR);
 
     mpu6050.calibrate();
 
@@ -375,6 +376,9 @@ void RobotDog::run() {
                     pthread_create(&control_thread_id, NULL, control_thread, (void*)this);
                     pthread_create(&telem_thread_id, NULL, telem_thread, (void*)this);
 
+                    if((video_streamer = fork()) == 0)
+                        execv("/bin/libcamera-vid", vid_args);
+                    
                     pthread_sigmask(SIG_UNBLOCK, &set, NULL);
 
                 } else if(!buffer.state && is_running) {
@@ -394,6 +398,8 @@ void RobotDog::run() {
             pthread_join(hcsr04_thread_id, NULL);
             pthread_join(control_thread_id, NULL);
             pthread_join(telem_thread_id, NULL);
+            kill(video_streamer, SIGTERM);
+            waitpid(video_streamer, NULL, 0);
         }
 
         main_body.sit_down();
@@ -411,6 +417,8 @@ void RobotDog::run() {
         pthread_join(hcsr04_thread_id, NULL);
         pthread_join(control_thread_id, NULL);
         pthread_join(telem_thread_id, NULL);
+        kill(video_streamer, SIGTERM);
+        waitpid(video_streamer, NULL, 0);
     }
 
     main_body.sit_down();

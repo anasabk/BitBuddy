@@ -21,6 +21,12 @@
 #define SERVO_CMD_FREQ_HZ 50
 #define NUM_HCSR04 2
 
+#define CONTROLSTATION_IP_ADDR "192.168.1.102"
+#define VIDEO_PORT "8087"
+#define JOYSTICK_PORT 8081
+#define TELEM_PORT 8086
+#define SWITCH_PORT 8080
+
 
 class RobotDog
 {
@@ -54,6 +60,12 @@ private:
 
     bool mode_flag;
     pthread_t control_thread_id;
+
+    pid_t video_streamer;
+
+    char *const vid_args[10] = {
+        "-n", "-t", "0", "--inline", "--codec", "mjpeg", "--framerate", "20", "-o", "udp://" CONTROLSTATION_IP_ADDR ":" VIDEO_PORT
+    };
 
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
