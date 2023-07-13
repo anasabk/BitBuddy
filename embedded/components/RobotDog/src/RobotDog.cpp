@@ -124,10 +124,17 @@ void* RobotDog::control_thread(void* param) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
+    double roll_buf = 0.0;
+    double pitch_buf = 0.0;
+    float yaw_buf = 0.0;
+    float speed_buf = 0.0;
+    float temp_ratio;
     while(is_running) {
         if(robot->mode_flag == true) {
             printf("Entered auto mode\n");
+            bool right_isopen = false, left_isopen = false;
             while (is_running && robot->mode_flag) {
+                // Check gravity
                 if(robot->sensor_data.mpu_buff.z_accel < 0) {
                     int i = 0;
                     while (robot->sensor_data.mpu_buff.z_accel < 0.2 && i < 2) {
@@ -136,8 +143,93 @@ void* RobotDog::control_thread(void* param) {
                     }
 
                     robot->main_body.recover();
+                    continue;
+                
+                // Recenter gravity: correct the robot's gravity center.
+                } else {
+                    roll_buf  = -atan2(robot->sensor_data.mpu_buff.y_accel, robot->sensor_data.mpu_buff.z_accel);
+                    pitch_buf = -atan2(robot->sensor_data.mpu_buff.x_accel, GRAVITY_ACCEL);
                 }
-                sleep(3);
+
+                // Check the sides
+                right_isopen = robot->sensor_data.front_dist[0] > 400;
+                left_isopen = robot->sensor_data.front_dist[1] > 400;
+
+                // The way is fully opened
+                if(right_isopen && left_isopen) {
+                    temp_ratio = (robot->sensor_data.front_dist[1] - robot->sensor_data.front_dist[0]) / robot->sensor_data.front_dist[1];
+                    yaw_buf   = (1 - temp_ratio) * M_PI/8;
+                    speed_buf = (1 - temp_ratio) * 60.0F;
+
+                // Left side is open 
+                } else if(left_isopen) {
+                    yaw_buf   = M_PI/8;
+                    speed_buf = 0.0F;
+
+                // Right side is open
+                } else if(right_isopen) {
+                    yaw_buf   = -M_PI/8;
+                    speed_buf = 0.0F;
+
+                // Path is blocked
+                } else while(!right_isopen && !left_isopen) {
+                    // Stop the movement
+                    yaw_buf   = 0.0F;
+                    speed_buf = 0.0F;
+                    sleep(2);
+
+                    // Look to the left side
+                    robot->main_body.pose(roll_buf, M_PI/8, pitch_buf, 0, 0, 140);
+                    wait_real(200);
+
+                    // Check the sides
+                    right_isopen = robot->sensor_data.front_dist[0] > 400;
+                    left_isopen = robot->sensor_data.front_dist[1] > 400;
+
+                    // Path is open
+                    if(right_isopen || left_isopen) {
+                        robot->main_body.pose(roll_buf, 0, pitch_buf, 0, 0, 140);
+                        
+                        yaw_buf   = M_PI/8;
+                        speed_buf = 0.0F;
+                        wait_real(400);
+                        
+                        temp_ratio = (robot->sensor_data.front_dist[1] - robot->sensor_data.front_dist[0]) / robot->sensor_data.front_dist[1];
+                        yaw_buf   = (1 - temp_ratio) * M_PI/8;
+                        speed_buf = (1 - temp_ratio) * 60.0F;
+                        break;
+                    }
+
+                    // Look to the right side
+                    robot->main_body.pose(roll_buf, -M_PI/8, pitch_buf, 0, 0, 140);
+                    wait_real(200);
+
+                    // Check the sides
+                    right_isopen = robot->sensor_data.front_dist[0] > 400;
+                    left_isopen = robot->sensor_data.front_dist[1] > 400;
+
+                    // Path is open
+                    if(right_isopen || left_isopen) {
+                        robot->main_body.pose(roll_buf, 0, pitch_buf, 0, 0, 140);
+                        
+                        yaw_buf   = -M_PI/8;
+                        speed_buf = 0.0F;
+                        wait_real(400);
+                        
+                        temp_ratio = (robot->sensor_data.front_dist[1] - robot->sensor_data.front_dist[0]) / robot->sensor_data.front_dist[1];
+                        yaw_buf   = (1 - temp_ratio) * M_PI/8;
+                        speed_buf = (1 - temp_ratio) * 60.0F;
+                        break;
+                    }
+                    
+                    // Move backwards
+                    temp_ratio = (robot->sensor_data.front_dist[1] - robot->sensor_data.front_dist[0]) / robot->sensor_data.front_dist[1];
+                    yaw_buf   = (1 - temp_ratio) * M_PI/8;
+                    speed_buf = -(1 - temp_ratio) * 60.0F;
+                    wait_real(1);
+                }
+
+                wait_real(500);
             }
             printf("exitting auto mode\n");
             wait_real(500);
@@ -148,9 +240,7 @@ void* RobotDog::control_thread(void* param) {
             
             pthread_t motion_thread;
             bool move_flag = true;
-            float speed = 0.0;
-            float rot = 0.0;
-            Body::move_param move_param = {&speed, &rot, &move_flag, &robot->main_body};
+            Body::move_param move_param = {&speed_buf, &yaw_buf, &move_flag, &robot->main_body};
             pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
             while (is_running && !robot->mode_flag) {
@@ -160,8 +250,8 @@ void* RobotDog::control_thread(void* param) {
                     continue;
                 }
 
-                speed = buffer.y * 60;
-                rot = -buffer.x * M_PI/8;
+                speed_buf = buffer.y * 60;
+                yaw_buf = -buffer.x * M_PI/8;
             }
 
             move_flag = false;
@@ -297,16 +387,18 @@ void RobotDog::run() {
             }
         }
 
+        
         if(is_running) {
             is_running = 0;
-            sleep(1);
             pthread_join(mpu_thread_id, NULL);
             pthread_join(hcsr04_thread_id, NULL);
             pthread_join(control_thread_id, NULL);
             pthread_join(telem_thread_id, NULL);
-            main_body.sit_down();
-            sleep(2);
         }
+
+        main_body.sit_down();
+        sleep(1);
+        pca.set_all_pwm(0, 0);
 
         close(fd);
     }
@@ -315,15 +407,15 @@ void RobotDog::run() {
 
     if(is_running) {
         is_running = 0;
-        sleep(1);
         pthread_join(mpu_thread_id, NULL);
         pthread_join(hcsr04_thread_id, NULL);
         pthread_join(control_thread_id, NULL);
         pthread_join(telem_thread_id, NULL);
-        sleep(2);
     }
 
     main_body.sit_down();
+    sleep(1);
+    pca.set_all_pwm(0, 0);
 
     return;
 }
