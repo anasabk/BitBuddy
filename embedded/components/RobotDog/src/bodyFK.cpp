@@ -274,12 +274,6 @@ void Body::stand_up() {
 }
 
 void* Body::move_thread(void *param) {
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGINT);
-    sigaddset(&set, SIGPIPE);
-    pthread_sigmask(SIG_BLOCK, &set, NULL);
-
     printf("Entering movement thread\n");
     const float *rot_rad = ((Body::move_param*)param)->rot;
     const float *speed = ((Body::move_param*)param)->speed;
@@ -300,10 +294,7 @@ void* Body::move_thread(void *param) {
     double drift_offset = 0;
 
     double new_pose_buf[4][3];
-
-    struct timespec timeNow;
-    clock_gettime(CLOCK_MONOTONIC, &timeNow);
-
+    
     int leg_num = 0;
     int pause_counter = 0;
     double temp_v[3];
@@ -351,18 +342,18 @@ void* Body::move_thread(void *param) {
         body->leg_buf[leg_num][2] = 50;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        body->move(100);
+        body->move(80);
 
         body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0];
         body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        body->move(100);
+        body->move(80);
 
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        body->move(100);
+        body->move(80);
 
 
         if(leg_num > 1) {
