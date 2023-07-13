@@ -29,7 +29,7 @@ def detect(image, net):
     return preds
 
 def load_capture():
-    capture = cv2.VideoCapture('http://192.168.43.138:8080')
+    capture = cv2.VideoCapture('udp://@:8080')
     return capture
 
 def load_classes():
