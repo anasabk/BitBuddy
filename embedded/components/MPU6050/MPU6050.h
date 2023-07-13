@@ -68,8 +68,8 @@ extern "C" {
 #define MPU6050_DLPF_BW_5           0x06
 
 
-#define TAU 0.05 //Complementary filter percentage
 #define RAD_T_DEG 57.29577951308 //Radians to degrees (180/PI)
+#define GRAVITY_ACCEL 9.8067
 
 #define MPU6050_GYRO_FS MPU6050_GYRO_FS_250 
 #define MPU6050_ACCEL_FS MPU6050_ACCEL_FS_2 
