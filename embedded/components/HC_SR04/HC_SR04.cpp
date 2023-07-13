@@ -16,6 +16,9 @@ HC_SR04::~HC_SR04()
 {
 }
 
+/**
+ * @brief Return the measured distance in millimeters.
+ */
 float HC_SR04::get_distance() {
     // Get current time
     struct timespec time_send;
