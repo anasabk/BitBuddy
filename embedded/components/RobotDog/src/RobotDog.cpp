@@ -159,8 +159,8 @@ void* RobotDog::control_thread(void* param) {
                 
                     std::cout << "Checking sides" << std::endl;
                     // Check the sides
-                    left_isopen = robot->sensor_data.front_dist[0] > 170;
-                    right_isopen = robot->sensor_data.front_dist[1] > 170;
+                    left_isopen = robot->sensor_data.front_dist[0] > 200;
+                    right_isopen = robot->sensor_data.front_dist[1] > 200;
 
                     // The way is fully opened
                     if(right_isopen && left_isopen) {
