@@ -254,7 +254,9 @@ void Body::stand_up() {
 
 void* Body::move_thread(void *param) {
     printf("Entering movement thread\n");
-    const float *rot_rad = ((Body::move_param*)param)->rot;
+    const float *yaw_rad = ((Body::move_param*)param)->yaw;
+    const float *roll_rad = ((Body::move_param*)param)->roll;
+    const float *pitch_rad = ((Body::move_param*)param)->pitch;
     const float *speed = ((Body::move_param*)param)->speed;
     const bool *run_flag = ((Body::move_param*)param)->run_flag;
     Body* body = ((Body::move_param*)param)->body;
@@ -279,7 +281,7 @@ void* Body::move_thread(void *param) {
     double temp_v[3];
     float prev[2];
     while(*run_flag) {
-        if(*speed < 0.0001F && *speed > -0.0001F && *rot_rad < 0.0001F && *rot_rad > -0.0001F) {
+        if(*speed < 0.0001F && *speed > -0.0001F && *yaw_rad < 0.0001F && *yaw_rad > -0.0001F) {
             if(pause_counter < 2) pause_counter++;
         } else
             pause_counter = 0;
@@ -292,10 +294,10 @@ void* Body::move_thread(void *param) {
         if(leg_num == -1) leg_num = 0;
 
         // Update the new pose of the legs, only when necessary
-        if ((prev[0] != *speed) || (prev[1] != *rot_rad)) 
+        if ((prev[0] != *speed) || (prev[1] != *yaw_rad)) 
         {
             body->get_pose(
-                0, -*rot_rad, 0, 
+                0, -*yaw_rad, 0, 
                 -*speed, 0, 140,
                 new_pose_buf[RIGHTBACK], 
                 new_pose_buf[RIGHTFRONT], 
@@ -304,12 +306,12 @@ void* Body::move_thread(void *param) {
             );
 
             prev[0] = *speed;
-            prev[1] = *rot_rad;
+            prev[1] = *yaw_rad;
         }
 
 
         // Leen to the opposite side
-        body->pose(0, 0, 0, body->legs[leg_num].is_front() ? b_leen_off : f_leen_off, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
+        body->pose(*roll_rad, 0, *pitch_rad, body->legs[leg_num].is_front() ? b_leen_off : f_leen_off, body->legs[leg_num].is_right() ? l_leen_off : r_leen_off, 140);
 
 
         // Position the leg
