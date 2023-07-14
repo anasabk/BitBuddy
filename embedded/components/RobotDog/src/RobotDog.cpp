@@ -191,64 +191,64 @@ void* RobotDog::control_thread(void* param) {
                         speed_buf = 0.0F;
                         sleep(2);
 
-                        // Look to the left side
-                        robot->main_body.pose(roll_buf, M_PI/8, pitch_buf, 0, 0, 140);
-                        wait_real(200);
+                        // // Look to the left side
+                        // robot->main_body.pose(roll_buf, M_PI/8, pitch_buf, 0, 0, 140);
+                        // wait_real(200);
 
-                        // Check the sides
-                        left_isopen = robot->sensor_data.front_dist[0] > 170;
-                        right_isopen = robot->sensor_data.front_dist[1] > 170;
+                        // // Check the sides
+                        // left_isopen = robot->sensor_data.front_dist[0] > 170;
+                        // right_isopen = robot->sensor_data.front_dist[1] > 170;
 
-                        // Path is open
-                        if(right_isopen || left_isopen) {
-                            std::cout << "The left path is usable" << std::endl;
-                            robot->main_body.pose(roll_buf, 0, pitch_buf, 0, 0, 140);
+                        // // Path is open
+                        // if(right_isopen || left_isopen) {
+                        //     std::cout << "The left path is usable" << std::endl;
+                        //     robot->main_body.pose(roll_buf, 0, pitch_buf, 0, 0, 140);
                             
-                            yaw_buf   = M_PI/8;
-                            speed_buf = 0.0F;
-                            wait_real(400);
+                        //     yaw_buf   = M_PI/8;
+                        //     speed_buf = 0.0F;
+                        //     wait_real(400);
                             
-                            temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
-                                    std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
+                        //     temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
+                        //             std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
                             
-                            yaw_buf   = temp_ratio * M_PI/8;
-                            speed_buf = temp_ratio * 60.0F;
-                            break;
-                        }
+                        //     yaw_buf   = temp_ratio * M_PI/8;
+                        //     speed_buf = temp_ratio * 60.0F;
+                        //     break;
+                        // }
 
-                        // Look to the right side
-                        robot->main_body.pose(roll_buf, -M_PI/8, pitch_buf, 0, 0, 140);
-                        wait_real(200);
+                        // // Look to the right side
+                        // robot->main_body.pose(roll_buf, -M_PI/8, pitch_buf, 0, 0, 140);
+                        // wait_real(200);
 
-                        // Check the sides
-                        left_isopen = robot->sensor_data.front_dist[0] > 170;
-                        right_isopen = robot->sensor_data.front_dist[1] > 170;
+                        // // Check the sides
+                        // left_isopen = robot->sensor_data.front_dist[0] > 170;
+                        // right_isopen = robot->sensor_data.front_dist[1] > 170;
 
-                        // Path is open
-                        if(right_isopen || left_isopen) {
-                            std::cout << "The right path is usable" << std::endl;
-                            robot->main_body.pose(roll_buf, 0, pitch_buf, 0, 0, 140);
+                        // // Path is open
+                        // if(right_isopen || left_isopen) {
+                        //     std::cout << "The right path is usable" << std::endl;
+                        //     robot->main_body.pose(roll_buf, 0, pitch_buf, 0, 0, 140);
                             
-                            yaw_buf   = -M_PI/8;
-                            speed_buf = 0.0F;
-                            wait_real(400);
+                        //     yaw_buf   = -M_PI/8;
+                        //     speed_buf = 0.0F;
+                        //     wait_real(400);
                             
-                            temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
-                                    std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
+                        //     temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
+                        //             std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
                             
-                            yaw_buf   = temp_ratio * M_PI/8;
-                            speed_buf = temp_ratio * 60.0F;
-                            break;
-                        }
+                        //     yaw_buf   = temp_ratio * M_PI/8;
+                        //     speed_buf = temp_ratio * 60.0F;
+                        //     break;
+                        // }
                         
-                        // Move backwards
-                        std::cout << "No usable path found, going backwards" << std::endl;
-                        temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
-                                std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
+                        // // Move backwards
+                        // std::cout << "No usable path found, going backwards" << std::endl;
+                        // temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
+                        //         std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
                         
-                        yaw_buf   = 0.0F;
-                        speed_buf = -temp_ratio * 60.0F;
-                        wait_real(1000);
+                        // yaw_buf   = 0.0F;
+                        // speed_buf = -temp_ratio * 60.0F;
+                        // wait_real(1000);
                     }
                 }
 
