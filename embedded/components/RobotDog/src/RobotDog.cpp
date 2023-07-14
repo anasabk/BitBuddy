@@ -413,7 +413,7 @@ void RobotDog::run() {
             pthread_join(control_thread_id, NULL);
             pthread_join(telem_thread_id, NULL);
             kill(video_streamer, SIGINT);
-            waitpid(video_streamer, NULL, 0);
+            wait(&video_streamer);
         }
 
         main_body.sit_down();
@@ -432,7 +432,7 @@ void RobotDog::run() {
         pthread_join(control_thread_id, NULL);
         pthread_join(telem_thread_id, NULL);
         kill(video_streamer, SIGINT);
-        waitpid(video_streamer, NULL, 0);
+        wait(&video_streamer);
     }
 
     main_body.sit_down();
