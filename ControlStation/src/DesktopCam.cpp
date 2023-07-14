@@ -26,12 +26,14 @@ DesktopCam::~DesktopCam()
 
 void DesktopCam::runServer()
 {
-    cv::VideoCapture cap("udp://@:" + std::to_string(constants::desktopCamPort));
+    cv::VideoCapture cap;
 
-    if (!cap.isOpened())
+    while (!cap.isOpened())
     {
-        std::cerr << "[DesktopCam] Camera not opened." << std::endl;
-        return;
+        cap.open(("udp://@:" + std::to_string(constants::desktopCamPort)));
+
+        if (!isServerRunning.load())
+            return;
     }
 
     if ((sockFd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
@@ -53,6 +55,7 @@ void DesktopCam::runServer()
         }
 
         cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+        cv::rotate(frame, frame, cv::ROTATE_180);
 
         std::vector<uchar> buffer;
         cv::imencode(".jpg", frame, buffer, {cv::IMWRITE_JPEG_QUALITY, 50});
