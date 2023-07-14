@@ -55,7 +55,7 @@ void ObjectDetection::undistortFrame(cv::Mat &frame)
 
     static std::string filename = isOmnidir ? "omni" : "fisheye";
     static cv::Mat k = loadMat("calibration/K_" + filename + ".csv", 3, 3);
-    static cv::Mat d = loadMat("calibration/d_" + filename + ".csv", 1, 4);
+    static cv::Mat d = loadMat("calibration/d_" + filename + ".csv", isOmnidir ? 1 : 4, isOmnidir ? 4 : 1);
     static cv::Mat xi = isOmnidir ? loadMat("calibration/xi_omni.csv", 1, 1) : cv::Mat();
     static cv::Mat kNew = [&]() {
         cv::Mat kNew = k.clone();
