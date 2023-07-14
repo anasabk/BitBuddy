@@ -12,6 +12,7 @@ void wait_real_dl(struct timespec *timeNow, long ms) {
 void wait_real(long ms) {
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
+    timeNow.tv_sec += ms / 1000;
     timeNow.tv_nsec += ms * 1000000;
     while (timeNow.tv_nsec >= 1000000000L) {
         timeNow.tv_nsec -= 1000000000L;

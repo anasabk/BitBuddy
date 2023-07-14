@@ -26,7 +26,7 @@ float HC_SR04::get_distance() {
 
     gpioWrite(trig, PI_HIGH);
     clock_gettime(CLOCK_MONOTONIC, &time_send);
-    time_send.tv_nsec += 20000;
+    time_send.tv_nsec += 10000;
     if (time_send.tv_nsec >= 1000000000L) {
         time_send.tv_nsec -= 1000000000L;
         time_send.tv_sec++;

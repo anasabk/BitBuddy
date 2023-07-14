@@ -306,20 +306,15 @@ void* Body::move_thread(void *param) {
             pause_counter = 0;
 
         if(pause_counter >= 2){
-            printf("wait\n");
             wait_real(300);
             continue;
         }
 
-        printf("Performing");
-
         if(leg_num == -1) leg_num = 0;
 
         // Update the new pose of the legs, only when necessary
-        printf("old %f %f\nnew %f %f\n", prev[0], prev[1], *speed, *rot_rad);
         if ((prev[0] != *speed) || (prev[1] != *rot_rad)) 
         {
-            printf("updating\n");
             body->get_pose(
                 0, -*rot_rad, 0, 
                 -*speed, 0, 140,
@@ -411,7 +406,6 @@ void Body::move(long dur) {
     float dtheta[12];
     for(int i = 0; i < 12; i++) {
         dtheta[i] = (servo_buf[i] - servos[i]->get_last_rad()) / dt_ms;
-        // printf("servo %d, %f %f degrees\n", servos[i]->getChannel(), servo_buf[i], dtheta[i]);
     }
 
     int servo_num;
