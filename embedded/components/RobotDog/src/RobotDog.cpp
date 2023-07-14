@@ -124,15 +124,15 @@ void* RobotDog::control_thread(void* param) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    float roll_buf = 0.0;
-    float pitch_buf = 0.0;
+    // double roll_buf = 0.0;
+    // double pitch_buf = 0.0;
     float yaw_buf = 0.0;
     float speed_buf = 0.0;
     float temp_ratio;
 
     pthread_t motion_thread;
     bool move_flag = true;
-    Body::move_param move_param = {&speed_buf, &yaw_buf, &roll_buf, &pitch_buf, &move_flag, &robot->main_body};
+    Body::move_param move_param = {&speed_buf, &yaw_buf, &move_flag, &robot->main_body};
     pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
     while(is_running) {
@@ -153,9 +153,9 @@ void* RobotDog::control_thread(void* param) {
                 
                 // Recenter gravity: correct the robot's gravity center.
                 } else {
-                    std::cout << "Recentering gravity" << std::endl;
-                    roll_buf  = -atan2(robot->sensor_data.mpu_buff.y_accel, robot->sensor_data.mpu_buff.z_accel);
-                    pitch_buf = -atan2(robot->sensor_data.mpu_buff.x_accel, GRAVITY_ACCEL);
+                    // std::cout << "Recentering gravity" << std::endl;
+                    // roll_buf  = -atan2(robot->sensor_data.mpu_buff.y_accel, robot->sensor_data.mpu_buff.z_accel);
+                    // pitch_buf = -atan2(robot->sensor_data.mpu_buff.x_accel, GRAVITY_ACCEL);
                 
                     std::cout << "Checking sides" << std::endl;
                     // Check the sides
@@ -163,97 +163,81 @@ void* RobotDog::control_thread(void* param) {
                     right_isopen = robot->sensor_data.front_dist[1] > 200;
 
                     // The way is fully opened
-                    // if(right_isopen && left_isopen) {
-                    //     std::cout << "The way is open" << std::endl;
-                    //     // temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
-                    //     //         std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
-                        
-                    //     yaw_buf   = 0.0F;
-                    //     speed_buf = 60.0F;
-
-                    // // Left side is open 
-                    // } else if(left_isopen) {
-                    //     std::cout << "The right side is open" << std::endl;
-                    //     yaw_buf   = M_PI/8;
-                    //     speed_buf = 0.0F;
-
-                    // // Right side is open
-                    // } else if(right_isopen) {
-                    //     std::cout << "The left side is open" << std::endl;
-                    //     yaw_buf   = -M_PI/8;
-                    //     speed_buf = 0.0F;
-
-                    // // Path is blocked
-                    // } 
-                    // else while(!right_isopen && !left_isopen) {
-                        // std::cout << "The way is blocked" << std::endl;
-                        // // Stop the movement
-                        // yaw_buf   = 0.0F;
-                        // speed_buf = 0.0F;
-                        // sleep(2);
-
-                        // // Look to the left side
-                        // robot->main_body.pose(roll_buf, M_PI/8, pitch_buf, 0, 0, 140);
-                        // wait_real(200);
-
-                        // // Check the sides
-                        // left_isopen = robot->sensor_data.front_dist[0] > 170;
-                        // right_isopen = robot->sensor_data.front_dist[1] > 170;
-
-                        // // Path is open
-                        // if(right_isopen || left_isopen) {
-                        //     std::cout << "The left path is usable" << std::endl;
-                        //     robot->main_body.pose(roll_buf, 0, pitch_buf, 0, 0, 140);
-                            
-                        //     yaw_buf   = M_PI/8;
-                        //     speed_buf = 0.0F;
-                        //     wait_real(400);
-                            
-                        //     temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
-                        //             std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
-                            
-                        //     yaw_buf   = temp_ratio * M_PI/8;
-                        //     speed_buf = temp_ratio * 60.0F;
-                        //     break;
-                        // }
-
-                        // // Look to the right side
-                        // robot->main_body.pose(roll_buf, -M_PI/8, pitch_buf, 0, 0, 140);
-                        // wait_real(200);
-
-                        // // Check the sides
-                        // left_isopen = robot->sensor_data.front_dist[0] > 170;
-                        // right_isopen = robot->sensor_data.front_dist[1] > 170;
-
-                        // // Path is open
-                        // if(right_isopen || left_isopen) {
-                        //     std::cout << "The right path is usable" << std::endl;
-                        //     robot->main_body.pose(roll_buf, 0, pitch_buf, 0, 0, 140);
-                            
-                        //     yaw_buf   = -M_PI/8;
-                        //     speed_buf = 0.0F;
-                        //     wait_real(400);
-                            
-                        //     temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
-                        //             std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
-                            
-                        //     yaw_buf   = temp_ratio * M_PI/8;
-                        //     speed_buf = temp_ratio * 60.0F;
-                        //     break;
-                        // }
-                        
-                        // // Move backwards
-                        // std::cout << "No usable path found, going backwards" << std::endl;
+                    if(right_isopen && left_isopen) {
+                        std::cout << "The way is open" << std::endl;
                         // temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
                         //         std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
                         
-                        // yaw_buf   = 0.0F;
-                        // speed_buf = -temp_ratio * 60.0F;
-                        // wait_real(1000);
-                    // }
+                        yaw_buf   = 0.0F;
+                        speed_buf = 60.0F;
+
+                    // Left side is open 
+                    } else if(left_isopen) {
+                        std::cout << "The right side is open" << std::endl;
+                        yaw_buf   = M_PI/8;
+                        speed_buf = 0.0F;
+
+                    // Right side is open
+                    } else if(right_isopen) {
+                        std::cout << "The left side is open" << std::endl;
+                        yaw_buf   = -M_PI/8;
+                        speed_buf = 0.0F;
+
+                    // Path is blocked
+                    } else while(!right_isopen && !left_isopen) {
+                        std::cout << "The way is blocked" << std::endl;
+                        // Stop the movement
+                        yaw_buf   = 0.0F;
+                        speed_buf = 0.0F;
+                        sleep(2);
+
+                        // Look to the left side
+                        robot->main_body.pose(0, M_PI/8, 0, 0, 0, 140);
+                        wait_real(300);
+
+                        // Check the sides
+                        left_isopen = robot->sensor_data.front_dist[0] > 170;
+                        right_isopen = robot->sensor_data.front_dist[1] > 170;
+
+                        // Path is open
+                        if(right_isopen || left_isopen) {
+                            std::cout << "The left path is usable" << std::endl;
+                            robot->main_body.pose(0, 0, 0, 0, 0, 140);
+                            
+                            yaw_buf   = M_PI/8;
+                            speed_buf = 0.0F;
+                            wait_real(1000);
+                            break;
+                        }
+
+                        // Look to the right side
+                        robot->main_body.pose(0, -M_PI/8, 0, 0, 0, 140);
+                        wait_real(300);
+
+                        // Check the sides
+                        left_isopen = robot->sensor_data.front_dist[0] > 170;
+                        right_isopen = robot->sensor_data.front_dist[1] > 170;
+
+                        // Path is open
+                        if(right_isopen || left_isopen) {
+                            std::cout << "The right path is usable" << std::endl;
+                            robot->main_body.pose(0, 0, 0, 0, 0, 140);
+                            
+                            yaw_buf   = -M_PI/8;
+                            speed_buf = 0.0F;
+                            wait_real(1000);
+                            break;
+                        }
+                        
+                        // Move backwards
+                        std::cout << "No usable path found, going backwards" << std::endl;
+                        yaw_buf   = 0.0F;
+                        speed_buf = -60.0F;
+                        wait_real(2500);
+                    }
                 }
 
-                wait_real(500);
+                wait_real(200);
             }
 
             yaw_buf   = 0.0;

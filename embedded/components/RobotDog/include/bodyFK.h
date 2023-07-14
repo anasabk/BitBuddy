@@ -15,8 +15,6 @@ public:
     struct move_param {
         const float *speed;
         const float *yaw;
-        const float *roll;
-        const float *pitch;
         const bool *run_flag;
         Body *body;
     };
