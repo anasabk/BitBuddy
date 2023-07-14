@@ -124,15 +124,15 @@ void* RobotDog::control_thread(void* param) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    double roll_buf = 0.0;
-    double pitch_buf = 0.0;
+    float roll_buf = 0.0;
+    float pitch_buf = 0.0;
     float yaw_buf = 0.0;
     float speed_buf = 0.0;
     float temp_ratio;
 
     pthread_t motion_thread;
     bool move_flag = true;
-    Body::move_param move_param = {&speed_buf, &yaw_buf, &move_flag, &robot->main_body};
+    Body::move_param move_param = {&speed_buf, &yaw_buf, &roll_buf, &pitch_buf, &move_flag, &robot->main_body};
     pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
     while(is_running) {
@@ -163,33 +163,34 @@ void* RobotDog::control_thread(void* param) {
                     right_isopen = robot->sensor_data.front_dist[1] > 200;
 
                     // The way is fully opened
-                    if(right_isopen && left_isopen) {
-                        std::cout << "The way is open" << std::endl;
-                        // temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
-                        //         std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
+                    // if(right_isopen && left_isopen) {
+                    //     std::cout << "The way is open" << std::endl;
+                    //     // temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
+                    //     //         std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
                         
-                        yaw_buf   = 0.0F;
-                        speed_buf = 60.0F;
+                    //     yaw_buf   = 0.0F;
+                    //     speed_buf = 60.0F;
 
-                    // Left side is open 
-                    } else if(left_isopen) {
-                        std::cout << "The right side is open" << std::endl;
-                        yaw_buf   = M_PI/8;
-                        speed_buf = 0.0F;
+                    // // Left side is open 
+                    // } else if(left_isopen) {
+                    //     std::cout << "The right side is open" << std::endl;
+                    //     yaw_buf   = M_PI/8;
+                    //     speed_buf = 0.0F;
 
-                    // Right side is open
-                    } else if(right_isopen) {
-                        std::cout << "The left side is open" << std::endl;
-                        yaw_buf   = -M_PI/8;
-                        speed_buf = 0.0F;
+                    // // Right side is open
+                    // } else if(right_isopen) {
+                    //     std::cout << "The left side is open" << std::endl;
+                    //     yaw_buf   = -M_PI/8;
+                    //     speed_buf = 0.0F;
 
-                    // Path is blocked
-                    } else while(!right_isopen && !left_isopen) {
-                        std::cout << "The way is blocked" << std::endl;
-                        // Stop the movement
-                        yaw_buf   = 0.0F;
-                        speed_buf = 0.0F;
-                        sleep(2);
+                    // // Path is blocked
+                    // } 
+                    // else while(!right_isopen && !left_isopen) {
+                        // std::cout << "The way is blocked" << std::endl;
+                        // // Stop the movement
+                        // yaw_buf   = 0.0F;
+                        // speed_buf = 0.0F;
+                        // sleep(2);
 
                         // // Look to the left side
                         // robot->main_body.pose(roll_buf, M_PI/8, pitch_buf, 0, 0, 140);
@@ -249,7 +250,7 @@ void* RobotDog::control_thread(void* param) {
                         // yaw_buf   = 0.0F;
                         // speed_buf = -temp_ratio * 60.0F;
                         // wait_real(1000);
-                    }
+                    // }
                 }
 
                 wait_real(500);
