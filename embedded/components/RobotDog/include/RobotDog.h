@@ -42,7 +42,7 @@ private:
     MPU6050 mpu6050;
 
     pthread_t hcsr04_thread_id;
-    HC_SR04 hc_sr04[2];
+    HC_SR04 hc_sr04[2]; // 0: left / 1: right
 
     CalServo servos[12];
     Body main_body;

@@ -20,7 +20,7 @@ sig_atomic_t term_flag;
 
 
 RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
-    : pca(pca_bus, pca_addr, 50), lcd(lcd_bus, lcd_addr), hc_sr04{HC_SR04(27, 17), HC_SR04(5, 6)}, mpu6050(mpu_bus, mpu_addr),
+    : pca(pca_bus, pca_addr, 50), lcd(lcd_bus, lcd_addr), hc_sr04{HC_SR04(5, 6), HC_SR04(27, 17)}, mpu6050(mpu_bus, mpu_addr),
     servos{ 
 		// Top, Mid, and Low motors for each leg
 		CalServo(&pca, 0), CalServo(&pca, 1), CalServo(&pca, 2),	// Back Left
@@ -129,6 +129,12 @@ void* RobotDog::control_thread(void* param) {
     float yaw_buf = 0.0;
     float speed_buf = 0.0;
     float temp_ratio;
+
+    pthread_t motion_thread;
+    bool move_flag = true;
+    Body::move_param move_param = {&speed_buf, &yaw_buf, &move_flag, &robot->main_body};
+    pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
+
     while(is_running) {
         if(robot->mode_flag == true) {
             std::cout << ("Entered auto mode\n");
@@ -153,13 +159,13 @@ void* RobotDog::control_thread(void* param) {
                 
                     std::cout << "Checking sides" << std::endl;
                     // Check the sides
-                    right_isopen = robot->sensor_data.front_dist[0] > 400;
-                    left_isopen = robot->sensor_data.front_dist[1] > 400;
+                    left_isopen = robot->sensor_data.front_dist[0] > 170;
+                    right_isopen = robot->sensor_data.front_dist[1] > 170;
 
                     // The way is fully opened
                     if(right_isopen && left_isopen) {
                         std::cout << "The way is open" << std::endl;
-                        temp_ratio = (robot->sensor_data.front_dist[1] - robot->sensor_data.front_dist[0]) / robot->sensor_data.front_dist[1];
+                        temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / robot->sensor_data.front_dist[0];
                         yaw_buf   = (1 - temp_ratio) * M_PI/8;
                         speed_buf = (1 - temp_ratio) * 60.0F;
 
@@ -188,8 +194,8 @@ void* RobotDog::control_thread(void* param) {
                         wait_real(200);
 
                         // Check the sides
-                        right_isopen = robot->sensor_data.front_dist[0] > 400;
-                        left_isopen = robot->sensor_data.front_dist[1] > 400;
+                        left_isopen = robot->sensor_data.front_dist[0] > 170;
+                        right_isopen = robot->sensor_data.front_dist[1] > 170;
 
                         // Path is open
                         if(right_isopen || left_isopen) {
@@ -200,7 +206,7 @@ void* RobotDog::control_thread(void* param) {
                             speed_buf = 0.0F;
                             wait_real(400);
                             
-                            temp_ratio = (robot->sensor_data.front_dist[1] - robot->sensor_data.front_dist[0]) / robot->sensor_data.front_dist[1];
+                            temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / robot->sensor_data.front_dist[0];
                             yaw_buf   = (1 - temp_ratio) * M_PI/8;
                             speed_buf = (1 - temp_ratio) * 60.0F;
                             break;
@@ -211,8 +217,8 @@ void* RobotDog::control_thread(void* param) {
                         wait_real(200);
 
                         // Check the sides
-                        right_isopen = robot->sensor_data.front_dist[0] > 400;
-                        left_isopen = robot->sensor_data.front_dist[1] > 400;
+                        left_isopen = robot->sensor_data.front_dist[0] > 170;
+                        right_isopen = robot->sensor_data.front_dist[1] > 170;
 
                         // Path is open
                         if(right_isopen || left_isopen) {
@@ -223,7 +229,7 @@ void* RobotDog::control_thread(void* param) {
                             speed_buf = 0.0F;
                             wait_real(400);
                             
-                            temp_ratio = (robot->sensor_data.front_dist[1] - robot->sensor_data.front_dist[0]) / robot->sensor_data.front_dist[1];
+                            temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / robot->sensor_data.front_dist[0];
                             yaw_buf   = (1 - temp_ratio) * M_PI/8;
                             speed_buf = (1 - temp_ratio) * 60.0F;
                             break;
@@ -231,9 +237,9 @@ void* RobotDog::control_thread(void* param) {
                         
                         // Move backwards
                         std::cout << "No usable path found, going backwards" << std::endl;
-                        temp_ratio = (robot->sensor_data.front_dist[1] - robot->sensor_data.front_dist[0]) / robot->sensor_data.front_dist[1];
-                        yaw_buf   = (1 - temp_ratio) * M_PI/8;
-                        speed_buf = -(1 - temp_ratio) * 60.0F;
+                            temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / robot->sensor_data.front_dist[0];
+                            yaw_buf   = (1 - temp_ratio) * M_PI/8;
+                            speed_buf = (1 - temp_ratio) * 60.0F;
                         wait_real(1000);
                     }
                 }
@@ -250,11 +256,6 @@ void* RobotDog::control_thread(void* param) {
         } else {
             std::cout << ("Entered manual mode\n");
             Axes buffer = {0, 0};
-            
-            pthread_t motion_thread;
-            bool move_flag = true;
-            Body::move_param move_param = {&speed_buf, &yaw_buf, &move_flag, &robot->main_body};
-            pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
             while (is_running && !robot->mode_flag) {
                 if (recvfrom(robot->js_server_fd, &buffer, sizeof(buffer), 0, NULL, NULL) <= 0) {
@@ -266,12 +267,15 @@ void* RobotDog::control_thread(void* param) {
                 yaw_buf = -buffer.x * M_PI/8;
             }
 
-            move_flag = false;
-            pthread_join(motion_thread, NULL);
+            yaw_buf   = 0.0;
+            speed_buf = 0.0;
 
             std::cout << ("exitting manual mode\n");
         }
     }
+
+    move_flag = false;
+    pthread_join(motion_thread, NULL);
 
     close(robot->js_server_fd);
     pthread_exit(NULL);
