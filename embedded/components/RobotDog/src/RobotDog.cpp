@@ -138,7 +138,7 @@ void* RobotDog::control_thread(void* param) {
     while(is_running) {
         if(robot->mode_flag == true) {
             std::cout << ("Entered auto mode\n");
-            bool right_isopen = false, left_isopen = false;
+            bool is_open = false;
             while (is_running && robot->mode_flag) {
                 // Check gravity
                 if(robot->sensor_data.mpu_buff.z_accel < 0) {
@@ -159,11 +159,10 @@ void* RobotDog::control_thread(void* param) {
                 
                     std::cout << "Checking sides" << std::endl;
                     // Check the sides
-                    left_isopen = robot->sensor_data.front_dist[0] > 200;
-                    right_isopen = robot->sensor_data.front_dist[1] > 200;
+                    is_open = (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
 
                     // The way is fully opened
-                    if(right_isopen && left_isopen) {
+                    if(is_open) {
                         std::cout << "The way is open" << std::endl;
                         // temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
                         //         std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
@@ -171,21 +170,14 @@ void* RobotDog::control_thread(void* param) {
                         yaw_buf   = 0.0F;
                         speed_buf = 60.0F;
 
-                    // Left side is open 
-                    } else if(left_isopen) {
-                        std::cout << "The right side is open" << std::endl;
-                        yaw_buf   = M_PI/8;
-                        speed_buf = 0.0F;
-
-                    // Right side is open
-                    } else if(right_isopen) {
-                        std::cout << "The left side is open" << std::endl;
-                        yaw_buf   = -M_PI/8;
-                        speed_buf = 0.0F;
-
                     // Path is blocked
-                    } else while(!right_isopen && !left_isopen) {
-                        std::cout << "The way is blocked" << std::endl;
+                    } else while(!is_open) {
+                        // Move backwards
+                        std::cout << "The way is blocked, going backwards" << std::endl;
+                        yaw_buf   = 0.0F;
+                        speed_buf = -60.0F;
+                        wait_real(2000);
+
                         // Stop the movement
                         yaw_buf   = 0.0F;
                         speed_buf = 0.0F;
@@ -196,11 +188,10 @@ void* RobotDog::control_thread(void* param) {
                         wait_real(300);
 
                         // Check the sides
-                        left_isopen = robot->sensor_data.front_dist[0] > 170;
-                        right_isopen = robot->sensor_data.front_dist[1] > 170;
+                        is_open = (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
 
                         // Path is open
-                        if(right_isopen || left_isopen) {
+                        if(is_open) {
                             std::cout << "The left path is usable" << std::endl;
                             robot->main_body.pose(0, 0, 0, 0, 0, 140);
                             
@@ -215,11 +206,10 @@ void* RobotDog::control_thread(void* param) {
                         wait_real(300);
 
                         // Check the sides
-                        left_isopen = robot->sensor_data.front_dist[0] > 170;
-                        right_isopen = robot->sensor_data.front_dist[1] > 170;
+                        is_open = (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
 
                         // Path is open
-                        if(right_isopen || left_isopen) {
+                        if(is_open) {
                             std::cout << "The right path is usable" << std::endl;
                             robot->main_body.pose(0, 0, 0, 0, 0, 140);
                             
@@ -228,12 +218,6 @@ void* RobotDog::control_thread(void* param) {
                             wait_real(1000);
                             break;
                         }
-                        
-                        // Move backwards
-                        std::cout << "No usable path found, going backwards" << std::endl;
-                        yaw_buf   = 0.0F;
-                        speed_buf = -60.0F;
-                        wait_real(2500);
                     }
                 }
 
