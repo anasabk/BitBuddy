@@ -32,11 +32,13 @@ private:
     int frameCount = 0;
     float fps = -1;
 
+    void processFrame(cv::Mat &frame) override;
+    void undistortFrame(cv::Mat &frame);
+    std::vector<Detection> detect(const cv::Mat &frame, cv::dnn::Net &net, const std::vector<std::string> &classNames);
+    cv::Mat formatYoloV5(const cv::Mat &frame);
     std::vector<std::string> loadClassNames();
     cv::dnn::Net loadNet(bool useCuda);
-    cv::Mat formatYoloV5(const cv::Mat &frame);
-    std::vector<Detection> detect(const cv::Mat &frame, cv::dnn::Net &net, const std::vector<std::string> &classNames);
-    void processFrame(cv::Mat &frame) override;
+    cv::Mat loadMat(std::string filename, int rows, int cols);
 };
 
 #endif // OBJECTDETECTION_H

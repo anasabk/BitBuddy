@@ -1,49 +1,71 @@
 #include "ObjectDetection.h"
 
 #include <fstream>
+#include <opencv2/ccalib/omnidir.hpp>
 
-std::vector<std::string> ObjectDetection::loadClassNames()
+void ObjectDetection::processFrame(cv::Mat &frame)
 {
-    std::vector<std::string> classNames;
-    std::ifstream ifs("yolo_config/classes.txt");
-    std::string line;
+    static auto classNames = loadClassNames();
+    static auto net = loadNet(false);
 
-    while (getline(ifs, line))
-        classNames.push_back(line);
+    undistortFrame(frame);
+    auto detections = detect(frame, net, classNames);
 
-    return classNames;
+    frameCount++;
+
+    for (int i = 0; i < detections.size(); ++i)
+    {
+        Detection detection = detections[i];
+        cv::Rect box = detection.box;
+        int classId = detection.classId;
+        cv::Scalar color = colors[classId % colors.size()];
+
+        cv::rectangle(frame, box, color, 3);
+        cv::rectangle(frame, cv::Point(box.x, box.y - 20), cv::Point(box.x + box.width, box.y), color, cv::FILLED);
+        cv::putText(frame, classNames[classId].c_str(), cv::Point(box.x, box.y - 5), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
+    }
+
+    if (frameCount >= 30)
+    {
+        auto end = std::chrono::high_resolution_clock::now();
+        fps = frameCount * 1000.0 / std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+        frameCount = 0;
+        start = std::chrono::high_resolution_clock::now();
+    }
+
+    if (fps > 0)
+    {
+        std::ostringstream fpsLabel;
+
+        fpsLabel << std::fixed << std::setprecision(2);
+        fpsLabel << "FPS: " << fps;
+
+        cv::putText(frame, fpsLabel.str().c_str(), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 0, 255), 2);
+    }
 }
 
-cv::dnn::Net ObjectDetection::loadNet(bool useCuda)
+void ObjectDetection::undistortFrame(cv::Mat &frame)
 {
-    auto net = cv::dnn::readNet("yolo_config/bestv2.onnx");
+    static bool isOmnidir = false;
+    static double kNewParam = isOmnidir ? 0.5 : 0.9;
+    static int omnidirRectify = cv::omnidir::RECTIFY_PERSPECTIVE;
 
-    if (useCuda)
-    {
-        cout("Attempting to use CUDA...");
-        net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
-        net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA_FP16);
-    }
+    static std::string filename = isOmnidir ? "omni" : "fisheye";
+    static cv::Mat k = loadMat("calibration/K_" + filename + ".csv", 3, 3);
+    static cv::Mat d = loadMat("calibration/d_" + filename + ".csv", 1, 4);
+    static cv::Mat xi = isOmnidir ? loadMat("calibration/xi_omni.csv", 1, 1) : cv::Mat();
+    static cv::Mat kNew = [&]() {
+        cv::Mat kNew = k.clone();
+        k.at<double>(0, 0) *= kNewParam;
+        k.at<double>(1, 1) *= kNewParam;
+        return kNew;
+    }();
+
+    if (isOmnidir)
+        cv::omnidir::undistortImage(frame, frame, k, d, xi, omnidirRectify, kNew);
     else
-    {
-        cout("Running on CPU.");
-        net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
-        net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
-    }
-
-    return net;
-}
-
-cv::Mat ObjectDetection::formatYoloV5(const cv::Mat &frame)
-{
-    int cols = frame.cols;
-    int rows = frame.rows;
-    int max = std::max(cols, rows);
-
-    cv::Mat formattedFrame = cv::Mat::zeros(max, max, CV_8UC3);
-    frame.copyTo(formattedFrame(cv::Rect(0, 0, cols, rows)));
-
-    return formattedFrame;
+        cv::fisheye::undistortImage(frame, frame, k, d, kNew);
 }
 
 std::vector<ObjectDetection::Detection>
@@ -119,43 +141,69 @@ ObjectDetection::detect(const cv::Mat &frame, cv::dnn::Net &net, const std::vect
     return detections;
 }
 
-void ObjectDetection::processFrame(cv::Mat &frame)
+cv::Mat ObjectDetection::formatYoloV5(const cv::Mat &frame)
 {
-    static auto classNames = loadClassNames();
-    static auto net = loadNet(false);
+    int cols = frame.cols;
+    int rows = frame.rows;
+    int max = std::max(cols, rows);
 
-    auto detections = detect(frame, net, classNames);
+    cv::Mat formattedFrame = cv::Mat::zeros(max, max, CV_8UC3);
+    frame.copyTo(formattedFrame(cv::Rect(0, 0, cols, rows)));
 
-    frameCount++;
+    return formattedFrame;
+}
 
-    for (int i = 0; i < detections.size(); ++i)
+std::vector<std::string> ObjectDetection::loadClassNames()
+{
+    std::vector<std::string> classNames;
+    std::ifstream ifs("yolo_config/classes.txt");
+    std::string line;
+
+    while (getline(ifs, line))
+        classNames.push_back(line);
+
+    return classNames;
+}
+
+cv::dnn::Net ObjectDetection::loadNet(bool useCuda)
+{
+    auto net = cv::dnn::readNet("yolo_config/bestv2.onnx");
+
+    if (useCuda)
     {
-        Detection detection = detections[i];
-        cv::Rect box = detection.box;
-        int classId = detection.classId;
-        cv::Scalar color = colors[classId % colors.size()];
-
-        cv::rectangle(frame, box, color, 3);
-        cv::rectangle(frame, cv::Point(box.x, box.y - 20), cv::Point(box.x + box.width, box.y), color, cv::FILLED);
-        cv::putText(frame, classNames[classId].c_str(), cv::Point(box.x, box.y - 5), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
+        cout("Attempting to use CUDA...");
+        net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
+        net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA_FP16);
+    }
+    else
+    {
+        cout("Running on CPU.");
+        net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+        net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
     }
 
-    if (frameCount >= 30)
-    {
-        auto end = std::chrono::high_resolution_clock::now();
-        fps = frameCount * 1000.0 / std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    return net;
+}
 
-        frameCount = 0;
-        start = std::chrono::high_resolution_clock::now();
+cv::Mat ObjectDetection::loadMat(std::string filename, int rows, int cols)
+{
+    cv::Mat out = cv::Mat::zeros(rows, cols, CV_64FC1);
+
+    std::ifstream ifs(filename);
+    std::string rowStr;
+    std::string valStr;
+
+    for (int row = 0; row < rows; row++)
+    {
+        std::getline(ifs, rowStr);
+        std::stringstream rowSs(rowStr);
+
+        for (int col = 0; col < cols; col++)
+        {
+            std::getline(rowSs, valStr, ',');
+            out.at<double>(row, col) = std::stod(valStr);
+        }
     }
 
-    if (fps > 0)
-    {
-        std::ostringstream fpsLabel;
-
-        fpsLabel << std::fixed << std::setprecision(2);
-        fpsLabel << "FPS: " << fps;
-
-        cv::putText(frame, fpsLabel.str().c_str(), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 0, 255), 2);
-    }
+    return out;
 }
