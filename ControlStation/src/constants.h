@@ -12,7 +12,7 @@ namespace constants
 
     constexpr int maxUdpBuffer = 65507;
     constexpr int targetFps = 30;
-    constexpr int joystickSendRate = 10;
+    constexpr int joystickSendRate = 4;
 
     constexpr char white[] = "#e0e0e0";
     constexpr char whiteDisabled[] = "#808080";
