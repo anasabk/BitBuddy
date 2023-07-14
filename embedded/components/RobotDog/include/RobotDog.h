@@ -62,7 +62,7 @@ private:
     pid_t video_streamer;
 
     char *const vid_args[12] = {
-        "libcamera-vid", "-n", "-t", "0", "--inline", "--framerate", "20", "-o", "udp://" CONTROLSTATION_IP_ADDR ":" VIDEO_PORT, NULL
+        "libcamera-vid", "-n", "-t", "0", "--inline", "--framerate", "30", "-o", "udp://" CONTROLSTATION_IP_ADDR ":" VIDEO_PORT, NULL
     };
 
 
