@@ -94,12 +94,12 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 
 void MainWindow::setSizes()
 {
-    float height = size().height() / 2.0f;
-    float cameraAspectRatio = (float)camera->pixmap().width() / camera->pixmap().height();
-    float objDetAspectRatio = (float)objDet->pixmap().width() / objDet->pixmap().height();
+//    float height = size().height() / 2.0f;
+//    float cameraAspectRatio = (float)camera->pixmap().width() / camera->pixmap().height();
+//    float objDetAspectRatio = (float)objDet->pixmap().width() / objDet->pixmap().height();
 
-    camera->setFixedSize(height * cameraAspectRatio, height);
-    objDet->setFixedSize(height * objDetAspectRatio, height);
+//    camera->setFixedSize(height * cameraAspectRatio, height);
+//    objDet->setFixedSize(height * objDetAspectRatio, height);
 }
 
 void MainWindow::onSwitchStateChanged(Switch::Type type, bool state)

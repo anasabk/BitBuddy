@@ -9,6 +9,8 @@ void ObjectDetection::processFrame(cv::Mat &frame)
     static auto net = loadNet(false);
 
     undistortFrame(frame);
+    transformFrame(frame);
+
     auto detections = detect(frame, net, classNames);
 
     frameCount++;
@@ -47,9 +49,9 @@ void ObjectDetection::processFrame(cv::Mat &frame)
 
 void ObjectDetection::undistortFrame(cv::Mat &frame)
 {
-    static bool isOmnidir = false;
-    static double kNewParam = isOmnidir ? 0.5 : 0.9;
-    static int omnidirRectify = cv::omnidir::RECTIFY_PERSPECTIVE;
+    static constexpr bool isOmnidir = false;
+    static constexpr double kNewParam = isOmnidir ? 0.5 : 0.9;
+    static constexpr int omnidirRectify = cv::omnidir::RECTIFY_PERSPECTIVE;
 
     static std::string filename = isOmnidir ? "omni" : "fisheye";
     static cv::Mat k = loadMat("calibration/K_" + filename + ".csv", 3, 3);
@@ -66,6 +68,33 @@ void ObjectDetection::undistortFrame(cv::Mat &frame)
         cv::omnidir::undistortImage(frame, frame, k, d, xi, omnidirRectify, kNew);
     else
         cv::fisheye::undistortImage(frame, frame, k, d, kNew);
+}
+
+void ObjectDetection::transformFrame(cv::Mat &frame)
+{
+    static constexpr float cropHeight = 250;
+    static constexpr int perspectiveX = 165;
+    static constexpr int perspectiveY = 15;
+
+    frame = frame(cv::Rect(0, frame.rows - cropHeight, frame.cols, cropHeight));
+
+    float width = frame.cols;
+    float height = frame.rows;
+
+    float pts1Data[4][2] = {
+        {perspectiveX, perspectiveY}, {width - perspectiveX, perspectiveY},
+        {0, height}, {width, height}
+    };
+    float pts2Data[4][2] = {
+        {0, 0}, {width, 0},
+        {0, height}, {width, height}
+    };
+
+    cv::Mat pts1 = cv::Mat(4, 2, CV_32FC1, pts1Data);
+    cv::Mat pts2 = cv::Mat(4, 2, CV_32FC1, pts2Data);
+
+    cv::Mat mat = cv::getPerspectiveTransform(pts1, pts2);
+    cv::warpPerspective(frame, frame, mat, cv::Size(frame.cols, frame.rows));
 }
 
 std::vector<ObjectDetection::Detection>
