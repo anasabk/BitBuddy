@@ -165,11 +165,11 @@ void* RobotDog::control_thread(void* param) {
                     // The way is fully opened
                     if(right_isopen && left_isopen) {
                         std::cout << "The way is open" << std::endl;
-                        temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
-                                std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
+                        // temp_ratio = (robot->sensor_data.front_dist[0] - robot->sensor_data.front_dist[1]) / 
+                        //         std::max(robot->sensor_data.front_dist[0], robot->sensor_data.front_dist[1]);
                         
-                        yaw_buf   = temp_ratio * M_PI/8;
-                        speed_buf = temp_ratio * 60.0F;
+                        yaw_buf   = 0.0F;
+                        speed_buf = 60.0F;
 
                     // Left side is open 
                     } else if(left_isopen) {
