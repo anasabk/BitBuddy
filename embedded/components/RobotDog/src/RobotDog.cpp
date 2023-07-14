@@ -143,13 +143,18 @@ void* RobotDog::control_thread(void* param) {
                 // Check gravity
                 if(robot->sensor_data.mpu_buff.z_accel < 0) {
                     std::cout << "Recovering" << std::endl;
+                    yaw_buf   = 0.0F;
+                    speed_buf = 0.0F;
+                    sleep(5);
+
                     int i = 0;
                     while (robot->sensor_data.mpu_buff.z_accel < 0.2 && i < 2) {
                         i++;
                         sleep(1);
                     }
 
-                    robot->main_body.recover();
+                    if(i >= 2)
+                        robot->main_body.recover();
                 
                 // Recenter gravity: correct the robot's gravity center.
                 } else {
@@ -185,7 +190,7 @@ void* RobotDog::control_thread(void* param) {
 
                         // Look to the left side
                         robot->main_body.pose(0, M_PI/8, 0, 0, 0, 140);
-                        wait_real(300);
+                        wait_real(500);
 
                         // Check the sides
                         is_open = (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
@@ -203,7 +208,7 @@ void* RobotDog::control_thread(void* param) {
 
                         // Look to the right side
                         robot->main_body.pose(0, -M_PI/8, 0, 0, 0, 140);
-                        wait_real(300);
+                        wait_real(500);
 
                         // Check the sides
                         is_open = (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
