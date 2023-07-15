@@ -180,10 +180,17 @@ if not counters_loaded:
 
 
 
+    # MAX DIST DEĞERİNİ AYARLAYARAK NE KADAR UZAKTAKİ NOKTALARIN SİLİNECEĞİNİ SEÇİN.
     max_dist = 10
     far_points = []
+    pl_max_x = 0
+    pl_max_z = 0
+    pl_min_x = 0
+    pl_min_z = 0
     
     np.savetxt("point_locations.txt", point_locations, fmt='%d')
+
+
 
     for i in range (len(point_locations)):
         cur_min_dist = 999999
@@ -200,14 +207,37 @@ if not counters_loaded:
                 cur_min_dist = dist
         
         if(cur_min_dist > max_dist):
-            print("deleted far point on index: ", i)
-            print("coordinates: ", point_locations[i][0], " - ", point_locations[i][2])
+            # print("deleted far point on index: ", i)
+            # print("coordinates: ", point_locations[i][0], " - ", point_locations[i][2])
             far_points.append(i)
 
+        else:
+            if(point_locations[i][0] < pl_min_x):
+                pl_min_x = point_locations[i][0]
+            elif(point_locations[i][0] > pl_max_x):
+                pl_max_x = point_locations[i][0]
+            if(point_locations[i][2] < pl_min_z):
+                pl_min_z = point_locations[i][2]
+            elif(point_locations[i][2] > pl_max_z):
+                pl_max_z = point_locations[i][2]
+
+
+    print("pl_max_x: ", pl_max_x)
+    print("pl_min_x: ", pl_min_x)
+    print("pl_max_z: ", pl_max_z)
+    print("pl_min_z: ", pl_min_z)
+    
+
     for i in range(len(far_points)):
+        index = far_points[i]
+        if(point_locations[index][0] < pl_max_x + max_dist and point_locations[index][0] > pl_min_x - max_dist and
+           point_locations[index][2] < pl_max_z + max_dist and point_locations[index][2] > pl_min_z - max_dist):
+            continue
+        
+        print("deleted point on coordinates: ", point_locations[index][0], " - ", point_locations[index][2])
         point_locations = np.delete(point_locations, far_points[i], 0)
         n_points -= 1
-        for j in range (len(far_points)):
+        for j in range (i + 1, len(far_points)):
             far_points[j] -= 1
 
 
@@ -235,6 +265,9 @@ if not counters_loaded:
     print('grid_min_x: ', grid_min_x)
     print('grid_max_z: ', grid_max_z)
     print('grid_min_z: ', grid_min_z)
+
+
+
 
     grid_res = [int(grid_max_x - grid_min_x), int(grid_max_z - grid_min_z)]
     print('grid_ress: ', grid_res)
