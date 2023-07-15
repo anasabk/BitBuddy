@@ -8,7 +8,7 @@ def build_model(is_cuda):
     if is_cuda:
         print("Attempty to use CUDA")
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-        net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
+        net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
     else:
         print("Running on CPU")
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
