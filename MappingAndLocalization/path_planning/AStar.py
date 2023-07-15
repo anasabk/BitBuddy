@@ -34,7 +34,10 @@ class AStarPlanner:
         open_set, closed_set = dict(), dict()
         open_set[self.calc_grid_index(start_node)] = start_node
 
+        
+
         while True:
+            #print(len(open_set))
             if len(open_set) == 0:
                 print("Open set is empty..")
                 break
@@ -119,6 +122,9 @@ class AStarPlanner:
 
         return True
 
+
+
+    ## BU KISIM ÇOK UZUN SÜRÜYOR
     def calc_obstacle_map(self, ox, oy):
         self.min_x = round(min(ox))
         self.min_y = round(min(oy))
@@ -136,6 +142,7 @@ class AStarPlanner:
 
         self.obstacle_map = np.zeros((self.x_width, self.y_width), dtype=bool)
         for ix in range(self.x_width):
+            print("calc_obstacle_map: ", ix, "/", self.x_width, end="\r")
             x = self.calc_grid_position(ix, self.min_x)
             for iy in range(self.y_width):
                 y = self.calc_grid_position(iy, self.min_y)
@@ -162,44 +169,64 @@ class AStarPlanner:
 def main():
     print(__file__ + " start!!")
 
-    sx = 10.0  # [m]
-    sy = 10.0  # [m]
-    gx = 50.0  # [m]
-    gy = 50.0  # [m]
+    # sx = 413.0  # [m]
+    # sy = 333.0  # [m]
+    # gx = 644.0  # [m]
+    # gy = 479.0  # [m]
+
+    # sx-sy başlangıç, gx-gy hedef kordinatları
+    sx = 666.0  # [m]
+    sy = 488.0  # [m]
+    gx = 668.0  # [m]
+    gy = 390.0  # [m]
+
+
     grid_size = 2.0  # [m]
-    robot_radius = 1.0  # [m]
+    robot_radius = 2.0  # [m]
 
     ox, oy = [], []
-    for i in range(-10, 60):
-        ox.append(i)
-        oy.append(-10.0)
-    for i in range(-10, 60):
-        ox.append(60.0)
-        oy.append(i)
-    for i in range(-10, 61):
-        ox.append(i)
-        oy.append(60.0)
-    for i in range(-10, 61):
-        ox.append(-10.0)
-        oy.append(i)
-    for i in range(-10, 40):
-        ox.append(20.0)
-        oy.append(i)
-    for i in range(0, 40):
-        ox.append(40.0)
-        oy.append(60.0 - i)
+    
 
     img = mpimg.imread("image.pgm")
     img_height, img_width = img.shape[:2]
 
+    # Haritanın kullanmak istediğiniz alanının kordinatları
+    min_x_range = 550
+    min_y_range = 375
+    max_x_range = 700
+    max_y_range = 500
+
+
+
+    # Bu kısımda sınırları çiziyor. Aranan alanın sınırları olması şart.
+    ox, oy = [], []
+    for i in range(min_x_range, max_x_range):
+        ox.append(i)
+        oy.append(min_y_range)
+    for i in range(min_y_range, max_y_range):
+        ox.append(max_x_range)
+        oy.append(i)
+    for i in range(min_x_range, max_x_range):
+        ox.append(i)
+        oy.append(max_y_range)
+    for i in range(min_y_range, max_y_range):
+        ox.append(min_x_range)
+        oy.append(i)
+
+
     # Calculate the obstacle positions based on the image
-    for x in range(img_width):
-        for y in range(img_height):
-            if np.array_equal(img[y, x], [0, 0, 0]):
+    # Haritadaki engel noktalarını tanıtma kısmı. 128 keşfedilmemiş noktaların değeri. Bu değeri
+    # duruma göre değiştirmek gerekebilir.
+    for x in range(min_x_range, max_x_range):
+        for y in range(min_y_range, max_y_range):
+            if (img[y, x] <= 150):
+                #print("obstacle on: ", x, " ", y)
                 ox.append(x)
                 oy.append(y)
 
     a_star = AStarPlanner(ox, oy, grid_size, robot_radius)
+
+
     rx, ry = a_star.planning(sx, sy, gx, gy)
 
     # Plot the image and path
