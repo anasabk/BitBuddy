@@ -266,8 +266,8 @@ void* Body::move_thread(void *param) {
         return NULL;
     }
 
-    const double l_leen_off =  30.0;
-    const double r_leen_off = -30.0;
+    const double l_leen_off =  35.0;
+    const double r_leen_off = -35.0;
     const double f_leen_off =  15.0;
     const double b_leen_off = -15.0;
     double drift_offset = 0;
@@ -284,7 +284,7 @@ void* Body::move_thread(void *param) {
         } else
             pause_counter = 0;
 
-        if(pause_counter >= 2) {
+        if(pause_counter >= 2){
             wait_real(300);
             continue;
         }
@@ -316,18 +316,18 @@ void* Body::move_thread(void *param) {
         body->leg_buf[leg_num][2] = 50;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        body->move(100);
+        body->move(80);
 
         body->leg_buf[leg_num][0] = (body->legs[leg_num].is_front() ? 15 :-50) - new_pose_buf[leg_num][0];
         body->leg_buf[leg_num][1] = (body->legs[leg_num].is_right() ?-55 : 55) - new_pose_buf[leg_num][1];
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        body->move(100);
+        body->move(80);
 
         body->leg_buf[leg_num][2] = 0;
         vector_sub<3>(body->leg_buf[leg_num], body->pose_buf[leg_num], temp_v);
         body->legs[leg_num].get_angles(temp_v, &body->servo_buf[leg_num*3]);
-        body->move(100);
+        body->move(80);
 
 
         if(leg_num > 1) {

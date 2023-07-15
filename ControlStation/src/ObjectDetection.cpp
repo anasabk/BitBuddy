@@ -202,7 +202,7 @@ cv::dnn::Net ObjectDetection::loadNet(bool useCuda)
     {
         cout("Attempting to use CUDA...");
         net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
-        net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA_FP16);
+        net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
     }
     else
     {
