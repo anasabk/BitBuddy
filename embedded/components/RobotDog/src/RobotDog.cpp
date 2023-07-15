@@ -366,11 +366,11 @@ void RobotDog::run() {
                     
                     pthread_sigmask(SIG_UNBLOCK, &set, NULL);
 
-                    if((video_streamer = fork()) == 0){
-                        execv("/bin/libcamera-vid", vid_args);
-                        perror("Could not fork the video streamer");
-                        exit(0);
-                    }
+                    // if((video_streamer = fork()) == 0){
+                    //     execv("/bin/libcamera-vid", vid_args);
+                    //     perror("Could not fork the video streamer");
+                    //     exit(0);
+                    // }
 
                 } else if(!buffer.state && is_running) {
                     is_connected = false;
@@ -389,8 +389,8 @@ void RobotDog::run() {
             pthread_join(hcsr04_thread_id, NULL);
             pthread_join(control_thread_id, NULL);
             pthread_join(telem_thread_id, NULL);
-            kill(video_streamer, SIGINT);
-            wait(&video_streamer);
+            // kill(video_streamer, SIGINT);
+            // wait(&video_streamer);
         }
 
         main_body.sit_down();
@@ -408,8 +408,8 @@ void RobotDog::run() {
         pthread_join(hcsr04_thread_id, NULL);
         pthread_join(control_thread_id, NULL);
         pthread_join(telem_thread_id, NULL);
-        kill(video_streamer, SIGINT);
-        wait(&video_streamer);
+        // kill(video_streamer, SIGINT);
+        // wait(&video_streamer);
     }
 
     main_body.sit_down();
