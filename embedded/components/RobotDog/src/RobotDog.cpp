@@ -36,7 +36,7 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
     snprintf(this->cs_addr, 23, "%s", cs_addr);
 
     snprintf(this->video_addr, 63, "udp://%s:%d", cs_addr, VIDEO_PORT);
-    vid_args[11] = this->video_addr;
+    vid_args[10] = this->video_addr;
     
     is_running = true;
 }
