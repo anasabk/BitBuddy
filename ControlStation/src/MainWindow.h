@@ -34,8 +34,10 @@ public:
         return instance;
     }
 
+    ~MainWindow();
+
 private:
-    MainWindow() : QGroupBox() {};
+    MainWindow() : QGroupBox() {}
     void init();
 
 signals:
@@ -43,7 +45,7 @@ signals:
     void keyReleased(QKeyEvent *event);
 
 protected:
-    void resizeEvent(QResizeEvent *event) override { setSizes(); };
+    void resizeEvent(QResizeEvent *event) override { setSizes(); }
 
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
@@ -54,6 +56,13 @@ private:
     Joystick *joystick;
 
     DesktopCam desktopCam;
+
+    pid_t mappingPid = -1;
+    void startMappingProcess();
+
+    QLabel *gridMap;
+    pid_t gridMapPid = -1;
+    Q_SLOT void startGridMapProcess();
 
 private slots:
     void setSizes();

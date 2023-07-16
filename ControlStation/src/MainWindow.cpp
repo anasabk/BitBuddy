@@ -5,26 +5,36 @@
 
 #include <QScrollBar>
 #include <QKeyEvent>
+#include <QPushButton>
 #include <signal.h>
 #include <sys/wait.h>
 
 void MainWindow::init()
 {
-    QGroupBox *HBox1 = new QGroupBox(this);
-    QGroupBox *HBox2 = new QGroupBox(this);
-    QGroupBox *cameraVBox = new QGroupBox(HBox1);
-    QGroupBox *objDetVBox = new QGroupBox(HBox1);
-    Console *console = new Console(HBox2);
-    joystick = new Joystick(200, HBox2);
-    TelemetryViewer *telemetryViewer = new TelemetryViewer(HBox2);
-    QGroupBox *switchesVBox = new QGroupBox(HBox2);
+    startMappingProcess();
 
-    QVBoxLayout *VBoxLayout = new QVBoxLayout(this);
-    QHBoxLayout *HBox1Layout = new QHBoxLayout(HBox1);
-    QHBoxLayout *HBox2Layout = new QHBoxLayout(HBox2);
+    QGroupBox *VBox1 = new QGroupBox(this);
+    QGroupBox *VBox2 = new QGroupBox(this);
+    QGroupBox *cameraVBox = new QGroupBox(VBox1);
+    QGroupBox *objDetVBox = new QGroupBox(VBox1);
+    gridMap = new QLabel(VBox2);
+    QGroupBox *HBox1 = new QGroupBox(VBox2);
+    Console *console = new Console(HBox1);
+    joystick = new Joystick(200, HBox1);
+    TelemetryViewer *telemetryViewer = new TelemetryViewer(HBox1);
+    QGroupBox *switchesVBox = new QGroupBox(HBox1);
+
+    QHBoxLayout *HBoxLayout = new QHBoxLayout(this);
+    QVBoxLayout *VBox1Layout = new QVBoxLayout(VBox1);
+    QVBoxLayout *VBox2Layout = new QVBoxLayout(VBox2);
     QVBoxLayout *cameraVBoxLayout = new QVBoxLayout(cameraVBox);
     QVBoxLayout *objDetVBoxLayout = new QVBoxLayout(objDetVBox);
+    QHBoxLayout *HBox1Layout = new QHBoxLayout(HBox1);
     QVBoxLayout *switchesVBoxLayout = new QVBoxLayout(switchesVBox);
+
+    QPushButton *gridMapStart = new QPushButton("Grid Map", HBox1);
+    gridMapStart->connect(gridMapStart, &QPushButton::clicked, this, &MainWindow::startGridMapProcess);
+    gridMapStart->setStyleSheet(QString("border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
 
     QLabel *cameraLabel = new QLabel("Camera", cameraVBox);
     camera = new Camera("Camera", constants::cameraPort, cameraVBox);
@@ -37,32 +47,36 @@ void MainWindow::init()
 
     setStyleSheet("border: none; background: #303030");
 
-    VBoxLayout->addWidget(HBox1, 0, Qt::AlignHCenter | Qt::AlignVCenter);
-    VBoxLayout->addWidget(HBox2, 0, Qt::AlignHCenter | Qt::AlignVCenter);
+    HBoxLayout->addWidget(VBox1, 0, Qt::AlignLeft | Qt::AlignVCenter);
+    HBoxLayout->addWidget(VBox2, 0, Qt::AlignRight | Qt::AlignVCenter);
+    HBoxLayout->setContentsMargins(0, 0, 0, 0);
 
-    HBox1Layout->addWidget(cameraVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
-    HBox1Layout->addWidget(objDetVBox, 0, Qt::AlignHCenter | Qt::AlignVCenter);
+    VBox1Layout->addWidget(cameraVBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
+    VBox1Layout->addWidget(objDetVBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
+    VBox1Layout->setContentsMargins(0, 0, 0, 0);
 
-    HBox2Layout->addWidget(console, Qt::AlignVCenter);
+    VBox2Layout->addWidget(gridMap, 0, Qt::AlignHCenter | Qt::AlignVCenter);
+    cv::Mat pgm = cv::imread("bit_buddy.pgm");
+    gridMap->setPixmap(QPixmap::fromImage(QImage(pgm.data, pgm.cols, pgm.rows, QImage::Format_RGB888)).scaledToWidth(800));
+    VBox2Layout->addWidget(HBox1, 0, Qt::AlignHCenter | Qt::AlignBottom);
+
+    HBox1Layout->addWidget(console, Qt::AlignVCenter);
     console->setFixedWidth(500);
-    HBox2Layout->addItem(new QSpacerItem(100, 0));
-    HBox2Layout->addWidget(joystick, Qt::AlignVCenter);
-    HBox2Layout->addItem(new QSpacerItem(50, 0));
-    HBox2Layout->addWidget(switchesVBox, Qt::AlignVCenter);
-    HBox2Layout->addItem(new QSpacerItem(100, 0));
-    HBox2Layout->addWidget(telemetryViewer, Qt::AlignVCenter);
+    HBox1Layout->addWidget(joystick, Qt::AlignVCenter);
+    HBox1Layout->addWidget(switchesVBox, Qt::AlignVCenter);
+    HBox1Layout->addWidget(telemetryViewer, Qt::AlignVCenter);
     telemetryViewer->setFixedSize(300, 160);
-    HBox2Layout->setContentsMargins(30, 40, 0, 40);
+    HBox1Layout->setContentsMargins(0, 0, 0, 0);
 
     cameraVBoxLayout->addWidget(cameraLabel);
-    cameraLabel->setStyleSheet("color: #e0e0e0");
+    cameraLabel->setStyleSheet(QString("color: %1").arg(constants::white));
     cameraVBoxLayout->addWidget(camera);
-    camera->setStyleSheet("border: 2px solid #e0e0e0");
+    camera->setStyleSheet(QString("border: 2px solid %1").arg(constants::white));
 
     objDetVBoxLayout->addWidget(objDetLabel);
-    objDetLabel->setStyleSheet("color: #e0e0e0");
+    objDetLabel->setStyleSheet(QString("color: %1").arg(constants::white));
     objDetVBoxLayout->addWidget(objDet);
-    objDet->setStyleSheet("border: 2px solid #e0e0e0");
+    objDet->setStyleSheet(QString("border: 2px solid %1").arg(constants::white));
 
     switchesVBox->stackUnder(joystick);
 
@@ -80,6 +94,29 @@ void MainWindow::init()
     showMaximized();
 }
 
+MainWindow::~MainWindow()
+{
+    std::cout << "[MainWindow] Cleaning up..." << std::endl;
+
+    if (mappingPid != -1)
+    {
+        if (kill(mappingPid, SIGKILL) == -1)
+            perror("[MainWindow] kill");
+        if (wait(NULL) == -1)
+            perror("[MainWindow] wait");
+    }
+
+    if (gridMapPid != -1)
+    {
+        if (kill(gridMapPid, SIGKILL) == -1)
+            perror("[MainWindow] kill");
+        if (wait(NULL) == -1)
+            perror("[MainWindow] wait");
+    }
+
+    std::cout << "[MainWindow] Done." << std::endl;
+}
+
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     emit keyPressed(event);
@@ -90,6 +127,43 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
     emit keyReleased(event);
     QGroupBox::keyReleaseEvent(event);
+}
+
+void MainWindow::startMappingProcess()
+{
+//    mappingPid = fork();
+
+//    if (mappingPid == -1)
+//    {
+//        perror("[MainWindow] fork 1");
+//        return;
+//    }
+
+//    if (mappingPid == 0)
+//    {
+//        execlp("mapping/mapping", "mapping/mapping",
+//               "mapping/ORBdoc.txt", "mapping/mapping.yaml", std::to_string(constants::mappingPort), (char*)NULL);
+//        perror("[MainWindow] execlp 1");
+//        _exit(127);
+//    }
+}
+
+void MainWindow::startGridMapProcess()
+{
+    gridMapPid = fork();
+
+    if (gridMapPid == -1)
+    {
+        perror("[MainWindow] fork 2");
+        return;
+    }
+
+    if (gridMapPid == 0)
+    {
+        execlp("python3", "pointCloudToGridMap2D.py", "pointCloudToGridMap2D.py", (char*)NULL);
+        perror("[MainWindow] execlp 2");
+        _exit(127);
+    }
 }
 
 void MainWindow::setSizes()
