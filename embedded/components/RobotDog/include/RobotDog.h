@@ -60,10 +60,10 @@ private:
 
     pid_t video_streamer;
 
-    char cs_ip_addr[24];
+    char cs_addr[64];
 
-    char *const vid_args[10] = {
-        "libcamera-vid", "-n", "-t", "0", "--codec", "mjpeg", "--inline", "--framerate", "30", "-o"
+    char * vid_args[12] = {
+        "libcamera-vid", "-n", "-t", "0", "--codec", "mjpeg", "--inline", "--framerate", "7", "-o", NULL, NULL
     };
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};

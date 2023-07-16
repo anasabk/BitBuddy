@@ -19,7 +19,7 @@ sig_atomic_t is_running;
 sig_atomic_t term_flag;
 
 
-RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr, char *cs_ip_addr)
+RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr, char *cs_addr)
     : pca(pca_bus, pca_addr, 50), lcd(lcd_bus, lcd_addr), hc_sr04{HC_SR04(5, 6), HC_SR04(27, 17)}, mpu6050(mpu_bus, mpu_addr),
     servos{ 
 		// Top, Mid, and Low motors for each leg
@@ -33,7 +33,8 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 	for(int i = 0; i < 12; i++)
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
 
-    snprintf(this->cs_ip_addr, 23, "%s", cs_ip_addr);
+    snprintf(this->cs_addr, 23, "%s", cs_addr);
+    vid_args[11] = this->cs_addr;
     
     is_running = true;
 }
@@ -57,7 +58,7 @@ void* RobotDog::telem_thread(void *param) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(TELEM_PORT);
-    addr.sin_addr.s_addr = inet_addr(robot->cs_ip_addr);
+    addr.sin_addr.s_addr = inet_addr(robot->cs_addr);
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(fd < 0)  {
@@ -102,7 +103,7 @@ void* RobotDog::control_thread(void* param) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(JOYSTICK_PORT);
-    addr.sin_addr.s_addr = inet_addr(robot->cs_ip_addr);
+    addr.sin_addr.s_addr = inet_addr(robot->cs_addr);
 
     robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(robot->js_server_fd < 0)  {
@@ -306,7 +307,7 @@ void RobotDog::run() {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(SWITCH_PORT);
-    addr.sin_addr.s_addr = inet_addr(cs_ip_addr);
+    addr.sin_addr.s_addr = inet_addr(cs_addr);
 
     mpu6050.calibrate();
 
@@ -382,11 +383,11 @@ void RobotDog::run() {
                     
                     pthread_sigmask(SIG_UNBLOCK, &set, NULL);
 
-                    // if((video_streamer = fork()) == 0){
-                    //     execv("/bin/libcamera-vid", vid_args, cs_ip_addr, NULL);
-                    //     perror("Could not fork the video streamer");
-                    //     exit(0);
-                    // }
+                    if((video_streamer = fork()) == 0){
+                        execv("/bin/libcamera-vid", vid_args);
+                        perror("Could not fork the video streamer");
+                        exit(0);
+                    }
 
                 } else if(!buffer.state && is_running) {
                     is_connected = false;
@@ -405,8 +406,8 @@ void RobotDog::run() {
             pthread_join(hcsr04_thread_id, NULL);
             pthread_join(control_thread_id, NULL);
             pthread_join(telem_thread_id, NULL);
-            // kill(video_streamer, SIGINT);
-            // wait(&video_streamer);
+            kill(video_streamer, SIGINT);
+            wait(&video_streamer);
         }
 
         main_body.sit_down();
@@ -424,8 +425,8 @@ void RobotDog::run() {
         pthread_join(hcsr04_thread_id, NULL);
         pthread_join(control_thread_id, NULL);
         pthread_join(telem_thread_id, NULL);
-        // kill(video_streamer, SIGINT);
-        // wait(&video_streamer);
+        kill(video_streamer, SIGINT);
+        wait(&video_streamer);
     }
 
     main_body.sit_down();
