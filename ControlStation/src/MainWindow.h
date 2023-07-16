@@ -12,6 +12,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QTextEdit>
+#include <QPushButton>
 
 class MainWindow : public QGroupBox
 {
@@ -51,18 +52,29 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
+    DesktopCam desktopCam;
+
     Camera *camera;
     ObjectDetection *objDet;
     Joystick *joystick;
 
-    DesktopCam desktopCam;
+    QPushButton *startMappingBtn;
+    QPushButton *stopMappingBtn;
+    QPushButton *killMappingBtn;
+    QPushButton *startPathfindingBtn;
+    QPushButton *stopPathfindingBtn;
+
+    QLabel *pathfinding;
 
     pid_t mappingPid = -1;
-    void startMappingProcess();
+    pid_t pathfindingPid = -1;
 
-    QLabel *gridMap;
-    pid_t gridMapPid = -1;
-    Q_SLOT void startGridMapProcess();
+    Q_SLOT void startMapping();
+    Q_SLOT void startPathfinding();
+
+    Q_SLOT void stopMapping();
+    Q_SLOT void killMapping();
+    Q_SLOT void stopPathfinding();
 
 private slots:
     void setSizes();

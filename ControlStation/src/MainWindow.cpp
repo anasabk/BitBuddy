@@ -5,19 +5,17 @@
 
 #include <QScrollBar>
 #include <QKeyEvent>
-#include <QPushButton>
 #include <signal.h>
 #include <sys/wait.h>
 
 void MainWindow::init()
 {
-    startMappingProcess();
-
     QGroupBox *VBox1 = new QGroupBox(this);
     QGroupBox *VBox2 = new QGroupBox(this);
     QGroupBox *cameraVBox = new QGroupBox(VBox1);
     QGroupBox *objDetVBox = new QGroupBox(VBox1);
-    gridMap = new QLabel(VBox2);
+    QGroupBox *buttonsHBox = new QGroupBox(VBox2);
+    pathfinding = new QLabel(VBox2);
     QGroupBox *HBox1 = new QGroupBox(VBox2);
 
     joystick = new Joystick(200, HBox1);
@@ -30,12 +28,9 @@ void MainWindow::init()
     QVBoxLayout *VBox2Layout = new QVBoxLayout(VBox2);
     QVBoxLayout *cameraVBoxLayout = new QVBoxLayout(cameraVBox);
     QVBoxLayout *objDetVBoxLayout = new QVBoxLayout(objDetVBox);
+    QHBoxLayout *buttonsHBoxLayout = new QHBoxLayout(buttonsHBox);
     QHBoxLayout *HBox1Layout = new QHBoxLayout(HBox1);
     QVBoxLayout *switchesVBoxLayout = new QVBoxLayout(switchesVBox);
-
-    QPushButton *gridMapStart = new QPushButton("Grid Map", HBox1);
-    gridMapStart->connect(gridMapStart, &QPushButton::clicked, this, &MainWindow::startGridMapProcess);
-    gridMapStart->setStyleSheet(QString("border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
 
     QLabel *cameraLabel = new QLabel("Camera", cameraVBox);
     camera = new Camera("Camera", constants::cameraPort, cameraVBox);
@@ -56,9 +51,46 @@ void MainWindow::init()
     VBox1Layout->addWidget(objDetVBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
     VBox1Layout->setContentsMargins(0, 0, 0, 0);
 
-    VBox2Layout->addWidget(gridMap, 0, Qt::AlignHCenter | Qt::AlignVCenter);
+    VBox2Layout->addWidget(buttonsHBox, 0, Qt::AlignLeft | Qt::AlignTop);
+
+    startMappingBtn = new QPushButton("Start Mapping", buttonsHBox);
+    stopMappingBtn = new QPushButton("Stop Mapping", buttonsHBox);
+    killMappingBtn = new QPushButton("Kill Mapping", buttonsHBox);
+    startPathfindingBtn = new QPushButton("Start Pathfinding", buttonsHBox);
+    stopPathfindingBtn = new QPushButton("Stop Pathfinding", buttonsHBox);
+
+    connect(startMappingBtn, &QPushButton::clicked, this, &MainWindow::startMapping);
+    connect(stopMappingBtn, &QPushButton::clicked, this, &MainWindow::stopMapping);
+    connect(killMappingBtn, &QPushButton::clicked, this, &MainWindow::killMapping);
+    connect(startPathfindingBtn, &QPushButton::clicked, this, &MainWindow::startPathfinding);
+    connect(stopPathfindingBtn, &QPushButton::clicked, this, &MainWindow::stopPathfinding);
+
+    startMappingBtn->setCursor(Qt::PointingHandCursor);
+    stopMappingBtn->setCursor(Qt::PointingHandCursor);
+    killMappingBtn->setCursor(Qt::PointingHandCursor);
+    startPathfindingBtn->setCursor(Qt::PointingHandCursor);
+    stopPathfindingBtn->setCursor(Qt::PointingHandCursor);
+
+    startMappingBtn->setStyleSheet(
+        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
+    stopMappingBtn->setStyleSheet(
+        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
+    killMappingBtn->setStyleSheet(
+        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
+    startPathfindingBtn->setStyleSheet(
+        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
+    stopPathfindingBtn->setStyleSheet(
+        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
+
+    buttonsHBoxLayout->addWidget(startMappingBtn);
+    buttonsHBoxLayout->addWidget(stopMappingBtn);
+    buttonsHBoxLayout->addWidget(killMappingBtn);
+    buttonsHBoxLayout->addWidget(startPathfindingBtn);
+    buttonsHBoxLayout->addWidget(stopPathfindingBtn);
+
+    VBox2Layout->addWidget(pathfinding, 0, Qt::AlignHCenter | Qt::AlignVCenter);
     cv::Mat pgm = cv::imread("bit_buddy.pgm");
-    gridMap->setPixmap(QPixmap::fromImage(QImage(pgm.data, pgm.cols, pgm.rows, QImage::Format_RGB888)).scaledToWidth(800));
+    pathfinding->setPixmap(QPixmap::fromImage(QImage(pgm.data, pgm.cols, pgm.rows, QImage::Format_RGB888)).scaledToWidth(800));
     VBox2Layout->addWidget(HBox1, 0, Qt::AlignHCenter | Qt::AlignBottom);
 
     HBox1Layout->addWidget(switchesVBox, Qt::AlignVCenter);
@@ -99,21 +131,8 @@ MainWindow::~MainWindow()
 {
     std::cout << "[MainWindow] Cleaning up..." << std::endl;
 
-    if (mappingPid != -1)
-    {
-        if (kill(mappingPid, SIGKILL) == -1)
-            perror("[MainWindow] kill");
-        if (wait(NULL) == -1)
-            perror("[MainWindow] wait");
-    }
-
-    if (gridMapPid != -1)
-    {
-        if (kill(gridMapPid, SIGKILL) == -1)
-            perror("[MainWindow] kill");
-        if (wait(NULL) == -1)
-            perror("[MainWindow] wait");
-    }
+    killMapping();
+    stopPathfinding();
 
     std::cout << "[MainWindow] Done." << std::endl;
 }
@@ -130,40 +149,74 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     QGroupBox::keyReleaseEvent(event);
 }
 
-void MainWindow::startMappingProcess()
+void MainWindow::startMapping()
 {
-//    mappingPid = fork();
+    mappingPid = fork();
 
-//    if (mappingPid == -1)
-//    {
-//        perror("[MainWindow] fork 1");
-//        return;
-//    }
+    if (mappingPid == -1)
+    {
+        perror("[MainWindow] fork 1");
+        return;
+    }
 
-//    if (mappingPid == 0)
-//    {
-//        execlp("mapping/mapping", "mapping/mapping",
-//               "mapping/ORBdoc.txt", "mapping/mapping.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
-//        perror("[MainWindow] execlp 1");
-//        _exit(127);
-//    }
+    if (mappingPid == 0)
+    {
+        chdir("mapping");
+        execlp("./mapping", "mapping", "ORBvoc.txt", "mapping.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
+        perror("[MainWindow] execlp 1");
+        _exit(127);
+    }
 }
 
-void MainWindow::startGridMapProcess()
+void MainWindow::startPathfinding()
 {
-    gridMapPid = fork();
+    pathfindingPid = fork();
 
-    if (gridMapPid == -1)
+    if (pathfindingPid == -1)
     {
         perror("[MainWindow] fork 2");
         return;
     }
 
-    if (gridMapPid == 0)
+    if (pathfindingPid == 0)
     {
-        execlp("python3", "pointCloudToGridMap2D.py", "pointCloudToGridMap2D.py", (char*)NULL);
+        chdir("pathfinding");
+        execlp("python3", "python3", "AStar.py", (char*)NULL);
         perror("[MainWindow] execlp 2");
         _exit(127);
+    }
+}
+
+void MainWindow::stopMapping()
+{
+    if (mappingPid != -1)
+    {
+        if (kill(mappingPid, SIGINT) == -1)
+            perror("[MainWindow] kill 1");
+//        if (wait(NULL) == -1)
+//            perror("[MainWindow] wait 1");
+    }
+}
+
+void MainWindow::killMapping()
+{
+    if (mappingPid != -1)
+    {
+        if (kill(mappingPid, SIGKILL) == -1)
+            perror("[MainWindow] kill 2");
+        //        if (wait(NULL) == -1)
+        //            perror("[MainWindow] wait 2");
+    }
+}
+
+void MainWindow::stopPathfinding()
+{
+    if (pathfindingPid != -1)
+    {
+        if (kill(pathfindingPid, SIGKILL) == -1)
+            perror("[MainWindow] kill 3");
+//        if (wait(NULL) == -1)
+//            perror("[MainWindow] wait 3");
     }
 }
 
