@@ -19,7 +19,7 @@ sig_atomic_t is_running;
 sig_atomic_t term_flag;
 
 
-RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr)
+RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr, char *cs_ip_addr)
     : pca(pca_bus, pca_addr, 50), lcd(lcd_bus, lcd_addr), hc_sr04{HC_SR04(5, 6), HC_SR04(27, 17)}, mpu6050(mpu_bus, mpu_addr),
     servos{ 
 		// Top, Mid, and Low motors for each leg
@@ -32,6 +32,8 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
 {
 	for(int i = 0; i < 12; i++)
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
+
+    snprintf(this->cs_ip_addr, 23, "%s", cs_ip_addr);
     
     is_running = true;
 }
@@ -55,7 +57,7 @@ void* RobotDog::telem_thread(void *param) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(TELEM_PORT);
-    addr.sin_addr.s_addr = inet_addr(CONTROLSTATION_IP_ADDR);
+    addr.sin_addr.s_addr = inet_addr(robot->cs_ip_addr);
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(fd < 0)  {
@@ -100,7 +102,7 @@ void* RobotDog::control_thread(void* param) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(JOYSTICK_PORT);
-    addr.sin_addr.s_addr = inet_addr(CONTROLSTATION_IP_ADDR);
+    addr.sin_addr.s_addr = inet_addr(robot->cs_ip_addr);
 
     robot->js_server_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(robot->js_server_fd < 0)  {
@@ -136,18 +138,18 @@ void* RobotDog::control_thread(void* param) {
     pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
     float temp_dist;
-
+    int block_count = 0;
     while(is_running) {
         if(robot->mode_flag == true) {
             std::cout << ("Entered auto mode\n");
             bool is_open = false, right_is_open, left_is_open;
             while (is_running && robot->mode_flag) {
                 // Check gravity
-                if(robot->sensor_data.mpu_buff.z_accel < 0) {
+                if(robot->sensor_data.mpu_buff.z_accel < 0.2) {
                     std::cout << "Recovering" << std::endl;
                     yaw_buf   = 0.0F;
                     speed_buf = 0.0F;
-                    sleep(5);
+                    sleep(3);
 
                     int i = 0;
                     while (robot->sensor_data.mpu_buff.z_accel < 0.2 && i < 2) {
@@ -173,9 +175,14 @@ void* RobotDog::control_thread(void* param) {
                         std::cout << "The way is open" << std::endl;
                         yaw_buf   = 0.0F;
                         speed_buf = 50.0F;
-
+                        wait_real(500);
+                        block_count = 0;
                         continue;
-                    } 
+                    
+                    } else if (block_count < 1) {
+                        block_count++;
+                        continue;
+                    }
                     
                     // Path is blocked
                     while(!is_open) {
@@ -218,7 +225,7 @@ void* RobotDog::control_thread(void* param) {
                     }
                 }
 
-                wait_real(200);
+                wait_real(500);
             }
 
             std::cout << ("exitting auto mode\n");
@@ -290,7 +297,7 @@ void RobotDog::run() {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(SWITCH_PORT);
-    addr.sin_addr.s_addr = inet_addr(CONTROLSTATION_IP_ADDR);
+    addr.sin_addr.s_addr = inet_addr(cs_ip_addr);
 
     mpu6050.calibrate();
 
@@ -367,7 +374,7 @@ void RobotDog::run() {
                     pthread_sigmask(SIG_UNBLOCK, &set, NULL);
 
                     // if((video_streamer = fork()) == 0){
-                    //     execv("/bin/libcamera-vid", vid_args);
+                    //     execv("/bin/libcamera-vid", vid_args, cs_ip_addr, NULL);
                     //     perror("Could not fork the video streamer");
                     //     exit(0);
                     // }

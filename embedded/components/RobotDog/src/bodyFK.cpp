@@ -358,25 +358,25 @@ void Body::recover() {
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     sit_down();
-    wait_real(1000);
+    wait_real(700);
 
     servo_buf[0] = M_PI/2, servo_buf[1]  = M_PI, servo_buf[2]  =    0;
     servo_buf[3] = M_PI/2, servo_buf[4]  =    0, servo_buf[5]  = M_PI;
     servo_buf[6] = M_PI/2, servo_buf[7]  =    0, servo_buf[8]  = M_PI;
     servo_buf[9] = M_PI/2, servo_buf[10] = M_PI, servo_buf[11] =    0;
-    move(1000);
+    move(700);
 
     servo_buf[0] = 150*M_PI/180, servo_buf[1]  = M_PI, servo_buf[2]  = 0;
     servo_buf[9] =       M_PI/6, servo_buf[10] = M_PI, servo_buf[11] = 0;
-    move(1000);
+    move(700);
 
     servo_buf[0] =       M_PI/6, servo_buf[1]  = M_PI, servo_buf[2]  = 0;
     servo_buf[9] = 150*M_PI/180, servo_buf[10] = M_PI, servo_buf[11] = 0;
-    move(1000);
+    move(700);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
     sit_down();
-    wait_real(1000);
+    wait_real(700);
 }
 
 void Body::move(long dur) {
