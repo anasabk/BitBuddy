@@ -34,7 +34,9 @@ RobotDog::RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd
         servos[i].refresh_fitter(cal_pwm_list, cal_degree_list[servos[i].getChannel()], 20);
 
     snprintf(this->cs_addr, 23, "%s", cs_addr);
-    vid_args[11] = this->cs_addr;
+
+    snprintf(this->video_addr, 63, "udp://%s:%d", cs_addr, VIDEO_PORT);
+    vid_args[11] = this->video_addr;
     
     is_running = true;
 }

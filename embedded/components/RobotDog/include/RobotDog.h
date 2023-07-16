@@ -19,7 +19,7 @@
 #define MPU6050_SAMPLE_FREQ_HZ 100
 #define NUM_HCSR04 2
 
-#define VIDEO_PORT "8082"
+#define VIDEO_PORT 8082
 #define JOYSTICK_PORT 8081
 #define TELEM_PORT 8086
 #define SWITCH_PORT 8080
@@ -60,8 +60,8 @@ private:
 
     pid_t video_streamer;
 
-    char cs_addr[64];
-
+    char cs_addr[24];
+    char video_addr[64];
     char * vid_args[12] = {
         "libcamera-vid", "-n", "-t", "0", "--codec", "mjpeg", "--inline", "--framerate", "7", "-o", NULL, NULL
     };
