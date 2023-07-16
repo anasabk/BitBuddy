@@ -40,7 +40,6 @@ class AStarPlanner:
         
 
         while True:
-            #print(len(open_set))
             if len(open_set) == 0:
                 print("Open set is empty..")
                 break
@@ -128,7 +127,6 @@ class AStarPlanner:
         return True
 
 
-
     ## BU KISIM ÇOK UZUN SÜRÜYOR
     def calc_obstacle_map(self, ox, oy):
         self.min_x = round(min(ox))
@@ -145,17 +143,6 @@ class AStarPlanner:
         print("x_width:", self.x_width)
         print("y_width:", self.y_width)
 
-        # self.obstacle_map = np.zeros((self.x_width, self.y_width), dtype=bool)
-        # for ix in range(self.x_width):
-        #     print("calc_obstacle_map: ", ix, "/", self.x_width, end="\r")
-        #     x = self.calc_grid_position(ix, self.min_x)
-        #     for iy in range(self.y_width):
-        #         y = self.calc_grid_position(iy, self.min_y)
-        #         for iox, ioy in zip(ox, oy):
-        #             d = math.hypot(iox - x, ioy - y)
-        #             if d <= self.rr:
-        #                 self.obstacle_map[ix][iy] = True
-        #                 break
 
     @staticmethod
     def get_motion_model():
@@ -174,12 +161,9 @@ class AStarPlanner:
 def main():
     print(__file__ + " start!!")
 
-
     # ROBOTUN İLK KONUMU.
-    # sx, sy = get_robot_pos()
     sx = 530.0  # [m]
     sy = 440.0  # [m]
-
 
 
     grid_size = 2.0  # [m]
@@ -196,7 +180,6 @@ def main():
     min_y_range = 0
     max_x_range = img_width
     max_y_range = img_height
-
 
 
     ox, oy = [], []
@@ -234,7 +217,6 @@ def main():
     ax.imshow(img)
 
 
-
     # Plot the clicked points as scatter markers
     robot_icon = ax.scatter([], [], marker='*', color='red')
     robot_pos = []
@@ -247,8 +229,6 @@ def main():
 
 
     line_objects = []
-
-
     
 
     def onclick(event):
@@ -318,8 +298,6 @@ def main():
 
     # Display the plot
     plt.show()
-
-
 
 
 if __name__ == '__main__':

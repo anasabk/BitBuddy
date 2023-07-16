@@ -56,7 +56,7 @@ def get_line_bresenham(start, end):
 
 
 seq_name = 'bit_buddy'
-# seq_name = 'tum'
+
 # inverse of cell size
 scale_factor = 25
 resize_factor = 20
@@ -90,11 +90,6 @@ if load_counters:
         counters_loaded = False
 
 if not counters_loaded:
-    # keyframe_trajectory_data = np.loadtxt(keyframe_trajectory_fname, dtype=np.float32)
-    # keyframe_timestamps = keyframe_trajectory_data[:, 0]
-    # keyframe_locations = keyframe_trajectory_data[:, 1:4]
-    # keyframe_quaternions = keyframe_trajectory_data[:, 5:9]
-
     # read keyframes
     keyframe_trajectory_data = open(keyframe_trajectory_fname, 'r').readlines()
     keyframe_timestamps = []
@@ -179,7 +174,6 @@ if not counters_loaded:
         print('n_ground_points: ', n_ground_points)
 
 
-
     # MAX DIST DEĞERİNİ AYARLAYARAK NE KADAR UZAKTAKİ NOKTALARIN SİLİNECEĞİNİ SEÇİN.
     max_dist = 10
     far_points = []
@@ -189,7 +183,6 @@ if not counters_loaded:
     pl_min_z = 0
     
     np.savetxt("point_locations.txt", point_locations, fmt='%d')
-
 
 
     for i in range (len(point_locations)):
@@ -207,8 +200,6 @@ if not counters_loaded:
                 cur_min_dist = dist
         
         if(cur_min_dist > max_dist):
-            # print("deleted far point on index: ", i)
-            # print("coordinates: ", point_locations[i][0], " - ", point_locations[i][2])
             far_points.append(i)
 
         else:
@@ -245,8 +236,6 @@ if not counters_loaded:
     kf_min_z = np.floor(np.min(keyframe_locations[:, 2]))
     kf_max_x = np.ceil(np.max(keyframe_locations[:, 0]))
     kf_max_z = np.ceil(np.max(keyframe_locations[:, 2]))
-    
-    #np.savetxt("keyframe_locations.txt", keyframe_locations, fmt='%d')
 
     pc_min_x = np.floor(np.min(point_locations[:, 0]))
     pc_min_z = np.floor(np.min(point_locations[:, 2]))
@@ -281,14 +270,10 @@ if not counters_loaded:
     grid_cell_size_x = (grid_max_x - grid_min_x) / float(grid_res[0])
     grid_cell_size_z = (grid_max_z - grid_min_z) / float(grid_res[1])
 
-    # print 'using cell size: {:f} x {:f}'.format(grid_cell_size_x, grid_cell_size_z)
-
     norm_factor_x = float(grid_res[0] - 1) / float(grid_max_x - grid_min_x)
     norm_factor_z = float(grid_res[1] - 1) / float(grid_max_z - grid_min_z)
     print('norm_factor_x: ', norm_factor_x)
     print('norm_factor_z: ', norm_factor_z)
-
-    # print 'len(is_ground_point):', len(is_ground_point)
 
     for point_id in range(n_points):
         point_location = point_locations[point_id]
@@ -296,7 +281,6 @@ if not counters_loaded:
             try:
                 keyframe_location = keyframe_locations_dict[timestamp]
             except KeyError:
-                #print('Timestamp: {:f} not found'.format(timestamp))
                 continue
             keyframe_x = int(keyframe_location[0])
             keyframe_z = int(keyframe_location[2])
@@ -308,10 +292,7 @@ if not counters_loaded:
             for ray_point_id in range(n_ray_pts - 1):
                 ray_point_x_norm = int(np.floor((ray_points[ray_point_id][0] - grid_min_x) * norm_factor_x))
                 ray_point_z_norm = int(np.floor((ray_points[ray_point_id][1] - grid_min_z) * norm_factor_z))
-                # start_x = ray_point_x_norm - resize_factor / 2
-                # start_z = ray_point_z_norm - resize_factor / 2
-                # end_x = ray_point_x_norm + resize_factor / 2
-                # end_z = ray_point_z_norm + resize_factor / 2
+                
                 try:
                     # visit_counter[start_x:end_x, start_z:end_z] += 1
                     visit_counter[ray_point_x_norm, ray_point_z_norm] += 1
@@ -322,10 +303,7 @@ if not counters_loaded:
                     sys.exit(0)
             ray_point_x_norm = int(np.floor((ray_points[-1][0] - grid_min_x) * norm_factor_x))
             ray_point_z_norm = int(np.floor((ray_points[-1][1] - grid_min_z) * norm_factor_z))
-            # start_x = ray_point_x_norm - resize_factor / 2
-            # start_z = ray_point_z_norm - resize_factor / 2
-            # end_x = ray_point_x_norm + resize_factor / 2
-            # end_z = ray_point_z_norm + resize_factor / 2
+            
             try:
                 if is_ground_point[point_id]:
                     visit_counter[ray_point_x_norm, ray_point_z_norm] += 1
@@ -342,10 +320,6 @@ if not counters_loaded:
     print('Saving counters to {:s} and {:s}'.format(occupied_counter_fname, visit_counter_fname))
     np.savetxt(occupied_counter_fname, occupied_counter, fmt='%d')
     np.savetxt(visit_counter_fname, visit_counter, fmt='%d')
-
-# occupied_counter_zeros = occupied_counter == 0
-# occupied_counter[occupied_counter_zeros] = 2 * visit_counter[occupied_counter_zeros]
-# grid_map = visit_counter.astype(np.float32) / occupied_counter.astype(np.float32)
 
 free_thresh = 0.55
 occupied_thresh = 0.50
@@ -388,26 +362,3 @@ cv2.setMouseCallback(out_fname, mouse_callback)
 
 cv2.imshow(out_fname, grid_map_resized)
 cv2.waitKey(0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
