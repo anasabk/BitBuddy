@@ -136,18 +136,18 @@ void* RobotDog::control_thread(void* param) {
     pthread_create(&motion_thread, NULL, robot->main_body.move_thread, &move_param);
 
     float temp_dist;
-
+    int block_count = 0;
     while(is_running) {
         if(robot->mode_flag == true) {
             std::cout << ("Entered auto mode\n");
             bool is_open = false, right_is_open, left_is_open;
             while (is_running && robot->mode_flag) {
                 // Check gravity
-                if(robot->sensor_data.mpu_buff.z_accel < 0) {
+                if(robot->sensor_data.mpu_buff.z_accel < 0.2) {
                     std::cout << "Recovering" << std::endl;
                     yaw_buf   = 0.0F;
                     speed_buf = 0.0F;
-                    sleep(5);
+                    sleep(3);
 
                     int i = 0;
                     while (robot->sensor_data.mpu_buff.z_accel < 0.2 && i < 2) {
@@ -173,9 +173,14 @@ void* RobotDog::control_thread(void* param) {
                         std::cout << "The way is open" << std::endl;
                         yaw_buf   = 0.0F;
                         speed_buf = 50.0F;
-
+                        wait_real(500);
+                        block_count = 0;
                         continue;
-                    } 
+                    
+                    } else if (block_count < 1) {
+                        block_count++;
+                        continue;
+                    }
                     
                     // Path is blocked
                     while(!is_open) {
@@ -218,7 +223,7 @@ void* RobotDog::control_thread(void* param) {
                     }
                 }
 
-                wait_real(200);
+                wait_real(500);
             }
 
             std::cout << ("exitting auto mode\n");
