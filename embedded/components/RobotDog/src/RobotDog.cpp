@@ -67,7 +67,7 @@ void* RobotDog::telem_thread(void *param) {
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
     while (is_running) {
         sendto(fd, &robot->sensor_data, sizeof(robot->sensor_data), 0, (struct sockaddr*)&addr, sizeof(addr));
-        wait_real(10);
+        wait_real(100);
     }
 
     close(fd);
