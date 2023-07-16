@@ -71,20 +71,17 @@ void MainWindow::init()
     startPathfindingBtn->setCursor(Qt::PointingHandCursor);
     stopPathfindingBtn->setCursor(Qt::PointingHandCursor);
 
-    startMappingBtn->setStyleSheet(
-        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
-    stopMappingBtn->setStyleSheet(
-        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
-    killMappingBtn->setStyleSheet(
-        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
-    startPathfindingBtn->setStyleSheet(
-        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
-    stopPathfindingBtn->setStyleSheet(
-        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
+    enableButton(startMappingBtn);
+    disableButton(stopMappingBtn);
+    disableButton(killMappingBtn);
+    enableButton(startPathfindingBtn);
+    disableButton(stopPathfindingBtn);
 
+    buttonsHBoxLayout->setSpacing(5);
     buttonsHBoxLayout->addWidget(startMappingBtn);
     buttonsHBoxLayout->addWidget(stopMappingBtn);
     buttonsHBoxLayout->addWidget(killMappingBtn);
+    buttonsHBoxLayout->addItem(new QSpacerItem(10, 0));
     buttonsHBoxLayout->addWidget(startPathfindingBtn);
     buttonsHBoxLayout->addWidget(stopPathfindingBtn);
 
@@ -149,8 +146,24 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     QGroupBox::keyReleaseEvent(event);
 }
 
+void MainWindow::enableButton(QPushButton *btn)
+{
+    btn->setEnabled(true);
+    btn->setStyleSheet(
+        QString("color: %1; border: 1px solid %1; background: #404040; padding: 5px").arg(constants::white));
+}
+
+void MainWindow::disableButton(QPushButton *btn)
+{
+    btn->setEnabled(false);
+    btn->setStyleSheet(
+        QString("color: %1; border: 1px solid %1; background: #282828; padding: 5px").arg(constants::whiteDisabled));
+}
+
 void MainWindow::startMapping()
 {
+    std::cout << "[MainWindow] Starting mapping..." << std::endl;
+
     mappingPid = fork();
 
     if (mappingPid == -1)
@@ -162,14 +175,21 @@ void MainWindow::startMapping()
     if (mappingPid == 0)
     {
         chdir("mapping");
-        execlp("./mapping", "mapping", "ORBvoc.txt", "mapping.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
+        execlp("./slam", "slam", "ORBvoc.txt", "mapping.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
         perror("[MainWindow] execlp 1");
         _exit(127);
+    }
+    else
+    {
+        enableButton(stopMappingBtn);
+        enableButton(killMappingBtn);
     }
 }
 
 void MainWindow::startPathfinding()
 {
+    std::cout << "[MainWindow] Starting pathfinding..." << std::endl;
+
     pathfindingPid = fork();
 
     if (pathfindingPid == -1)
@@ -180,21 +200,30 @@ void MainWindow::startPathfinding()
 
     if (pathfindingPid == 0)
     {
-        chdir("pathfinding");
-        execlp("python3", "python3", "AStar.py", (char*)NULL);
+        chdir("mapping");
+        execlp("python3", "pathfinding", "pathfinding.py", (char*)NULL);
         perror("[MainWindow] execlp 2");
         _exit(127);
     }
+    else
+        enableButton(stopPathfindingBtn);
 }
 
 void MainWindow::stopMapping()
 {
     if (mappingPid != -1)
     {
+        std::cout << "[MainWindow] Stopping mapping..." << std::endl;
+
         if (kill(mappingPid, SIGINT) == -1)
             perror("[MainWindow] kill 1");
 //        if (wait(NULL) == -1)
 //            perror("[MainWindow] wait 1");
+
+        disableButton(stopMappingBtn);
+        disableButton(killMappingBtn);
+
+        mappingPid = -1;
     }
 }
 
@@ -202,10 +231,17 @@ void MainWindow::killMapping()
 {
     if (mappingPid != -1)
     {
+        std::cout << "[MainWindow] Killing mapping..." << std::endl;
+
         if (kill(mappingPid, SIGKILL) == -1)
             perror("[MainWindow] kill 2");
-        //        if (wait(NULL) == -1)
-        //            perror("[MainWindow] wait 2");
+//        if (wait(NULL) == -1)
+//            perror("[MainWindow] wait 2");
+
+        disableButton(stopMappingBtn);
+        disableButton(killMappingBtn);
+
+        mappingPid = -1;
     }
 }
 
@@ -213,10 +249,16 @@ void MainWindow::stopPathfinding()
 {
     if (pathfindingPid != -1)
     {
+        std::cout << "[MainWindow] Stopping pathfinding..." << std::endl;
+
         if (kill(pathfindingPid, SIGKILL) == -1)
             perror("[MainWindow] kill 3");
 //        if (wait(NULL) == -1)
 //            perror("[MainWindow] wait 3");
+
+        disableButton(stopPathfindingBtn);
+
+        pathfindingPid = -1;
     }
 }
 

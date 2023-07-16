@@ -64,6 +64,9 @@ private:
     QPushButton *startPathfindingBtn;
     QPushButton *stopPathfindingBtn;
 
+    void enableButton(QPushButton *btn);
+    void disableButton(QPushButton *btn);
+
     QLabel *pathfinding;
 
     pid_t mappingPid = -1;
