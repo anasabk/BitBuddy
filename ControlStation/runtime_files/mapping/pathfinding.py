@@ -77,11 +77,13 @@ print('seq_name: ', seq_name)
 print('scale_factor: ', scale_factor)
 print('resize_factor: ', resize_factor)
 print('filter_ground_points: ', filter_ground_points)
+sys.stdout.flush()
 
 counters_loaded = False
 if load_counters:
     try:
         print ('Loading counters...')
+        sys.stdout.flush()
         visit_counter = np.loadtxt(visit_counter_fname)
         occupied_counter = np.loadtxt(occupied_counter_fname)
         grid_res = visit_counter.shape
@@ -91,6 +93,8 @@ if load_counters:
         print ('One or more counter files: {:s}, {:s} could not be found'.format(
             occupied_counter_fname, visit_counter_fname))
         counters_loaded = False
+    finally:
+        sys.stdout.flush()
 
 if not counters_loaded:
     # read keyframes
@@ -176,6 +180,7 @@ if not counters_loaded:
         n_ground_points = np.count_nonzero(np.array(is_ground_point))
         print('n_ground_points: ', n_ground_points)
 
+    sys.stdout.flush()
 
     # MAX DIST DEĞERİNİ AYARLAYARAK NE KADAR UZAKTAKİ NOKTALARIN SİLİNECEĞİNİ SEÇİN.
     max_dist = 10
@@ -220,6 +225,7 @@ if not counters_loaded:
     print("pl_min_x: ", pl_min_x)
     print("pl_max_z: ", pl_max_z)
     print("pl_min_z: ", pl_min_z)
+    sys.stdout.flush()
     
 
     for i in range(len(far_points)):
@@ -229,6 +235,7 @@ if not counters_loaded:
             continue
         
         print("deleted point on coordinates: ", point_locations[index][0], " - ", point_locations[index][2])
+        sys.stdout.flush()
         point_locations = np.delete(point_locations, far_points[i], 0)
         n_points -= 1
         for j in range (i + 1, len(far_points)):
@@ -260,7 +267,6 @@ if not counters_loaded:
 
 
 
-
     grid_res = [int(grid_max_x - grid_min_x), int(grid_max_z - grid_min_z)]
     print('grid_ress: ', grid_res)
 
@@ -277,6 +283,8 @@ if not counters_loaded:
     norm_factor_z = float(grid_res[1] - 1) / float(grid_max_z - grid_min_z)
     print('norm_factor_x: ', norm_factor_x)
     print('norm_factor_z: ', norm_factor_z)
+
+    sys.stdout.flush()
 
     for point_id in range(n_points):
         point_location = point_locations[point_id]
@@ -303,6 +311,7 @@ if not counters_loaded:
                     print('Out of bound point: ({:d}, {:d}) -> ({:f}, {:f})'.format(
                         ray_points[ray_point_id][0], ray_points[ray_point_id][1],
                         ray_point_x_norm, ray_point_z_norm))
+                    sys.stdout.flush()
                     sys.exit(0)
             ray_point_x_norm = int(np.floor((ray_points[-1][0] - grid_min_x) * norm_factor_x))
             ray_point_z_norm = int(np.floor((ray_points[-1][1] - grid_min_z) * norm_factor_z))
@@ -316,11 +325,14 @@ if not counters_loaded:
             except IndexError:
                 print('Out of bound point: ({:d}, {:d}) -> ({:f}, {:f})'.format(
                     ray_points[-1][0], ray_points[-1][1], ray_point_x_norm, ray_point_z_norm))
+                sys.stdout.flush()
                 sys.exit(0)
         if (point_id + 1) % 1000 == 0:
             print('Done {:d} points of {:d}'.format(point_id + 1, n_points))
+            sys.stdout.flush()
 
     print('Saving counters to {:s} and {:s}'.format(occupied_counter_fname, visit_counter_fname))
+    sys.stdout.flush()
     np.savetxt(occupied_counter_fname, occupied_counter, fmt='%d')
     np.savetxt(visit_counter_fname, visit_counter, fmt='%d')
 
@@ -345,6 +357,7 @@ for x in range(grid_res[0]):
 if resize_factor != 1:
     grid_res_resized = (grid_res[0] * resize_factor, grid_res[1] * resize_factor)
     print('grid_res_resized: ', grid_res_resized)
+    sys.stdout.flush()
     grid_map_resized = cv2.resize(grid_map_thresh, grid_res_resized)
 else:
     grid_map_resized = grid_map_thresh
@@ -401,6 +414,7 @@ class AStarPlanner:
             #print(len(open_set))
             if len(open_set) == 0:
                 print("Open set is empty..")
+                sys.stdout.flush()
                 break
 
             c_id = min(open_set, key=lambda o: open_set[o].cost + self.calc_heuristic(goal_node, open_set[o]))
@@ -416,6 +430,7 @@ class AStarPlanner:
 
             if current.x == goal_node.x and current.y == goal_node.y:
                 print("Goal found")
+                sys.stdout.flush()
                 goal_node.parent_index = current.parent_index
                 goal_node.cost = current.cost
                 break
@@ -503,6 +518,8 @@ class AStarPlanner:
         print("x_width:", self.x_width)
         print("y_width:", self.y_width)
 
+        sys.stdout.flush()
+
         # self.obstacle_map = np.zeros((self.x_width, self.y_width), dtype=bool)
         # for ix in range(self.x_width):
         #     print("calc_obstacle_map: ", ix, "/", self.x_width, end="\r")
@@ -530,6 +547,7 @@ class AStarPlanner:
 
 
 print(__file__ + " start!!")
+sys.stdout.flush()
 
 
 # ROBOTUN İLK KONUMU.
@@ -612,6 +630,7 @@ def onclick(event):
         gx = event.xdata
         gy = event.ydata
         print(f"Clicked at coordinates: x={x}, y={y}")
+        sys.stdout.flush()
         dest_pos.clear()
         dest_pos.append((gx, gy))
         dest_icon.set_offsets(dest_pos)
@@ -660,6 +679,7 @@ def onclick(event):
 
         plt.draw()
         print("Movement completed.")
+        sys.stdout.flush()
 
 
 # Register the event handler function
