@@ -73,7 +73,7 @@ void DesktopCam::runServer()
 
 std::vector<sockaddr_in> DesktopCam::getClientAddresses()
 {
-    std::vector<uint16_t> ports = {constants::cameraPort, constants::objDetPort};
+    std::vector<uint16_t> ports = {constants::cameraPort, constants::objDetPort, constants::mappingPort};
     std::vector<sockaddr_in> addresses;
 
     for (uint16_t port : ports)
