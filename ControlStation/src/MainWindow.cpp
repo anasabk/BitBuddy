@@ -19,10 +19,11 @@ void MainWindow::init()
     QGroupBox *objDetVBox = new QGroupBox(VBox1);
     gridMap = new QLabel(VBox2);
     QGroupBox *HBox1 = new QGroupBox(VBox2);
-    Console *console = new Console(HBox1);
+
     joystick = new Joystick(200, HBox1);
-    TelemetryViewer *telemetryViewer = new TelemetryViewer(HBox1);
     QGroupBox *switchesVBox = new QGroupBox(HBox1);
+    TelemetryViewer *telemetryViewer = new TelemetryViewer(HBox1);
+    Console *console = new Console(HBox1);
 
     QHBoxLayout *HBoxLayout = new QHBoxLayout(this);
     QVBoxLayout *VBox1Layout = new QVBoxLayout(VBox1);
@@ -47,8 +48,8 @@ void MainWindow::init()
 
     setStyleSheet("border: none; background: #303030");
 
-    HBoxLayout->addWidget(VBox1, 0, Qt::AlignLeft | Qt::AlignVCenter);
-    HBoxLayout->addWidget(VBox2, 0, Qt::AlignRight | Qt::AlignVCenter);
+    HBoxLayout->addWidget(VBox1, 0, Qt::AlignLeft | Qt::AlignTop);
+    HBoxLayout->addWidget(VBox2, 0, Qt::AlignRight);
     HBoxLayout->setContentsMargins(0, 0, 0, 0);
 
     VBox1Layout->addWidget(cameraVBox, 0, Qt::AlignLeft | Qt::AlignVCenter);
@@ -60,12 +61,12 @@ void MainWindow::init()
     gridMap->setPixmap(QPixmap::fromImage(QImage(pgm.data, pgm.cols, pgm.rows, QImage::Format_RGB888)).scaledToWidth(800));
     VBox2Layout->addWidget(HBox1, 0, Qt::AlignHCenter | Qt::AlignBottom);
 
-    HBox1Layout->addWidget(console, Qt::AlignVCenter);
-    console->setFixedWidth(500);
-    HBox1Layout->addWidget(joystick, Qt::AlignVCenter);
     HBox1Layout->addWidget(switchesVBox, Qt::AlignVCenter);
+    HBox1Layout->addWidget(joystick, Qt::AlignVCenter);
     HBox1Layout->addWidget(telemetryViewer, Qt::AlignVCenter);
     telemetryViewer->setFixedSize(300, 160);
+    HBox1Layout->addWidget(console, Qt::AlignVCenter);
+    console->setFixedWidth(500);
     HBox1Layout->setContentsMargins(0, 0, 0, 0);
 
     cameraVBoxLayout->addWidget(cameraLabel);
@@ -131,21 +132,21 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 
 void MainWindow::startMappingProcess()
 {
-//    mappingPid = fork();
+    mappingPid = fork();
 
-//    if (mappingPid == -1)
-//    {
-//        perror("[MainWindow] fork 1");
-//        return;
-//    }
+    if (mappingPid == -1)
+    {
+        perror("[MainWindow] fork 1");
+        return;
+    }
 
-//    if (mappingPid == 0)
-//    {
-//        execlp("mapping/mapping", "mapping/mapping",
-//               "mapping/ORBdoc.txt", "mapping/mapping.yaml", std::to_string(constants::mappingPort), (char*)NULL);
-//        perror("[MainWindow] execlp 1");
-//        _exit(127);
-//    }
+    if (mappingPid == 0)
+    {
+        execlp("mapping/mapping", "mapping/mapping",
+               "mapping/ORBdoc.txt", "mapping/mapping.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
+        perror("[MainWindow] execlp 1");
+        _exit(127);
+    }
 }
 
 void MainWindow::startGridMapProcess()
