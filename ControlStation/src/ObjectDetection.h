@@ -5,7 +5,8 @@
 
 class ObjectDetection : public Camera
 {
-    using Camera::Camera;
+public:
+    ObjectDetection(std::string name, uint16_t port, QWidget *parent = nullptr);
 
 private:
     inline static const std::vector<cv::Scalar> colors = {
@@ -17,9 +18,9 @@ private:
 
     static constexpr float InputWidth = 640.0f;
     static constexpr float InputHeight = 640.0f;
-    static constexpr float ScoreThreshold = 0.3f;
-    static constexpr float NmsThreshold = 0.7f;
-    static constexpr float ConfidenceThreshold = 0.5f;
+    inline static float ScoreThreshold = 0.3f;
+    inline static float NmsThreshold = 0.7f;
+    inline static float ConfidenceThreshold = 0.5f;
 
     struct Detection
     {

@@ -1,7 +1,46 @@
 #include "ObjectDetection.h"
+#include "MainWindow.h"
 
+#include <QKeyEvent>
 #include <fstream>
 #include <opencv2/ccalib/omnidir.hpp>
+
+ObjectDetection::ObjectDetection(std::string name, uint16_t port, QWidget *parent) :
+    Camera(name, port, parent)
+{
+    connect(MainWindow::get(), &MainWindow::keyReleased, this, [&](QKeyEvent *event){
+        if (event->key() == Qt::Key_Q)
+        {
+            ScoreThreshold += 0.01f;
+            std::cout << "ScoreThreshold: " << ScoreThreshold << std::endl;
+        }
+        else if (event->key() == Qt::Key_A)
+        {
+            ScoreThreshold -= 0.01f;
+            std::cout << "ScoreThreshold: " << ScoreThreshold << std::endl;
+        }
+        else if (event->key() == Qt::Key_W)
+        {
+            NmsThreshold += 0.01f;
+            std::cout << "NmsThreshold: " << NmsThreshold << std::endl;
+        }
+        else if (event->key() == Qt::Key_S)
+        {
+            NmsThreshold -= 0.01f;
+            std::cout << "NmsThreshold: " << NmsThreshold << std::endl;
+        }
+        else if (event->key() == Qt::Key_E)
+        {
+            ConfidenceThreshold += 0.01f;
+            std::cout << "ConfidenceThreshold: " << ConfidenceThreshold << std::endl;
+        }
+        else if (event->key() == Qt::Key_D)
+        {
+            ConfidenceThreshold -= 0.01f;
+            std::cout << "ConfidenceThreshold: " << ConfidenceThreshold << std::endl;
+        }
+    });
+}
 
 void ObjectDetection::processFrame(cv::Mat &frame)
 {
