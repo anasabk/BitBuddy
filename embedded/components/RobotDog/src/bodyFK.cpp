@@ -360,10 +360,10 @@ void Body::recover() {
     sit_down();
     wait_real(1000);
 
-    servo_buf[0] = M_PI/2, servo_buf[1]  = M_PI, servo_buf[2]  = M_PI;
-    servo_buf[3] = M_PI/2, servo_buf[4]  =    0, servo_buf[5]  =    0;
-    servo_buf[6] = M_PI/2, servo_buf[7]  =    0, servo_buf[8]  =    0;
-    servo_buf[9] = M_PI/2, servo_buf[10] = M_PI, servo_buf[11] = M_PI;
+    servo_buf[0] = M_PI/2, servo_buf[1]  = M_PI, servo_buf[2]  =    0;
+    servo_buf[3] = M_PI/2, servo_buf[4]  =    0, servo_buf[5]  = M_PI;
+    servo_buf[6] = M_PI/2, servo_buf[7]  =    0, servo_buf[8]  = M_PI;
+    servo_buf[9] = M_PI/2, servo_buf[10] = M_PI, servo_buf[11] =    0;
     move(1000);
 
     servo_buf[0] = 150*M_PI/180, servo_buf[1]  = M_PI, servo_buf[2]  = 0;
