@@ -139,11 +139,11 @@ int main(int argc, char **argv) {
     // cout << "mean tracking time: " << totaltime / nImages << endl;
 
     // Save 3D points and timestamps of all keyframes they are visible in
-    SLAM.getMap()->GetCurrentMap()->SaveWithTimestamps("kitti_map_pts_and_keyframes.txt");
-    std::cout << "kitti_map_pts_and_keyframes written" << std::endl;
+    SLAM.getMap()->GetCurrentMap()->SaveWithTimestamps("bit_buddy_map_pts_and_keyframes.txt");
+    std::cout << "bit_buddy_map_pts_and_keyframes written" << std::endl;
     // Save 3D points as obj file
-    SLAM.getMap()->GetCurrentMap()->Save("kitti_map_pts_out.obj");
-    std::cout << "kitti_map_pts_out written" << std::endl;
+    SLAM.getMap()->GetCurrentMap()->Save("bit_buddy_map_pts_out.obj");
+    std::cout << "bit_buddy_map_pts_out written" << std::endl;
 
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
