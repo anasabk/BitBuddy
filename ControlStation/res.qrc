@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>camera.png</file>
+        <file>camera_cropped.png</file>
     </qresource>
 </RCC>

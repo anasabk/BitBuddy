@@ -8,6 +8,8 @@
 ObjectDetection::ObjectDetection(std::string name, uint16_t port, QWidget *parent) :
     Camera(name, port, parent)
 {
+    setPixmap(QPixmap::fromImage(QImage(":/camera_cropped.png")));
+
     connect(MainWindow::get(), &MainWindow::keyReleased, this, [&](QKeyEvent *event){
         if (event->key() == Qt::Key_Q)
         {
