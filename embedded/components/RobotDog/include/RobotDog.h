@@ -19,7 +19,6 @@
 #define MPU6050_SAMPLE_FREQ_HZ 100
 #define NUM_HCSR04 2
 
-#define CONTROLSTATION_IP_ADDR "192.168.12.196"
 #define VIDEO_PORT "8082"
 #define JOYSTICK_PORT 8081
 #define TELEM_PORT 8086
@@ -29,7 +28,7 @@
 class RobotDog
 {
 public:
-    RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr);
+    RobotDog(int mpu_bus, int mpu_addr, int pca_bus, int pca_addr, int lcd_bus, int lcd_addr, char *cs_ip_addr);
     ~RobotDog();
 
     void run();
@@ -61,10 +60,11 @@ private:
 
     pid_t video_streamer;
 
-    char *const vid_args[12] = {
-        "libcamera-vid", "-n", "-t", "0", "--inline", "--framerate", "30", "-o", "udp://" CONTROLSTATION_IP_ADDR ":" VIDEO_PORT, NULL
-    };
+    char cs_ip_addr[24];
 
+    char *const vid_args[10] = {
+        "libcamera-vid", "-n", "-t", "0", "--codec", "mjpeg", "--inline", "--framerate", "30", "-o"
+    };
 
     const int cal_pwm_list[20] = {450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350};
 
