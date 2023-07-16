@@ -11,32 +11,32 @@ ObjectDetection::ObjectDetection(std::string name, uint16_t port, QWidget *paren
     setPixmap(QPixmap::fromImage(QImage(":/camera_cropped.png")));
 
     connect(MainWindow::get(), &MainWindow::keyReleased, this, [&](QKeyEvent *event){
-        if (event->key() == Qt::Key_Q)
+        if (event->key() == Qt::Key_T)
         {
             ScoreThreshold += 0.01f;
             std::cout << "ScoreThreshold: " << ScoreThreshold << std::endl;
         }
-        else if (event->key() == Qt::Key_A)
+        else if (event->key() == Qt::Key_G)
         {
             ScoreThreshold -= 0.01f;
             std::cout << "ScoreThreshold: " << ScoreThreshold << std::endl;
         }
-        else if (event->key() == Qt::Key_W)
+        else if (event->key() == Qt::Key_Y)
         {
             NmsThreshold += 0.01f;
             std::cout << "NmsThreshold: " << NmsThreshold << std::endl;
         }
-        else if (event->key() == Qt::Key_S)
+        else if (event->key() == Qt::Key_H)
         {
             NmsThreshold -= 0.01f;
             std::cout << "NmsThreshold: " << NmsThreshold << std::endl;
         }
-        else if (event->key() == Qt::Key_E)
+        else if (event->key() == Qt::Key_U)
         {
             ConfidenceThreshold += 0.01f;
             std::cout << "ConfidenceThreshold: " << ConfidenceThreshold << std::endl;
         }
-        else if (event->key() == Qt::Key_D)
+        else if (event->key() == Qt::Key_J)
         {
             ConfidenceThreshold -= 0.01f;
             std::cout << "ConfidenceThreshold: " << ConfidenceThreshold << std::endl;
