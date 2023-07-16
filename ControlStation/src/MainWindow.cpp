@@ -132,21 +132,21 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 
 void MainWindow::startMappingProcess()
 {
-    mappingPid = fork();
+//    mappingPid = fork();
 
-    if (mappingPid == -1)
-    {
-        perror("[MainWindow] fork 1");
-        return;
-    }
+//    if (mappingPid == -1)
+//    {
+//        perror("[MainWindow] fork 1");
+//        return;
+//    }
 
-    if (mappingPid == 0)
-    {
-        execlp("mapping/mapping", "mapping/mapping",
-               "mapping/ORBdoc.txt", "mapping/mapping.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
-        perror("[MainWindow] execlp 1");
-        _exit(127);
-    }
+//    if (mappingPid == 0)
+//    {
+//        execlp("mapping/mapping", "mapping/mapping",
+//               "mapping/ORBdoc.txt", "mapping/mapping.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
+//        perror("[MainWindow] execlp 1");
+//        _exit(127);
+//    }
 }
 
 void MainWindow::startGridMapProcess()
