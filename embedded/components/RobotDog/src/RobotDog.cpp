@@ -182,6 +182,11 @@ void* RobotDog::control_thread(void* param) {
                     } else if (block_count < 1) {
                         block_count++;
                         continue;
+
+                    } else {
+                        yaw_buf   = 0.0F;
+                        speed_buf = 0.0F;
+                        wait_real(1000);
                     }
                     
                     // Path is blocked
@@ -219,9 +224,13 @@ void* RobotDog::control_thread(void* param) {
                             yaw_buf   = M_PI/8 * (temp_dist > 0 ? 1 : -1);
                             speed_buf = 0.0F;
                             wait_real(4000);
-                        }
 
-                        is_open =  (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
+                            yaw_buf   = 0.0F;
+                            speed_buf = 0.0F;
+                            wait_real(1000);
+
+                            is_open =  (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
+                        }
                     }
                 }
 

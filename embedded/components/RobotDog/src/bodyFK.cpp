@@ -267,7 +267,7 @@ void* Body::move_thread(void *param) {
     }
 
     const double l_leen_off =  35.0;
-    const double r_leen_off = -35.0;
+    const double r_leen_off = -25.0;
     const double f_leen_off =  15.0;
     const double b_leen_off = -15.0;
     double drift_offset = -3;
@@ -366,12 +366,12 @@ void Body::recover() {
     servo_buf[9] = M_PI/2, servo_buf[10] = M_PI, servo_buf[11] =    0;
     move(700);
 
-    servo_buf[0] = 150*M_PI/180, servo_buf[1]  = M_PI, servo_buf[2]  = 0;
-    servo_buf[9] =       M_PI/6, servo_buf[10] = M_PI, servo_buf[11] = 0;
+    servo_buf[0] = 160*M_PI/180, servo_buf[1]  = M_PI, servo_buf[2]  = 0;
+    servo_buf[9] =       M_PI/9, servo_buf[10] = M_PI, servo_buf[11] = 0;
     move(700);
 
-    servo_buf[0] =       M_PI/6, servo_buf[1]  = M_PI, servo_buf[2]  = 0;
-    servo_buf[9] = 150*M_PI/180, servo_buf[10] = M_PI, servo_buf[11] = 0;
+    servo_buf[0] =       M_PI/9, servo_buf[1]  = M_PI, servo_buf[2]  = 0;
+    servo_buf[9] = 160*M_PI/180, servo_buf[10] = M_PI, servo_buf[11] = 0;
     move(700);
 
     clock_gettime(CLOCK_MONOTONIC, &time);
