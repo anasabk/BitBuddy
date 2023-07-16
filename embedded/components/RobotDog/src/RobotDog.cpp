@@ -67,7 +67,7 @@ void* RobotDog::telem_thread(void *param) {
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
     while (is_running) {
         sendto(fd, &robot->sensor_data, sizeof(robot->sensor_data), 0, (struct sockaddr*)&addr, sizeof(addr));
-        wait_real(10);
+        wait_real(100);
     }
 
     close(fd);
@@ -183,12 +183,12 @@ void* RobotDog::control_thread(void* param) {
                         std::cout << "The way is blocked, going backwards" << std::endl;
                         yaw_buf   = 0.0F;
                         speed_buf = -40.0F;
-                        wait_real(3000);
+                        wait_real(4000);
 
                         // Stop the movement
                         yaw_buf   = 0.0F;
                         speed_buf = 0.0F;
-                        sleep(2);
+                        wait_real(4000);
 
                         // Look to the left side
                         robot->main_body.pose(0, M_PI/6, 0, 0, 0, 140);
@@ -211,7 +211,7 @@ void* RobotDog::control_thread(void* param) {
                         if(temp_dist != 0) {
                             yaw_buf   = M_PI/8 * (temp_dist > 0 ? 1 : -1);
                             speed_buf = 0.0F;
-                            wait_real(2000);
+                            wait_real(4000);
                         }
 
                         is_open =  (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
