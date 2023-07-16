@@ -49,8 +49,11 @@ void DesktopCam::runServer()
 
         if (frame.empty())
         {
-            std::cerr << "[DesktopCam] Frame is empty." << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::cerr << "[DesktopCam] Frame is empty. Reopening cam..." << std::endl;
+
+            cap.release();
+            cap.open(("udp://@:" + std::to_string(constants::desktopCamPort)));
+
             continue;
         }
 
