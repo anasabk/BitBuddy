@@ -285,7 +285,6 @@ void* Body::move_thread(void *param) {
             pause_counter = 0;
 
         if(pause_counter >= 2){
-            body->stand_up();
             wait_real(300);
             continue;
         }
