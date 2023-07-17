@@ -1,6 +1,6 @@
 # Control Station
 
-Control Station is a program built in Qt and C++ to control the robot remotely. It has features such as object detection, mapping, pathfinding and telemetry.
+Control Station is a program built in Qt and C++ to control BitBuddy remotely. It has features such as object detection, mapping, pathfinding and telemetry.
 
 ## Dependencies
 
