@@ -690,7 +690,19 @@ def click(gx, gy):
 
 
 def onclick(event):
-    click(event.xdata, event.ydata)
+    if event.button == 1:
+        click(event.xdata, event.ydata)
+    elif event.button == 3:
+        print("rmb")
+        gx = event.xdata
+        gy = event.ydata
+        print(f"Clicked at coordinates: x={gx}, y={gy}")
+        robot_pos.clear()
+        robot_pos.append((gx, gy))
+        sx = gx
+        sy = gy
+        robot_icon.set_offsets(robot_pos)
+        plt.draw()
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
