@@ -47,7 +47,7 @@ ObjectDetection::ObjectDetection(std::string name, uint16_t port, QWidget *paren
 void ObjectDetection::processFrame(cv::Mat &frame)
 {
     static auto classNames = loadClassNames();
-    static auto net = loadNet(false);
+    static auto net = loadNet(true);
 
     undistortFrame(frame);
     transformFrame(frame);

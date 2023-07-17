@@ -332,10 +332,10 @@ void MainWindow::stopMapping()
 
         if (kill(mappingPid, SIGINT) == -1)
             perror("[MainWindow] kill 1");
-//        if (wait(NULL) == -1)
-//            perror("[MainWindow] wait 1");
+        //        if (wait(NULL) == -1)
+        //            perror("[MainWindow] wait 1");
 
-//        mappingPid = -1;
+        //        mappingPid = -1;
     }
 
     enableButton(startMappingBtn);
@@ -385,12 +385,12 @@ void MainWindow::stopPathfinding()
 
 void MainWindow::setSizes()
 {
-//    float height = size().height() / 2.0f;
-//    float cameraAspectRatio = (float)camera->pixmap().width() / camera->pixmap().height();
-//    float objDetAspectRatio = (float)objDet->pixmap().width() / objDet->pixmap().height();
+    //    float height = size().height() / 2.0f;
+    //    float cameraAspectRatio = (float)camera->pixmap().width() / camera->pixmap().height();
+    //    float objDetAspectRatio = (float)objDet->pixmap().width() / objDet->pixmap().height();
 
-//    camera->setFixedSize(height * cameraAspectRatio, height);
-//    objDet->setFixedSize(height * objDetAspectRatio, height);
+    //    camera->setFixedSize(height * cameraAspectRatio, height);
+    //    objDet->setFixedSize(height * objDetAspectRatio, height);
 }
 
 void MainWindow::onSwitchStateChanged(Switch::Type type, bool state)
