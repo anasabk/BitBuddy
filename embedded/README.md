@@ -13,8 +13,10 @@ To control I2C devices onboard.
 
 
 ## Building:
-git clone https://github.com/anasabk/BitBuddy
+```
+git clone https://github.com/anasabk/BitBuddy 
 mkdir build
 cmake -B build -S .
 cmake --build build
 ./build/BitBuddy <Control Station IP address>
+```
