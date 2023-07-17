@@ -171,7 +171,7 @@ void* RobotDog::control_thread(void* param) {
                 
                     // Check the sides
                     std::cout << "Checking sides" << std::endl;
-                    is_open = (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
+                    is_open = (robot->sensor_data.front_dist[0] > 330) && (robot->sensor_data.front_dist[1] > 330);
 
                     // The way is fully opened
                     if(is_open) {
@@ -209,14 +209,14 @@ void* RobotDog::control_thread(void* param) {
                         robot->main_body.pose(0, M_PI/6, 0, 0, 0, 140);
                         wait_real(1000);
 
-                        temp_dist = (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350) ? 
+                        temp_dist = (robot->sensor_data.front_dist[0] > 330) && (robot->sensor_data.front_dist[1] > 330) ? 
                             robot->sensor_data.front_dist[0] + robot->sensor_data.front_dist[1] : 0;
 
                         // Look to the right side
                         robot->main_body.pose(0, -M_PI/6, 0, 0, 0, 140);
                         wait_real(1000);
                         
-                        temp_dist -= (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350) ? 
+                        temp_dist -= (robot->sensor_data.front_dist[0] > 330) && (robot->sensor_data.front_dist[1] > 330) ? 
                             robot->sensor_data.front_dist[0] + robot->sensor_data.front_dist[1] : 0;
 
                         // Path is open
@@ -232,7 +232,7 @@ void* RobotDog::control_thread(void* param) {
                             speed_buf = 0.0F;
                             wait_real(1000);
 
-                            is_open =  (robot->sensor_data.front_dist[0] > 350) && (robot->sensor_data.front_dist[1] > 350);
+                            is_open =  (robot->sensor_data.front_dist[0] > 330) && (robot->sensor_data.front_dist[1] > 330);
                         }
                     }
                 }
@@ -274,10 +274,10 @@ void* RobotDog::control_thread(void* param) {
 }
 
 void RobotDog::run() {
-    lcd.goHome();
-    lcd.printf("Hello world");
-    lcd.setPosition(0, 1);
-    lcd.printf("I am dug");
+    // lcd.goHome();
+    // lcd.printf("Hello world");
+    // lcd.setPosition(0, 1);
+    // lcd.printf("I am dug");
 
     servos[0].set_rad(86*M_PI/180);
     servos[1].set_rad(128*M_PI/180);
@@ -351,7 +351,7 @@ void RobotDog::run() {
         is_connected = 1;
         while(is_connected) {
             recv(fd, &buffer, sizeof(buffer.symbol) + sizeof(buffer.state), 0);
-            std::cout << ("switch command: %d %d\n", buffer.symbol, buffer.state);
+            // std::cout << ("switch command: %d %d\n", buffer.symbol, buffer.state);
 
             switch (buffer.symbol) {
             case POSE:
@@ -392,7 +392,7 @@ void RobotDog::run() {
                     }
 
                 } else if(!buffer.state && is_running) {
-                    is_connected = false;
+                    is_connected = 0;
                 }
                 break;
 
@@ -400,7 +400,6 @@ void RobotDog::run() {
                 break;
             }
         }
-
         
         if(is_running) {
             is_running = 0;
@@ -416,6 +415,7 @@ void RobotDog::run() {
         sleep(1);
         pca.set_all_pwm(0, 0);
 
+        std::cout << "Socket closed" << std::endl;
         close(fd);
     }
 
