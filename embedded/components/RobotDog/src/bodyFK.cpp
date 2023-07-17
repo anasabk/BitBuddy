@@ -278,6 +278,7 @@ void* Body::move_thread(void *param) {
     int pause_counter = 0;
     double temp_v[3];
     float prev[2];
+    bool standing = false;
     while(*run_flag) {
         if(*speed < 0.0001F && *speed > -0.0001F && *rot_rad < 0.0001F && *rot_rad > -0.0001F) {
             if(pause_counter < 2) pause_counter++;
@@ -285,10 +286,13 @@ void* Body::move_thread(void *param) {
             pause_counter = 0;
 
         if(pause_counter >= 2){
-            body->stand_up();
+            if(!standing)
+                body->stand_up();
             wait_real(300);
             continue;
         }
+
+        standing = false;
 
         if(leg_num == -1) leg_num = 0;
 
