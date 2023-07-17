@@ -15,7 +15,7 @@ void MainWindow::init()
     QGroupBox *cameraVBox = new QGroupBox(VBox1);
     QGroupBox *objDetVBox = new QGroupBox(VBox1);
     QGroupBox *buttonsHBox = new QGroupBox(VBox2);
-    pathfinding = new QLabel(VBox2);
+    QGroupBox *pathfindingVBox = new QGroupBox(VBox2);
     QGroupBox *HBox1 = new QGroupBox(VBox2);
 
     joystick = new Joystick(200, HBox1);
@@ -29,6 +29,7 @@ void MainWindow::init()
     QVBoxLayout *cameraVBoxLayout = new QVBoxLayout(cameraVBox);
     QVBoxLayout *objDetVBoxLayout = new QVBoxLayout(objDetVBox);
     QHBoxLayout *buttonsHBoxLayout = new QHBoxLayout(buttonsHBox);
+    QVBoxLayout *pathfindingVBoxLayout = new QVBoxLayout(pathfindingVBox);
     QHBoxLayout *HBox1Layout = new QHBoxLayout(HBox1);
     QVBoxLayout *switchesVBoxLayout = new QVBoxLayout(switchesVBox);
 
@@ -85,9 +86,12 @@ void MainWindow::init()
     buttonsHBoxLayout->addWidget(startPathfindingBtn);
     buttonsHBoxLayout->addWidget(stopPathfindingBtn);
 
-    VBox2Layout->addWidget(pathfinding, 0, Qt::AlignHCenter | Qt::AlignVCenter);
-    cv::Mat pgm = cv::imread("bit_buddy.pgm");
-    pathfinding->setPixmap(QPixmap::fromImage(QImage(pgm.data, pgm.cols, pgm.rows, QImage::Format_RGB888)).scaledToWidth(800));
+    QLabel *pathfindingLabel = new QLabel("Pathfinding", pathfindingVBox);
+    pathfinding = new QLabel(pathfindingVBox);
+    pathfinding->setPixmap(QPixmap::fromImage(QImage(":/camera.png")));
+
+    VBox2Layout->addWidget(pathfindingVBox, 0, Qt::AlignLeft | Qt::AlignTop);
+    pathfinding->installEventFilter(this);
     VBox2Layout->addWidget(HBox1, 0, Qt::AlignHCenter | Qt::AlignBottom);
 
     HBox1Layout->addWidget(switchesVBox, Qt::AlignVCenter);
@@ -108,6 +112,11 @@ void MainWindow::init()
     objDetVBoxLayout->addWidget(objDet);
     objDet->setStyleSheet(QString("border: 2px solid %1").arg(constants::white));
 
+    pathfindingVBoxLayout->addWidget(pathfindingLabel);
+    pathfindingLabel->setStyleSheet(QString("color: %1").arg(constants::white));
+    pathfindingVBoxLayout->addWidget(pathfinding);
+    pathfinding->setStyleSheet(QString("border: 2px solid %1").arg(constants::white));
+
     switchesVBox->stackUnder(joystick);
 
     Switch::createSwitches();
@@ -120,6 +129,20 @@ void MainWindow::init()
     }
 
     setAttribute(Qt::WA_DeleteOnClose);
+
+    if ((pathfindingServerFd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) == -1)
+        perror("[MainWindow] socket");
+
+    struct sockaddr_in serverAddress{};
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = INADDR_ANY;
+    serverAddress.sin_port = htons(constants::pathfindingPort);
+
+    if (bind(pathfindingServerFd, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1)
+        perror("[MainWindow] bind");
+
+    if (listen(pathfindingServerFd, 1) == -1)
+        perror("[MainWindow] listen");
 
     showMaximized();
 }
@@ -175,7 +198,7 @@ void MainWindow::startMapping()
     if (mappingPid == 0)
     {
         chdir("mapping");
-        execlp("./slam", "slam", "ORBvoc.txt", "mapping.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
+        execlp("./slam", "slam", "ORBvoc.txt", "slam.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
         perror("[MainWindow] execlp 1");
         _exit(127);
     }
@@ -206,7 +229,97 @@ void MainWindow::startPathfinding()
         _exit(127);
     }
     else
+    {
         enableButton(stopPathfindingBtn);
+        isPathfindingRendering.store(true);
+        pathfindingThread = std::thread(&MainWindow::renderPathfinding, this);
+    }
+}
+
+void MainWindow::renderPathfinding()
+{
+    while ((pathfindingClientFd = accept(pathfindingServerFd, nullptr, nullptr)) == -1)
+    {
+        if (errno != EAGAIN && errno != EWOULDBLOCK)
+        {
+            perror("[MainWindow] accept");
+            return;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        if (!isPathfindingRendering.load())
+            return;
+    }
+
+    while (isPathfindingRendering.load())
+    {
+        ssize_t bytesRead;
+        std::vector<uchar> buffer(constants::maxUdpBuffer);
+
+        if ((bytesRead = read(pathfindingClientFd, &buffer[0], buffer.size())) == -1)
+            perror("[MainWindow] read");
+
+        if (bytesRead == 0)
+        {
+            std::cout << "[MainWindow] Pathfinding connection closed." << std::endl;
+            break;
+        }
+
+        cv::Mat rawData = cv::Mat(buffer);
+        cv::Mat frame = cv::imdecode(rawData, cv::IMREAD_COLOR);
+        if (frame.empty())
+        {
+            std::cerr << "[MainWindow] Pathfinding frame is empty." << std::endl;
+            continue;
+        }
+
+        pathfinding->setPixmap(QPixmap::fromImage(QImage(frame.data, frame.cols, frame.rows, QImage::Format_RGB888)));
+    }
+
+    pathfindingClientFd = -1;
+}
+
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress && object == pathfinding)
+    {
+        QMouseEvent *mouseEvent = reinterpret_cast<QMouseEvent *>(event);
+
+        if (pathfindingClientFd != -1)
+        {
+            int x = mouseEvent->pos().x();
+            int y = mouseEvent->pos().y();
+            int width = pathfinding->pixmap().width();
+            int height = pathfinding->pixmap().height();
+
+            if (write(pathfindingClientFd, &x, sizeof(x)) == -1)
+            {
+                perror("[MainWindow] write 1");
+                return false;
+            }
+
+            if (write(pathfindingClientFd, &y, sizeof(y)) == -1)
+            {
+                perror("[MainWindow] write 2");
+                return false;
+            }
+
+            if (write(pathfindingClientFd, &width, sizeof(width)) == -1)
+            {
+                perror("[MainWindow] write 3");
+                return false;
+            }
+
+            if (write(pathfindingClientFd, &height, sizeof(height)) == -1)
+            {
+                perror("[MainWindow] write 4");
+                return false;
+            }
+        }
+    }
+
+    return false;
 }
 
 void MainWindow::stopMapping()
@@ -257,6 +370,9 @@ void MainWindow::stopPathfinding()
 //            perror("[MainWindow] wait 3");
 
         disableButton(stopPathfindingBtn);
+        pathfinding->setPixmap(QPixmap::fromImage(QImage(":/camera.png")));
+        isPathfindingRendering.store(false);
+        pathfindingThread.join();
 
         pathfindingPid = -1;
     }

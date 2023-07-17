@@ -30,7 +30,7 @@ void DesktopCam::runServer()
 
     while (!cap.isOpened())
     {
-        cap.open(("udp://@:" + std::to_string(constants::desktopCamPort)));
+        cap.open("udp://@:" + std::to_string(constants::desktopCamPort));
 
         if (!isServerRunning.load())
             return;

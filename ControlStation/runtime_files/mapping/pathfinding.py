@@ -8,6 +8,9 @@ import sys
 import math
 from transforms3d import quaternions
 
+print("Converting point cloud to grid map...");
+sys.stdout.flush()
+
 def get_line_bresenham(start, end):
     """Bresenham's Line Algorithm
     Produces a list of tuples from start and end
@@ -375,6 +378,11 @@ import matplotlib.image as mpimg
 import numpy as np
 from scipy.spatial import KDTree
 import time
+import socket
+from threading import Thread
+
+print("Running A* pathfinding...");
+sys.stdout.flush()
 
 show_animation = False
 
@@ -624,71 +632,100 @@ dest_pos = []
 line_objects = []
 
 
+def click(gx, gy):
+    print(f"Clicked at coordinates: x={gx}, y={gy}")
+    sys.stdout.flush()
+
+    sx, sy = robot_pos[0]
+
+    dest_pos.clear()
+    dest_pos.append((gx, gy))
+    dest_icon.set_offsets(dest_pos)
+
+    for line in line_objects:
+        line.remove()
+    line_objects.clear()
+
+    rx, ry = a_star.planning(sx, sy, gx, gy)
+    line, = plt.plot(rx, ry, "-r")
+    line_objects.append(line)
+    plt.draw()
+
+
+
+    ## GERÇEK ROBOTTA BÖYLE BİR ALGORİTMA KULLANILABİLİR
+    # if(len(rx) > 0):
+    #     while True:
+    #         robot_pos_x, robot_pos_y = get_robot_pos()
+    #         time.sleep(0.5)
+    #         robot_pos.clear()
+    #         robot_pos.append((robot_pos_x, robot_pos_y))
+    #         sx = robot_pos_x
+    #         sy = robot_pos_y
+    #         robot_icon.set_offsets(robot_pos)
+    #         plt.draw()
+    #         plt.pause(0.1)
+    #         if(destination_reached):
+    #             break
+        
+
+    ## ÖRNEK ANİMASYON
+    if(len(rx) > 0):
+        for i in range(len(rx) - 1, 0, -10):
+            robot_pos.clear()
+            robot_pos.append((rx[i], ry[i]))
+            sx = rx[i]
+            sy = ry[i]
+            robot_icon.set_offsets(robot_pos)
+            plt.draw()
+            plt.pause(0.1)
+            time.sleep(0.5)
+        if(len(rx) > 1):
+            robot_icon.set_offsets(dest_pos)
+
+
+    plt.draw()
+    print("Movement completed.")
+    sys.stdout.flush()
+
+
 def onclick(event):
-    if event.button == 1:  # Check if left mouse button is clicked
-        sx, sy = robot_pos[0]
-        gx = event.xdata
-        gy = event.ydata
-        print(f"Clicked at coordinates: x={x}, y={y}")
-        sys.stdout.flush()
-        dest_pos.clear()
-        dest_pos.append((gx, gy))
-        dest_icon.set_offsets(dest_pos)
-
-        for line in line_objects:
-            line.remove()
-        line_objects.clear()
-
-        rx, ry = a_star.planning(sx, sy, gx, gy)
-        line, = plt.plot(rx, ry, "-r")
-        line_objects.append(line)
-        plt.draw()
+    click(event.xdata, event.ydata)
 
 
-
-        ## GERÇEK ROBOTTA BÖYLE BİR ALGORİTMA KULLANILABİLİR
-        # if(len(rx) > 0):
-        #     while True:
-        #         robot_pos_x, robot_pos_y = get_robot_pos()
-        #         time.sleep(0.5)
-        #         robot_pos.clear()
-        #         robot_pos.append((robot_pos_x, robot_pos_y))
-        #         sx = robot_pos_x
-        #         sy = robot_pos_y
-        #         robot_icon.set_offsets(robot_pos)
-        #         plt.draw()
-        #         plt.pause(0.1)
-        #         if(destination_reached):
-        #             break
-            
-
-        ## ÖRNEK ANİMASYON
-        if(len(rx) > 0):
-            for i in range(len(rx) - 1, 0, -10):
-                robot_pos.clear()
-                robot_pos.append((rx[i], ry[i]))
-                sx = rx[i]
-                sy = ry[i]
-                robot_icon.set_offsets(robot_pos)
-                plt.draw()
-                plt.pause(0.1)
-                time.sleep(0.5)
-            if(len(rx) > 1):
-                robot_icon.set_offsets(dest_pos)
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect(("127.0.0.1", 8088))
 
 
-        plt.draw()
-        print("Movement completed.")
-        sys.stdout.flush()
+def receive_clicks():
+    while True:
+        gx = int.from_bytes(sock.recv(4), 'little', signed=True)
+        gy = int.from_bytes(sock.recv(4), 'little', signed=True)
+        width = int.from_bytes(sock.recv(4), 'little', signed=True)
+        height = int.from_bytes(sock.recv(4), 'little', signed=True)
+        gx = (gx / width) * max_x_range
+        gy = (gy / height) * max_y_range
+        click(gx, gy)
+        
+
+Thread(target=receive_clicks).start()
+
+
+def ondraw(event):
+    frame = cv2.cvtColor(np.asarray(fig.canvas.buffer_rgba()), cv2.COLOR_RGBA2RGB)
+    buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 50])[1].tobytes()
+    sock.sendall(buffer)
 
 
 # Register the event handler function
-cid = fig.canvas.mpl_connect('button_press_event', onclick)
+fig.canvas.mpl_connect('button_press_event', onclick)
+fig.canvas.mpl_connect('draw_event', ondraw)
 
 # Set grid and equal aspect ratio
 ax.grid(True)
 ax.axis("equal")
 
 # Display the plot
+plt.subplots_adjust(0, 0, 1, 1)
 plt.show()
 

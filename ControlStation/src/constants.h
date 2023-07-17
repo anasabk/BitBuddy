@@ -10,6 +10,7 @@ namespace constants
     constexpr int objDetPort = 8084;
     constexpr int telemetryPort = 8086;
     constexpr int mappingPort = 8087;
+    constexpr int pathfindingPort = 8088;
 
     constexpr int maxUdpBuffer = 65507;
     constexpr int targetFps = 30;

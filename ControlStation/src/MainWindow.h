@@ -68,6 +68,13 @@ private:
     void disableButton(QPushButton *btn);
 
     QLabel *pathfinding;
+    int pathfindingServerFd = -1;
+    int pathfindingClientFd = -1;
+    std::thread pathfindingThread;
+    std::atomic<bool> isPathfindingRendering = false;
+    void renderPathfinding();
+
+    bool eventFilter(QObject *object, QEvent *event) override;
 
     pid_t mappingPid = -1;
     pid_t pathfindingPid = -1;
