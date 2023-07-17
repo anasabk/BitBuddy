@@ -90,6 +90,7 @@ private:
     static void* HCSR04_thread(void*);
     static void* control_thread(void *param);
     static void* telem_thread(void *param);
+    static void* pos_thread(void *param);
 
     enum symb {
         UNKNOWN = -1,

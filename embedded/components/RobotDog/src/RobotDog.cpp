@@ -81,6 +81,47 @@ void* RobotDog::telem_thread(void *param) {
     pthread_exit(NULL);
 }
 
+void* RobotDog::pos_thread(void *param) {
+    RobotDog *robot = (RobotDog*)param;
+
+	struct sched_param sched;
+    sched.sched_priority = 99; // Set priority to maximum
+    if (sched_setscheduler(0, SCHED_FIFO, &sched) != 0) {
+        std::cerr << "sched_setscheduler error!" << std::endl;
+        return NULL;
+    }
+
+    // Telemetry socket
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(TELEM_PORT);
+    addr.sin_addr.s_addr = inet_addr(robot->cs_addr);
+
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if(fd < 0)  {
+        perror("position socket creation failed");
+        return NULL;
+    }
+
+    float last_pos[2] = {0.0F, 0.0F};
+    float last_vel[2] = {0.0F, 0.0F};
+    float last_dir[2] = {0.0F, 0.0F};
+    const float dt = 0.01F;
+    while(is_running) {
+        last_pos[0] += last_vel[0] * dt + 0.5F * robot->sensor_data.mpu_buff.x_accel * pow(dt, 2);
+        last_pos[1] += last_vel[1] * dt + 0.5F * robot->sensor_data.mpu_buff.y_accel * pow(dt, 2);
+
+        last_vel[0] += robot->sensor_data.mpu_buff.x_accel * dt;
+        last_vel[1] += robot->sensor_data.mpu_buff.y_accel * dt;
+        
+        last_dir[0] += robot->sensor_data.mpu_buff.x_rot * dt;
+        last_dir[1] += robot->sensor_data.mpu_buff.y_rot * dt;
+    }
+
+    close(fd);
+    pthread_exit(NULL);
+}
+
 void sigpipe_handler(int sig) {
     is_connected = 0; 
 }
