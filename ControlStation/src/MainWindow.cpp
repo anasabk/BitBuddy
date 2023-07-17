@@ -198,7 +198,7 @@ void MainWindow::startMapping()
     if (mappingPid == 0)
     {
         chdir("mapping");
-        execlp("./slam", "slam", "ORBvoc.txt", "slam.yaml", std::to_string(constants::mappingPort).c_str(), (char*)NULL);
+        execlp("./slam", "slam", (char*)NULL);
         perror("[MainWindow] execlp 1");
         _exit(127);
     }
