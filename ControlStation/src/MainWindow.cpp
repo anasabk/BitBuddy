@@ -206,6 +206,7 @@ void MainWindow::startMapping()
     {
         enableButton(stopMappingBtn);
         enableButton(killMappingBtn);
+        disableButton(startMappingBtn);
     }
 }
 
@@ -231,6 +232,7 @@ void MainWindow::startPathfinding()
     else
     {
         enableButton(stopPathfindingBtn);
+        disableButton(startPathfindingBtn);
         isPathfindingRendering.store(true);
         pathfindingThread = std::thread(&MainWindow::renderPathfinding, this);
     }
@@ -333,11 +335,10 @@ void MainWindow::stopMapping()
 //        if (wait(NULL) == -1)
 //            perror("[MainWindow] wait 1");
 
-        disableButton(stopMappingBtn);
-        disableButton(killMappingBtn);
-
-        mappingPid = -1;
+//        mappingPid = -1;
     }
+
+    enableButton(startMappingBtn);
 }
 
 void MainWindow::killMapping()
@@ -348,14 +349,15 @@ void MainWindow::killMapping()
 
         if (kill(mappingPid, SIGKILL) == -1)
             perror("[MainWindow] kill 2");
-//        if (wait(NULL) == -1)
-//            perror("[MainWindow] wait 2");
-
-        disableButton(stopMappingBtn);
-        disableButton(killMappingBtn);
+        if (wait(NULL) == -1)
+            perror("[MainWindow] wait 2");
 
         mappingPid = -1;
     }
+
+    disableButton(stopMappingBtn);
+    disableButton(killMappingBtn);
+    enableButton(startMappingBtn);
 }
 
 void MainWindow::stopPathfinding()
@@ -366,16 +368,19 @@ void MainWindow::stopPathfinding()
 
         if (kill(pathfindingPid, SIGKILL) == -1)
             perror("[MainWindow] kill 3");
-//        if (wait(NULL) == -1)
-//            perror("[MainWindow] wait 3");
+        if (wait(NULL) == -1)
+            perror("[MainWindow] wait 3");
 
-        disableButton(stopPathfindingBtn);
         pathfinding->setPixmap(QPixmap::fromImage(QImage(":/camera.png")));
+
         isPathfindingRendering.store(false);
         pathfindingThread.join();
 
         pathfindingPid = -1;
     }
+
+    disableButton(stopPathfindingBtn);
+    enableButton(startPathfindingBtn);
 }
 
 void MainWindow::setSizes()
