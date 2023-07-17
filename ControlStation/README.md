@@ -31,5 +31,7 @@ You can toggle the switches by clicking on them or pressing number keys. You can
 ### Pathfinding Usage
 
 When you click "Start Pathfinding", a 2D map is created and a path planning interface is displayed on a separate window and also the UI. On this interface, yellow fields are empty spaces, purple areas are obstacles and the red star is the position of the robot.
+
 On the interface, firstly, the user can determine the initial position of the robot by pressing the right mouse click on map (currently only works on the separate window). Then, the user selects the desired destination by left mouse click on map. Finally, the path planning algorithm starts working.
+
 If the destination is on a reachable position, the algorithm finds the path and the movement simulation is started. The robot reaches the destination specified by the blue star by following the identified path. If the destination is not reachable, the blue star is placed without displaying any path and “open set is empty” message is displayed on terminal.
