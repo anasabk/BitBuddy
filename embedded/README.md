@@ -6,8 +6,6 @@ For matrix computations.
 libcamera-vid app is used to stream video footage.
 ### Pigpio
 For getting input from HC-SR04 sensors.
-### Pigpio
-For getting input from HC-SR04 sensors.
 ### libi2c-dev
 To control I2C devices onboard.
 
