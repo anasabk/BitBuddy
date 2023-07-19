@@ -10,7 +10,7 @@ For getting input from HC-SR04 sensors.
 To control I2C devices onboard.
 
 
-## Building:
+## Building and Launching:
 ```
 git clone https://github.com/anasabk/BitBuddy 
 mkdir build
