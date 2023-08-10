@@ -198,7 +198,7 @@ void MainWindow::startMapping()
     if (mappingPid == 0)
     {
         chdir("mapping");
-        execlp("./slam", "slam", (char*)NULL);
+        execlp("./slam", "slam", "ORBvoc.txt", "slam.yaml", "udp://@:" + constants::mappingPort, (char*)NULL);
         perror("[MainWindow] execlp 1");
         _exit(127);
     }

@@ -25,63 +25,53 @@
 #include <iostream>
 
 #include <opencv2/core/core.hpp>
-#include <csignal>
+
 #include <System.h>
+#include <csignal>
 
 using namespace std;
+
 int flag = 1;
-int counter = 0;
-ORB_SLAM3::System SLAM("Vocabulary/ORBvoc.txt", "./Examples/Monocular/TUM1.yaml", ORB_SLAM3::System::MONOCULAR, true);
 
 void signalHandler(int signum) {
-    if(counter == 0){
-        // Save 3D points and timestamps of all keyframes they are visible in
-        SLAM.getMap()->GetCurrentMap()->SaveWithTimestamps("kitti_map_pts_and_keyframes.txt");
-        // Save 3D points as obj file
-        SLAM.getMap()->GetCurrentMap()->Save("kitti_map_pts_out.obj");
-
-        // Save camera trajectory
-        SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
-        std:: cout<<"All files write to file"<<std::endl;
-        counter ++;
-    }else{
-        exit(0);
-    }
-    
+    flag = 0;
 }
+
 
 int main(int argc, char **argv) {
     signal(SIGINT, signalHandler);
-    if(argc != 3)
+
+    if(argc < 4)
     {
-        cerr << endl << "argc:" << argc << "!= 3"<< endl;
+        cerr << "[Mapping] Too few arguments. Usage: bit_buddy <voc-file> <yaml-file> <video-address>" << endl;
+        exit(EXIT_FAILURE);
     }
 
     // open settings to get image resolution
     cv::FileStorage fsSettings(argv[2], cv::FileStorage::READ);
     if(!fsSettings.isOpened()) {
-        cerr << "Failed to open settings file at: " << argv[2] << endl;
+        cerr << "[Mapping] Failed to open settings file at: " << argv[2] << endl;
         exit(-1);
     }
     fsSettings.release();
-    
+
     // Retrieve paths to images
     vector<double> vTimestamps;
     // Create SLAM system. It initializes all system threads and gets ready to
     // process frames.
-    
+    ORB_SLAM3::System SLAM(argv[1], argv[2], ORB_SLAM3::System::MONOCULAR, true);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
-    cv::VideoCapture cap("udp://@:8087");
+    cv::VideoCapture cap(argv[3]);
     // Check if camera opened successfully
     if (!cap.isOpened()) {
-        std::cout << "Error opening video stream or file" << endl;
+        std::cout << "[Mapping] Error opening video stream or file" << endl;
         return -1;
     }
 
     // Main loop
-    
+
     int cnt_empty_frame = 0;
     int img_id = 0;
     int nImages = cap.get(cv::CAP_PROP_FRAME_COUNT);
@@ -89,20 +79,19 @@ int main(int argc, char **argv) {
     double frame_diff_s = 1./fps;
     double start = chrono::duration_cast<chrono::duration<double, std::milli>>(chrono::system_clock::now().time_since_epoch()).count();
     while (flag) {
-        
         cv::Mat im,im_track;
         bool success = cap.read(im);
         if (!success) {
             cnt_empty_frame++;
-            std::cout<<"Empty frame...\n";
+            std::cout<<"[Mapping] Empty frame...\n";
             if (cnt_empty_frame > 100)
                 break;
             continue;
         }
-        cv::imshow("Live", im);
         im_track = im.clone();
+        
         double tframe = chrono::duration_cast<chrono::duration<double, std::milli>>(chrono::system_clock::now().time_since_epoch()).count() - start;
-        std::cout << "timestamp: " << tframe << std::endl;
+        std::cout << "[Mapping] timestamp: " << tframe << std::endl;
         time(NULL);
         ++img_id;
 
@@ -126,8 +115,8 @@ int main(int argc, char **argv) {
                 .count();
 
         if (img_id % 100 == 0) {
-            std::cout<<"Video FPS: "<<1./frame_diff_s<<"\n";
-            std::cout<<"ORB-SLAM 3 running at: "<<1./ttrack<< " FPS\n";
+            std::cout<<"[Mapping] Video FPS: "<<1./frame_diff_s<<"\n";
+            std::cout<<"[Mapping] ORB-SLAM 3 running at: "<<1./ttrack<< " FPS\n";
         }
         vTimesTrack.push_back(ttrack);
 
@@ -138,18 +127,28 @@ int main(int argc, char **argv) {
 
     //    // Stop all threads
     SLAM.Shutdown();
+    std::cout << "[Mapping] shutting down" << std::endl;
 
     // Tracking time statistics
-    sort(vTimesTrack.begin(), vTimesTrack.end());
-    float totaltime = 0;
-    for (auto ni = 0; ni < vTimestamps.size(); ni++) {
-        totaltime += vTimesTrack[ni];
-    }
-    cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
-    cout << "mean tracking time: " << totaltime / nImages << endl;
-    
-    
+    // sort(vTimesTrack.begin(), vTimesTrack.end());
+    // float totaltime = 0;
+    // for (auto ni = 0; ni < vTimestamps.size(); ni++) {
+    //     totaltime += vTimesTrack[ni];
+    // }
+    // cout << "-------" << endl << endl;
+    // cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
+    // cout << "mean tracking time: " << totaltime / nImages << endl;
+
+    // Save 3D points and timestamps of all keyframes they are visible in
+    SLAM.getMap()->GetCurrentMap()->SaveWithTimestamps("bit_buddy_map_pts_and_keyframes.txt");
+    std::cout << "[Mapping] bit_buddy_map_pts_and_keyframes written" << std::endl;
+    // Save 3D points as obj file
+    SLAM.getMap()->GetCurrentMap()->Save("bit_buddy_map_pts_out.obj");
+    std::cout << "[Mapping] bit_buddy_map_pts_out written" << std::endl;
+
+    // Save camera trajectory
+    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+    std::cout << "[Mapping] KeyFrameTrajectory written" << std::endl;
 
     return 0;
 }
